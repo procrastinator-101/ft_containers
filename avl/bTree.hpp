@@ -4,7 +4,6 @@
 #include <iostream>
 #include <ostream>
 
-#define COUNT 10
 
 class bTree
 {
@@ -37,7 +36,21 @@ class bTree
 };
 
 
-std::ostream &operator<<(std::ostream& ostr, const bTree& root);
-void print2DUtil(std::ostream& ostr, const bTree *root, int space);
+std::ostream &operator<<(std::ostream& ostr, bTree& root);
+void printBT(std::ostream& ostr, const std::string& prefix, const bTree *node, bool isLeft);
+
+struct Trunk
+{
+    Trunk		*prev;
+    std::string	str;
+ 
+    Trunk(Trunk *prev, std::string str)
+    {
+        this->prev = prev;
+        this->str = str;
+    }
+};
+
+void printTree(std::ostream& ostr, bTree* root, Trunk *prev, bool isLeft);
 
 #endif

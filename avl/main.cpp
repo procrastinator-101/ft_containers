@@ -15,5 +15,10 @@ int main(int argc, char **argv)
     }
 
     std::cout << (*root) << std::endl;
+
+	root->erase(*node);
+	delete node;
+
+	std::cout << (*root) << std::endl;
     return 0;
 }
