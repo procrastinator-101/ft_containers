@@ -1,7 +1,7 @@
 #include "bTree.hpp"
 
 
-bTree::bTree() : _value(0), _left(0), _right(0), _parent(0)
+bTree::bTree() : _value(0), _leftHeight(0), _rightHeight(0), _left(0), _right(0), _parent(0)
 {
 }
 
@@ -9,21 +9,54 @@ bTree::~bTree()
 {
 }
 
-bTree::bTree(int value, bTree *left, bTree *right, bTree *parent) : _value(value), _left(left), _right(right), _parent(parent)
+bTree::bTree(int value, bTree *left, bTree *right, bTree *parent) : _value(value), _leftHeight(0), _rightHeight(0), _left(left), _right(right), _parent(parent)
 {
 }
 
-bTree::bTree(const bTree& src) : _value(src.getValue()), _left(src.getLeft()), _right(src.getRight()), _parent(src.getParent())
+bTree::bTree(const bTree& src) : _value(src.getValue()), _leftHeight(src.getLeftHeight()), _rightHeight(src.getRightHeight()), _left(src.getLeft()), _right(src.getRight()), _parent(src.getParent())
+{
+}
+
+bTree::bTree(int value) : _value(value), _leftHeight(0), _rightHeight(0), _left(0), _right(0), _parent(0)
 {
 }
 
 bTree   &bTree::operator=(const bTree& rhs)
 {
+    this->_value = rhs.getValue();
+    this->_leftHeight = rhs.getLeftHeight();
+    this->_rightHeight = rhs.getRightHeight();
+
     this->_left = rhs.getLeft();
     this->_right = rhs.getRight();
     this->_parent = rhs.getParent();
-    this->_value = rhs.getValue();
     return *this;
+}
+
+void    bTree::balance()
+{
+    int balanceFactor;
+    int subBalanceFactor;
+
+    balanceFactor = this->getBalanceFactor();
+    if (abs(balanceFactor) < 2)
+        return ;
+    if (balanceFactor < 0)
+    {
+        subBalanceFactor = this->_left->getBalanceFactor();
+        if (subBalanceFactor < 0)
+            this->llRotate();
+        else
+            this->lrRotate();
+    }
+    else
+    {
+        subBalanceFactor = this->_right->getBalanceFactor();
+        if (subBalanceFactor < 0)
+            this->rlRotate();
+        else
+            this->rrRotate();
+    }
 }
 
 void    bTree::insert(bTree& node)
@@ -50,6 +83,8 @@ void    bTree::insert(bTree& node)
             node.setParent(this);
         }
     }
+    this->updateCounts();
+    this->balance();
 }
 
 void    bTree::erase(bTree& node)
@@ -74,84 +109,131 @@ void    bTree::erase(bTree& node)
         if (this->_left)
             this->_left->erase(node);
     }
+    this->updateCounts();
 }
 
 void    bTree::llRotate()
 {
-    //replace the current node with left node
-    this->_left->setParent(this->_parent);
+    bTree   *root;
+
+    root = this->_left;
+    //replace the current node with the root
+    root->setParent(this->_parent);
     if (this->_value < this->_parent->getValue())
-        this->_parent->setLeft(this->_left);
+        this->_parent->setLeft(root);
     else
-        this->_parent->setRight(this->_left);
-    //make the current node the right child of the left node
-    this->_parent = this->_left;
-    this->_left = this->_parent->getRight();
-    this->_parent->setRight(this);
+        this->_parent->setRight(root);
+    //make the current node the right child of the root
+    this->_parent = root;
+    this->_left = root->getRight();
+    root->setRight(this);
+    //update the height of root and its right child
+    root->getRight()->updateCounts();
+    root->updateCounts();
 }
 
 void    bTree::rrRotate()
 {
-    //replace the current node with right node
-    this->_right->setParent(this->_parent);
+    bTree   *root;
+
+    root = this->_right;
+    //replace the current node with the root
+    root->setParent(this->_parent);
     if (this->_value < this->_parent->getValue())
-        this->_parent->setLeft(this->_right);
+        this->_parent->setLeft(root);
     else
-        this->_parent->setRight(this->_right);
-    //make the current node the left child of the left node
-    this->_parent = this->_right;
-    this->_right = this->_parent->getLeft();
-    this->_parent->setLeft(this);
+        this->_parent->setRight(root);
+    //make the current node the left child of the root
+    this->_parent = root;
+    this->_right = root->getLeft();
+    root->setLeft(this);
+    //update the height of root and its left child
+    root->getLeft()->updateCounts();
+    root->updateCounts();
 }
 
 void    bTree::lrRotate()
 {
-    bTree   *nail;
+    bTree   *root;
 
-    nail = this->_left;
-    //turn the lrImbalance to llImbalance
-    this->_left = nail->getRight();
-    nail->_left->setParent(this);
-    nail->setParent(this->_left);
-    nail->setRight(this->_left->getLeft());
-    this->_left->setLeft(nail);
-    //llImbalance achieved
-    this->llRotate();
+    root = this->_left->getRight();
+    //replace the current node with the right child of its left child
+    root->setParent(this->_parent);
+    if (this->_value < this->_parent->getValue())
+        this->_parent->setLeft(root);
+    else
+        this->_parent->setRight(root);
+    //adjsut the left child of the root
+    this->_left->setRight(root->getLeft());
+    root->getLeft()->setParent(this->_left);
+    root->setLeft(this->_left);
+    this->_left->setParent(root);
+    //adjust the right child of the root
+    this->_left = root->getRight();
+    this->_left->setParent(this);
+    root->setRight(this);
+    this->_parent = root;
+    //update the height of root and its childs
+    root->getLeft()->updateCounts();
+    root->getRight()->updateCounts();
+    root->updateCounts();
 }
 
 void    bTree::rlRotate()
 {
-    bTree   *nail;
+    bTree   *root;
 
-    nail = this->_right;
-    //turn the rlImbalance to rrImbalance
-    this->_right = nail->getLeft();
-    nail->_right->setParent(this);
-    nail->setParent(this->_right);
-    nail->setLeft(this->_right->getRight());
-    this->_right->setRight(nail);
-    //rrImbalance achieved
-    this->rrRotate();
+    root = this->_right->getLeft();
+    //replace the current node with the right child of its left child
+    root->setParent(this->_parent);
+    if (this->_value < this->_parent->getValue())
+        this->_parent->setLeft(root);
+    else
+        this->_parent->setRight(root);
+    //adjsut the right child of the root
+    this->_right->setLeft(root->getRight());
+    root->getRight()->setParent(this->_right);
+    root->setRight(this->_right);
+    this->_right->setParent(root);
+    //adjsut the left child of the root
+    this->_right = root->getLeft();
+    this->_right->setParent(this);
+    root->setLeft(this);
+    this->_parent = root;
+    //update the height of root and its childs
+    root->getLeft()->updateCounts();
+    root->getRight()->updateCounts();
+    root->updateCounts();
 }
 
-void    bTree::setValue(int value)
+void    bTree::updateCounts()
 {
-    this->_value = value;
+    if (this->_left)
+        this->_leftHeight = std::max(this->_left->getLeftHeight(), this->_left->getRightHeight()) + 1;
+    else
+        this->_leftHeight = 0;
+    if (this->_right)
+        this->_rightHeight = std::max(this->_right->getLeftHeight(), this->_right->getRightHeight()) + 1;
+    else
+        this->_rightHeight = 0;
 }
 
-void    bTree::setLeft(bTree *left)
+int   bTree::getValue() const
 {
-    this->_left = left;
+    return this->_value;
 }
 
-void    bTree::setRight(bTree *right)
+int   bTree::getLeftHeight() const
 {
-    this->_right = right;
+    return this->_leftHeight;
 }
-
-void    bTree::setParent(bTree *parent)
+int   bTree::getRightHeight() const
 {
-    this->_parent = parent;
+    return this->_rightHeight;
+}
+int   bTree::getBalanceFactor() const
+{
+    return this->_leftHeight - this->_rightHeight;
 }
 
 bTree *bTree::getLeft() const
@@ -169,10 +251,35 @@ bTree *bTree::getParent() const
     return this->_parent;
 }
 
-int   bTree::getValue() const
+void    bTree::setValue(int value)
 {
-    return this->_value;
+    this->_value = value;
 }
+void    bTree::setLeftHeight(int leftHeight)
+{
+    this->_leftHeight = leftHeight;
+}
+
+void    bTree::setRightHeight(int rightHeight)
+{
+    this->_rightHeight = rightHeight;
+}
+
+void    bTree::setLeft(bTree *left)
+{
+    this->_left = left;
+}
+
+void    bTree::setRight(bTree *right)
+{
+    this->_right = right;
+}
+
+void    bTree::setParent(bTree *parent)
+{
+    this->_parent = parent;
+}
+
 
 std::ostream &operator<<(std::ostream& ostr, bTree& root)
 {
