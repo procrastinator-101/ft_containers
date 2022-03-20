@@ -1,6 +1,5 @@
 #include "bTree.hpp"
 
-#define COUNT 10
 
 bTree::bTree() : _value(0), _left(0), _right(0), _parent(0)
 {
@@ -36,14 +35,20 @@ void    bTree::insert(bTree& node)
         if (this->_right)
             this->_right->insert(node);
         else
+        {
             this->_right = &node;
+            node.setParent(this);
+        }
     }
     else
     {
         if (this->_left)
             this->_left->insert(node);
         else
+        {
             this->_left = &node;
+            node.setParent(this);
+        }
     }
 }
 
@@ -51,10 +56,13 @@ void    bTree::erase(bTree& node)
 {
     if (this->_value == node.getValue())
     {
-        if (this->_value < this->_parent->getValue())
-            this->_parent->setLeft(0);
-        else
-            this->_parent->setRight(0);
+        if (this->_parent)
+        {
+            if (this->_value < this->_parent->getValue())
+                this->_parent->setLeft(0);
+            else
+                this->_parent->setRight(0);
+        }
     }
     else if (this->_value < node.getValue())
     {
@@ -68,6 +76,63 @@ void    bTree::erase(bTree& node)
     }
 }
 
+void    bTree::llRotate()
+{
+    //replace the current node with left node
+    this->_left->setParent(this->_parent);
+    if (this->_value < this->_parent->getValue())
+        this->_parent->setLeft(this->_left);
+    else
+        this->_parent->setRight(this->_left);
+    //make the current node the right child of the left node
+    this->_parent = this->_left;
+    this->_left = this->_parent->getRight();
+    this->_parent->setRight(this);
+}
+
+void    bTree::rrRotate()
+{
+    //replace the current node with right node
+    this->_right->setParent(this->_parent);
+    if (this->_value < this->_parent->getValue())
+        this->_parent->setLeft(this->_right);
+    else
+        this->_parent->setRight(this->_right);
+    //make the current node the left child of the left node
+    this->_parent = this->_right;
+    this->_right = this->_parent->getLeft();
+    this->_parent->setLeft(this);
+}
+
+void    bTree::lrRotate()
+{
+    bTree   *nail;
+
+    nail = this->_left;
+    //turn the lrImbalance to llImbalance
+    this->_left = nail->getRight();
+    nail->_left->setParent(this);
+    nail->setParent(this->_left);
+    nail->setRight(this->_left->getLeft());
+    this->_left->setLeft(nail);
+    //llImbalance achieved
+    this->llRotate();
+}
+
+void    bTree::rlRotate()
+{
+    bTree   *nail;
+
+    nail = this->_right;
+    //turn the rlImbalance to rrImbalance
+    this->_right = nail->getLeft();
+    nail->_right->setParent(this);
+    nail->setParent(this->_right);
+    nail->setLeft(this->_right->getRight());
+    this->_right->setRight(nail);
+    //rrImbalance achieved
+    this->rrRotate();
+}
 
 void    bTree::setValue(int value)
 {
@@ -104,37 +169,21 @@ bTree *bTree::getParent() const
     return this->_parent;
 }
 
-const int   bTree::getValue() const
+int   bTree::getValue() const
 {
     return this->_value;
 }
 
 std::ostream &operator<<(std::ostream& ostr, bTree& root)
 {
-	// printBT(ostr, "", &root, false);
 	printTree(ostr, &root, nullptr, false);
 	return ostr;
 }
 
-void printBT(std::ostream& ostr, const std::string& prefix, const bTree *node, bool isLeft)
-{
-    if( node != nullptr )
-    {
-        std::cout << prefix;
 
-        std::cout << (isLeft ? "├──" : "└──" );
-
-        // print the value of the node
-        ostr << node->getValue() << std::endl;
-
-        // enter the next tree level - left and right branch
-        printBT(ostr, prefix + (isLeft ? "│   " : "    "), node->getLeft(), true);
-        printBT(ostr, prefix + (isLeft ? "│   " : "    "), node->getRight(), false);
-    }
-}
-
- 
-// Helper function to print branches of the binary tree
+/////////////////////////////////////////////////////////////////////////////////////////////////////
+/// External
+/////////////////////////////////////////////////////////////////////////////////////////////////////
 void showTrunks(std::ostream& ostr, Trunk *p)
 {
     if (p == nullptr) {
@@ -179,3 +228,7 @@ void printTree(std::ostream& ostr, bTree* root, Trunk *prev, bool isLeft)
  
     printTree(ostr, root->getLeft(), trunk, false);
 }
+
+/////////////////////////////////////////////////////////////////////////////////////////////////////
+/// External
+/////////////////////////////////////////////////////////////////////////////////////////////////////

@@ -1,0 +1,230 @@
+use copyConstructor inside of assignment operator :
+    pro : 
+        -   no code reduncdancy
+        -   efficient
+        -   clean : if the object has an instance of another class, the destructor is called when the argument is out of scope.
+    cons :
+        -   memory of the new objet will be allocated before the old one will be released
+        -   the right operand must be passed by value
+        -   the need to swap
+
+use of assignment operator inside of copyConstructor :
+    pro :
+        -   node code reduncdancy
+    cons :
+        -   if the object has an instance of another class, the subobject will be initialised twice (++during is default constructor).
+
+
+Copy elision : POD copy
+
+///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+inheritance : 
+
+order of constructor execution :
+    -   virtual base classes
+    -   non-virtual base class
+    -   non-static data members
+    -   the body of the constructor
+
+
+the cases discussed here assume that no function is declared as virtual :
+    CASE 1:
+        -   base and derived have a member function with the same identifier : the derived one hides the base one;
+        -   base and derived have a data member with the same identifier : the derived one hides the base one;
+        --> to access the base one use the resolution operator (derivedObject.base::member), a refrence or a pointer
+        
+    CASE 2:
+        -   base classes have a member with the same identifier : confusion -> compile error
+        --> use pointers, refrences or scope resolution operator
+
+
+N.B :
+    Name resolution :
+        1.  the name lookup
+        2.  overloading resolution
+        3.  access control;
+
+Unqualified lookup :
+    -   names NOT on the right of the scope resolution operator ::
+Qualified name lookup :
+    -   names on the right of the scope resolution operator ::
+    -   looked for among : namespaces, class names, enums, templates 
+///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+There is no need to use a virtual destructor when any of the below is true:
+    -   No intention to derive classes from it
+    -   No instantiation on the heap (ex: dog  = new animal())
+    -   No intention to store in a pointer of a superclass
+
+
+override:
+    -   helps in debugging. if a function is intended to be ana override but no overriden function is present, the compiler throws an error.
+
+final :
+    -   prevent a class from being inherited.
+    -   a virtual function from being overriden.
+
+
+Best practice :
+    -   Use the virtual keyword on virtual functions in a base class. Use the override specifier (but not the virtual keyword) 
+        on override functions in derived classes.
+
+
+
+
+if a virtual function returns a pointer to a derived type, the return pointer is resolved as to the static type of the pointer initiating the call.
+Ex: https://www.learncpp.com/cpp-tutorial/the-override-and-final-specifiers-and-covariant-return-types/
+
+
+Virtual destructor:
+    -   all inherited class will have vitual destructors.
+    -   when empty, it can be assigned default --> ~className() = default.
+
+
+
+Dispatch mecanism : _ptr->_function
+    -   look for _function in the static type of _ptr :
+        +   if _ptr doesn't have a function that matches _function, a compile time error is thrown.
+        +   if _ptr has a function that matches _function, it checks if it is virtual :
+            *   if virtual, the compiler resolve it through the virtual table.
+            *   otherwise call _ptr_static_type::_function
+
+
+
+if a class has a using declaration of a base _Base class member function _Base::foo, and doesn't override foo but has a base class that has a virtual foo function; then:
+    -   if _Base::foo is virtual, then the call is virtual --> the final overrider of foo is executed
+    -   if _Base::foo is non-virtual, then _Base::foo is executed.
+
+
+
+object Virtual Call :
+    -   if a virtual class A is inherited by multiple classes (say B, C) and those classes were inherited 
+        by a class D and D makes a virtual function A::f visible through 'using-declaration'
+        then a call to an object d of class D, i.e d.f() will be resolved through the state of the virtual table 
+        of the class constructed fisrt.
+    -   However a call through refrence or pointer will always be resolved to the final overrider in D.
+    Ex1 : samples/inheritance/mutiples/objectVirtualCall1
+        -   E.f() virtual call to E.C::f()
+        -   if E was declaring B::f instead of A::f then :
+            *   E.f() -> E.C::f()
+            *   E.f() -> E.B::f() if D were to be constructed first.
+    Ex2: samples/inheritance/mutiples/objectVirtualCall2
+/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+Covariance :
+    a base object can be assigned an object of a derived class of that object.
+    Ex: fruit = mango
+
+Contravariance :
+    Ex : a derived object can be assigned an object of a base class.
+
+Byvariance :
+    base type and derived type can interchangeably assigned to each other.
+
+Invariance :
+    no type substitution is possible between a base type and a derived type.
+
+
+///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+Pointer to member :
+    a data structure that stores :
+        -   data members : the offset to the member;
+        -   member functions :
+            +   non-virtual function : address to the functions
+            +   virtual : offset to the address in the vtable
+
+
+///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+Exception :
+    -   Destructors are only called for object that were completely constructor 
+        Ex. an exception accured during its construction.
+
+Destructors may not throw because they are by default noexcept
+
+
+///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+Nested classes :
+    *   Declarations in a nested class can use only type names, static members, and enumerators from the enclosing class.
+    *   Nested class declarations obey member access specifiers, a private member class cannot be named outside the scope 
+        of the enclosing class, although objects of that class may be manipulated
+
+///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+cast types:
+    -   conversion
+    -   reinterpretation
+        -   qualifier reinterpretation
+        -   upcast & downcast
+
+c++ cast types:
+    -   static_cast
+    -   reinterpret_cast
+    -   const_cast
+    -   dynamic cast
+
+dynamic cast :
+    -   pointer and refrences
+    -   polymorphic types only (classes with base classes having at least one virtual function)
+    *   upon failure it throws an a bad_cast exception when the expression is a refrence, and returns 
+        null when used with pointers.
+        
+
+static_cast :
+    -   prevents from converting two unrelated types.
+
+exlicit keyword
+
+
+///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+object Virtual Call :
+    -   if a virtual class A is inherited by multiple classes (say B, C) and those classes were inherited 
+        by a class D and D makes a virtual function A::f visible through 'using-declaration'
+        then a call to an object d of class D, i.e d.f() will be resolved through the state of the virtual table 
+        of the class constructed fisrt.
+    -   However a call through refrence or pointer will always be resolved to the final overrider in D.
+
+    Ex1 : samples/inheritance/mutiples/objectVirtualCall1
+        -   E.f() virtual call to E.C::f()
+        -   if E was declaring B::f instead of A::f then :
+            *   E.f() -> E.C::f()
+            *   E.f() -> E.B::f() if D were to be constructed first.
+    
+    Ex2: samples/inheritance/mutiples/objectVirtualCall2
+
+
+///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+calling a template function :
+    -   foo<types>(args)
+        does not look for explicit specific functions written in the old style.
+    -   foo<>(args)
+        deduces the right specific function to call. It does not look for explicit 
+        specific functions written in the old style.
+    -   foo(args)
+        deduces the right specific function to call (explicit specific functions are included).
+
+
+using NewTypeName = typeName;    ---> tyepedef typeName NewTypeName;
+
+
+-   template class : instantiation of a class template
+-   template function : instantiation of a function template
+
+Member template :
+    -   member function template.
+    -   nested class template.
+
+
+-   Local classes are not allowed to have member templates.
+
+
+-   Member template functions cannot be virtual functions and cannot override virtual 
+    functions from a base class when they are declared with the same name as a base class 
+    virtual function.
+
+typeof : a Gcc extension that work like typeid but just at compile-time.
+
+
+-   defining a member function of a class template : use type<> for scope (mandatory).
+
+///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
