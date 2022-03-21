@@ -33,31 +33,10 @@ bTree   &bTree::operator=(const bTree& rhs)
 	return *this;
 }
 
-void    bTree::balance()
-{
-	int balanceFactor;
-	int subBalanceFactor;
 
-	balanceFactor = this->getBalanceFactor();
-	if (abs(balanceFactor) < 2)
-		return ;
-	if (balanceFactor < 0)
-	{
-		subBalanceFactor = this->_right->getBalanceFactor();
-		if (subBalanceFactor < 0)
-			this->rrRotate();
-		else if (subBalanceFactor > 0)
-			this->rlRotate();
-	}
-	else
-	{
-		subBalanceFactor = this->_left->getBalanceFactor();
-		if (subBalanceFactor < 0)
-			this->lrRotate();
-		else if (subBalanceFactor > 0)
-			this->llRotate();
-	}
-}
+/////////////////////////////////////////////////////////////////////////////////////////////////////
+/// Tree manipulation functions
+/////////////////////////////////////////////////////////////////////////////////////////////////////
 
 void    bTree::insert(bTree& node)
 {
@@ -87,6 +66,86 @@ void    bTree::insert(bTree& node)
 	this->balance();
 }
 
+//delete a node from the tree
+void    bTree::erase(int value)
+{
+	bTree	*parent;
+	bTree	*candidate;
+
+	if (this->_value == value)
+	{
+		//the to-delete node has a both childs
+		if (this->_left && this->_right)
+		{
+			candidate = this->getInOrderSuccessor();
+			this->swap(candidate);
+			candidate->updateCounts();
+		}
+		parent = this->_parent;
+		//the to-delete node has no children
+		if (!this->_left && !this->_right)
+			this->isolate();
+		//the to-delete node has a left child only
+		else if (this->_left)
+			this->replace(this->_left);
+		//the to-delete node has a right child only
+		else if (this->_right)
+			this->replace(this->_right);
+		while (parent)
+		{
+			parent->updateCounts();
+			parent->balance();
+			parent = parent->_parent;
+		}
+	}
+	else if (this->_value < value)
+	{
+		if (this->_right)
+			this->_right->erase(value);
+	}
+	else
+	{
+		if (this->_left)
+			this->_left->erase(value);
+	}
+}
+
+void    bTree::balance()
+{
+	int balanceFactor;
+	int subBalanceFactor;
+
+	balanceFactor = this->getBalanceFactor();
+	if (abs(balanceFactor) < 2)
+		return ;
+	if (balanceFactor < 0)
+	{
+		subBalanceFactor = this->_right->getBalanceFactor();
+		if (subBalanceFactor < 0)
+			this->rrRotate();
+		else if (subBalanceFactor > 0)
+			this->rlRotate();
+	}
+	else
+	{
+		subBalanceFactor = this->_left->getBalanceFactor();
+		if (subBalanceFactor < 0)
+			this->lrRotate();
+		else if (subBalanceFactor > 0)
+			this->llRotate();
+	}
+}
+
+/////////////////////////////////////////////////////////////////////////////////////////////////////
+/// Tree manipulation functions End
+/////////////////////////////////////////////////////////////////////////////////////////////////////
+
+
+/////////////////////////////////////////////////////////////////////////////////////////////////////
+/// Nodes manipulation functions
+/////////////////////////////////////////////////////////////////////////////////////////////////////
+
+//isolates a node from the rest of the tree (its parent does not recongnise him 'poor child')
 void	bTree::isolate()
 {
 	if (this->_parent)
@@ -146,42 +205,9 @@ void	bTree::replace(bTree *node)
 		bTree::root = node;
 }
 
-//delete a node from the tree
-void    bTree::erase(int value)
-{
-	bTree	*candidate;
-
-	if (this->_value == value)
-	{
-		//the to-delete node has a both childs
-		if (this->_left && this->_right)
-		{
-			candidate = this->getInOrderSuccessor();
-			this->swap(candidate);
-		}
-		//the to-delete node has no children
-		if (!this->_left && !this->_right)
-			this->isolate();
-		//the to-delete node has a left child only
-		else if (this->_left)
-			this->replace(this->_left);
-		//the to-delete node has a right child only
-		else if (this->_right)
-			this->replace(this->_right);
-	}
-	else if (this->_value < value)
-	{
-		if (this->_right)
-			this->_right->erase(value);
-	}
-	else
-	{
-		if (this->_left)
-			this->_left->erase(value);
-	}
-	this->updateCounts();
-	this->balance();
-}
+/////////////////////////////////////////////////////////////////////////////////////////////////////
+/// Nodes manipulation functions End
+/////////////////////////////////////////////////////////////////////////////////////////////////////
 
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -305,6 +331,9 @@ void    bTree::rlRotate()
 /////////////////////////////////////////////////////////////////////////////////////////////////////
 
 
+/////////////////////////////////////////////////////////////////////////////////////////////////////
+/// Statu quo helper functions (do not change the tree nodes disposition)
+/////////////////////////////////////////////////////////////////////////////////////////////////////
 void    bTree::updateCounts()
 {
 	if (this->_left)
@@ -369,6 +398,10 @@ int   bTree::getBalanceFactor() const
 {
 	return this->_leftHeight - this->_rightHeight;
 }
+
+/////////////////////////////////////////////////////////////////////////////////////////////////////
+/// Statu quo helper functions End
+/////////////////////////////////////////////////////////////////////////////////////////////////////
 
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////
