@@ -20,6 +20,11 @@ class bTree
 
     public:
 
+        static bTree    *root;
+
+
+    public:
+
         bTree();
         ~bTree();
 

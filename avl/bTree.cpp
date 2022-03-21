@@ -43,19 +43,19 @@ void    bTree::balance()
         return ;
     if (balanceFactor < 0)
     {
-        subBalanceFactor = this->_left->getBalanceFactor();
+        subBalanceFactor = this->_right->getBalanceFactor();
         if (subBalanceFactor < 0)
-            this->llRotate();
-        else
-            this->lrRotate();
+            this->rrRotate();
+        else if (subBalanceFactor > 0)
+            this->rlRotate();
     }
     else
     {
-        subBalanceFactor = this->_right->getBalanceFactor();
+        subBalanceFactor = this->_left->getBalanceFactor();
         if (subBalanceFactor < 0)
-            this->rlRotate();
-        else
-            this->rrRotate();
+            this->lrRotate();
+        else if (subBalanceFactor > 0)
+            this->llRotate();
     }
 }
 
@@ -114,96 +114,150 @@ void    bTree::erase(bTree& node)
 
 void    bTree::llRotate()
 {
-    bTree   *root;
+    bTree   *subRoot;
 
-    root = this->_left;
-    //replace the current node with the root
-    root->setParent(this->_parent);
-    if (this->_value < this->_parent->getValue())
-        this->_parent->setLeft(root);
+    subRoot = this->_left;
+
+    //replace the current node with the subRoot
+    subRoot->setParent(this->_parent);
+    if (this->_parent)
+    {
+        if (this->_value < this->_parent->getValue())
+            this->_parent->setLeft(subRoot);
+        else
+            this->_parent->setRight(subRoot);
+    }
     else
-        this->_parent->setRight(root);
-    //make the current node the right child of the root
-    this->_parent = root;
-    this->_left = root->getRight();
-    root->setRight(this);
-    //update the height of root and its right child
-    root->getRight()->updateCounts();
-    root->updateCounts();
+        bTree::root = subRoot;
+    
+    //make the current node the right child of the subRoot
+        //let the right child of the subRoot embrace its left child
+    this->_left = subRoot->getRight();
+    if (this->_left)
+        this->_left->setParent(this);
+        //let the subroot welcome its right child
+    this->_parent = subRoot;
+    subRoot->setRight(this);
+
+    //update the height of subRoot and its right child
+    subRoot->getRight()->updateCounts();
+    subRoot->updateCounts();
 }
 
 void    bTree::rrRotate()
 {
-    bTree   *root;
+    bTree   *subRoot;
 
-    root = this->_right;
-    //replace the current node with the root
-    root->setParent(this->_parent);
-    if (this->_value < this->_parent->getValue())
-        this->_parent->setLeft(root);
+    subRoot = this->_right;
+
+    //replace the current node with the subRoot
+    subRoot->setParent(this->_parent);
+    if (this->_parent)
+    {
+        if (this->_value < this->_parent->getValue())
+            this->_parent->setLeft(subRoot);
+        else
+            this->_parent->setRight(subRoot);
+    }
     else
-        this->_parent->setRight(root);
-    //make the current node the left child of the root
-    this->_parent = root;
-    this->_right = root->getLeft();
-    root->setLeft(this);
-    //update the height of root and its left child
-    root->getLeft()->updateCounts();
-    root->updateCounts();
+        bTree::root = subRoot;
+    
+    //make the current node the left child of the subRoot
+        //let the left child of the subRoot embrace its right child
+    this->_right = subRoot->getLeft();
+    if (this->_right)
+        this->_right->setParent(this);
+        //let the subroot welcome its left child
+    this->_parent = subRoot;
+    subRoot->setLeft(this);
+    
+    //update the height of subRoot and its left child
+    subRoot->getLeft()->updateCounts();
+    subRoot->updateCounts();
 }
 
 void    bTree::lrRotate()
 {
-    bTree   *root;
+    bTree   *subRoot;
 
-    root = this->_left->getRight();
-    //replace the current node with the right child of its left child
-    root->setParent(this->_parent);
-    if (this->_value < this->_parent->getValue())
-        this->_parent->setLeft(root);
+    subRoot = this->_left->getRight();
+
+    //replace the current node with the subRoot
+    subRoot->setParent(this->_parent);
+    if (this->_parent)
+    {
+        if (this->_value < this->_parent->getValue())
+            this->_parent->setLeft(subRoot);
+        else
+            this->_parent->setRight(subRoot);
+    }
     else
-        this->_parent->setRight(root);
-    //adjsut the left child of the root
-    this->_left->setRight(root->getLeft());
-    root->getLeft()->setParent(this->_left);
-    root->setLeft(this->_left);
-    this->_left->setParent(root);
-    //adjust the right child of the root
-    this->_left = root->getRight();
-    this->_left->setParent(this);
-    root->setRight(this);
-    this->_parent = root;
-    //update the height of root and its childs
-    root->getLeft()->updateCounts();
-    root->getRight()->updateCounts();
-    root->updateCounts();
+        bTree::root = subRoot;
+    
+    //adjsut the left child of the subRoot
+        //let the left child of the subroot embrace its new right child
+    this->_left->setRight(subRoot->getLeft());
+    if (subRoot->getLeft())
+        subRoot->getLeft()->setParent(this->_left);
+        //let the subroot welcome its left child
+    subRoot->setLeft(this->_left);
+    this->_left->setParent(subRoot);
+
+    //adjust the right child of the subRoot
+        //let the right child of the subroot embrace its new left child
+    this->_left = subRoot->getRight();
+    if (this->_left)
+        this->_left->setParent(this);
+        //let the subroot welcome its right child
+    subRoot->setRight(this);
+    this->_parent = subRoot;
+
+    //update the height of subRoot and its childs
+    subRoot->getLeft()->updateCounts();
+    subRoot->getRight()->updateCounts();
+    subRoot->updateCounts();
 }
 
 void    bTree::rlRotate()
 {
-    bTree   *root;
+    bTree   *subRoot;
 
-    root = this->_right->getLeft();
-    //replace the current node with the right child of its left child
-    root->setParent(this->_parent);
-    if (this->_value < this->_parent->getValue())
-        this->_parent->setLeft(root);
+    subRoot = this->_right->getLeft();
+
+    //replace the current node with the subRoot
+    subRoot->setParent(this->_parent);
+    if (this->_parent)
+    {
+        if (this->_value < this->_parent->getValue())
+            this->_parent->setLeft(subRoot);
+        else
+            this->_parent->setRight(subRoot);
+    }
     else
-        this->_parent->setRight(root);
-    //adjsut the right child of the root
-    this->_right->setLeft(root->getRight());
-    root->getRight()->setParent(this->_right);
-    root->setRight(this->_right);
-    this->_right->setParent(root);
-    //adjsut the left child of the root
-    this->_right = root->getLeft();
-    this->_right->setParent(this);
-    root->setLeft(this);
-    this->_parent = root;
-    //update the height of root and its childs
-    root->getLeft()->updateCounts();
-    root->getRight()->updateCounts();
-    root->updateCounts();
+        bTree::root = subRoot;
+    
+    //adjsut the right child of the subRoot
+        //let the right child of the subroot embrace its new left child
+    this->_right->setLeft(subRoot->getRight());
+    if (subRoot->getRight())
+        subRoot->getRight()->setParent(this->_right);
+        //let the subroot welcome its right child
+    subRoot->setRight(this->_right);
+    this->_right->setParent(subRoot);
+
+    //adjsut the left child of the subRoot
+        //let the left child of the subroot embrace its new right child
+    this->_right = subRoot->getLeft();
+    if (this->_right)
+        this->_right->setParent(this);
+        //let the subroot welcome its left child
+    subRoot->setLeft(this);
+    this->_parent = subRoot;
+
+    //update the height of subRoot and its childs
+    subRoot->getLeft()->updateCounts();
+    subRoot->getRight()->updateCounts();
+    subRoot->updateCounts();
 }
 
 void    bTree::updateCounts()
@@ -283,7 +337,9 @@ void    bTree::setParent(bTree *parent)
 
 std::ostream &operator<<(std::ostream& ostr, bTree& root)
 {
+    ostr << "======================================================================================================================" << std::endl;
 	printTree(ostr, &root, nullptr, false);
+    ostr << "======================================================================================================================" << std::endl;
 	return ostr;
 }
 
@@ -326,8 +382,9 @@ void printTree(std::ostream& ostr, bTree* root, Trunk *prev, bool isLeft)
     }
  
     showTrunks(ostr, trunk);
+    // ostr << " (" << root->getValue() << "|" << root->getLeftHeight() << "|" << root->getRightHeight() << ")" << std::endl;
+    // ostr << " (" << root->getValue() << ")" << std::endl;
     ostr << " " << root->getValue() << std::endl;
- 
     if (prev) {
         prev->str = prev_str;
     }
