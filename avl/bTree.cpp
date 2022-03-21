@@ -87,6 +87,33 @@ void    bTree::insert(bTree& node)
 	this->balance();
 }
 
+void	bTree::replace(bTree *node)
+{
+	node->setParent(this->_parent);
+	if (this->_parent)
+	{
+		if (this->_value < this->_parent->getValue())
+			this->_parent->setLeft(node);
+		else
+			this->_parent->setRight(node);
+	}
+	else
+		bTree::root = node;
+}
+
+void	bTree::isolate()
+{
+	if (this->_parent)
+	{
+		if (this->_value < this->_parent->getValue())
+			this->_parent->setLeft(0);
+		else
+			this->_parent->setRight(0);
+	}
+	else
+		bTree::root = 0;
+}
+
 void    bTree::erase(int value)
 {
 	if (this->_value == value)
@@ -148,31 +175,6 @@ void    bTree::erase(int value)
 	}
 	this->updateCounts();
 	this->balance();
-}
-
-void    bTree::erase(bTree& node)
-{
-	if (this->_value == node.getValue())
-	{
-		if (this->_parent)
-		{
-			if (this->_value < this->_parent->getValue())
-				this->_parent->setLeft(0);
-			else
-				this->_parent->setRight(0);
-		}
-	}
-	else if (this->_value < node.getValue())
-	{
-		if (this->_right)
-			this->_right->erase(node);
-	}
-	else
-	{
-		if (this->_left)
-			this->_left->erase(node);
-	}
-	this->updateCounts();
 }
 
 void    bTree::llRotate()
@@ -335,6 +337,59 @@ void    bTree::updateCounts()
 		this->_rightHeight = 0;
 }
 
+bTree   *bTree::getInOrderSuccessor() const
+{
+	bTree	*ret;
+
+	//the smallest key that is larger than x
+
+	ret = 0;
+	//left most child of its right subtree
+	if (this->_right)
+	{
+		ret = this->_right;
+		while (ret->getLeft())
+			ret = ret->getLeft();
+	}
+	//first parent with a key larger than that of the current node
+	else
+	{
+		ret = this->_parent;
+		while (ret && ret->getValue() < this->_value)
+			ret = ret->getParent();
+	}
+	return ret;
+}
+
+bTree   *bTree::getInOrderPredeccessor() const
+{
+	bTree	*ret;
+
+	//the largest key that is smaller than x
+
+	ret = 0;
+	//right most child of its left subtree
+	if (this->_left)
+	{
+		ret = this->_left;
+		while (ret->getRight())
+			ret = ret->getRight();
+	}
+	//first parent with a key samller than that of the current node
+	else
+	{
+		ret = this->_parent;
+		while (ret && ret->getValue() > this->_value)
+			ret = ret->getParent();
+	}
+	return ret;
+}
+
+int   bTree::getBalanceFactor() const
+{
+	return this->_leftHeight - this->_rightHeight;
+}
+
 int   bTree::getValue() const
 {
 	return this->_value;
@@ -347,10 +402,6 @@ int   bTree::getLeftHeight() const
 int   bTree::getRightHeight() const
 {
 	return this->_rightHeight;
-}
-int   bTree::getBalanceFactor() const
-{
-	return this->_leftHeight - this->_rightHeight;
 }
 
 bTree *bTree::getLeft() const

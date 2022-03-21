@@ -18,6 +18,9 @@ class bTree
 		bTree   *_parent;
 
 
+		void	isolate();
+		void	replace(bTree *node);
+
 	public:
 
 		static bTree    *root;
@@ -36,7 +39,6 @@ class bTree
 
 		void    balance();
 		void    erase(int value);
-		void    erase(bTree& node);
 		void    insert(bTree& node);
 
 		void    llRotate();
