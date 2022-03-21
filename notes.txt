@@ -1,54 +1,66 @@
-use copyConstructor inside of assignment operator :
-    pro : 
-        -   no code reduncdancy
-        -   efficient
-        -   clean : if the object has an instance of another class, the destructor is called when the argument is out of scope.
-    cons :
-        -   memory of the new objet will be allocated before the old one will be released
-        -   the right operand must be passed by value
-        -   the need to swap
+copy constructor and copy assignment operator:
 
-use of assignment operator inside of copyConstructor :
-    pro :
-        -   node code reduncdancy
-    cons :
-        -   if the object has an instance of another class, the subobject will be initialised twice (++during is default constructor).
+    use copyConstructor inside of assignment operator :
+        pro : 
+            -   no code reduncdancy
+            -   efficient
+            -   clean : if the object has an instance of another class, the destructor is called when the argument is out of scope.
+        cons :
+            -   memory of the new objet will be allocated before the old one will be released
+            -   the right operand must be passed by value
+            -   the need to swap
+
+    use of assignment operator inside of copyConstructor :
+        pro :
+            -   no code reduncdancy
+        cons :
+            -   if the object has an instance of another class, the subobject will be initialised twice (++during is default constructor).
 
 
-Copy elision : POD copy
+    Copy elision : POD (plan old data) copy
+
+///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+Parameterised constructor :
+    -   if it has one parameter only, it can be called like:
+        objectType object = parameter  =(equavalent)= objectType object(parameter) =(equavalent)= objectType object = objectType(parameter)
+
+    -   when a function has an objectType passed by value, and the argument is a temporary object, the latter is used and is created
+        by calling the parameterised constructor.
+        Ex: void foo(objectType object){} and is called as foo(objectType(p1, p2, ...)) --> the parameterised constructor is called to 
+            create object.
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 inheritance : 
 
-order of constructor execution :
-    -   virtual base classes
-    -   non-virtual base class
-    -   non-static data members
-    -   the body of the constructor
+    order of constructor execution :
+        -   virtual base classes
+        -   non-virtual base class
+        -   non-static data members
+        -   the body of the constructor
 
 
-the cases discussed here assume that no function is declared as virtual :
-    CASE 1:
-        -   base and derived have a member function with the same identifier : the derived one hides the base one;
-        -   base and derived have a data member with the same identifier : the derived one hides the base one;
-        --> to access the base one use the resolution operator (derivedObject.base::member), a refrence or a pointer
-        
-    CASE 2:
-        -   base classes have a member with the same identifier : confusion -> compile error
-        --> use pointers, refrences or scope resolution operator
+    the cases discussed here assume that no function is declared as virtual :
+        CASE 1:
+            -   base and derived have a member function with the same identifier : the derived one hides the base one;
+            -   base and derived have a data member with the same identifier : the derived one hides the base one;
+            --> to access the base one use the resolution operator (derivedObject.base::member), a refrence or a pointer
+            
+        CASE 2:
+            -   base classes have a member with the same identifier : confusion -> compile error
+            --> use pointers, refrences or scope resolution operator
 
 
-N.B :
-    Name resolution :
-        1.  the name lookup
-        2.  overloading resolution
-        3.  access control;
+    N.B :
+        Name resolution :
+            1.  the name lookup
+            2.  overloading resolution
+            3.  access control;
 
-Unqualified lookup :
-    -   names NOT on the right of the scope resolution operator ::
-Qualified name lookup :
-    -   names on the right of the scope resolution operator ::
-    -   looked for among : namespaces, class names, enums, templates 
+    Unqualified lookup :
+        -   names NOT on the right of the scope resolution operator ::
+    Qualified name lookup :
+        -   names on the right of the scope resolution operator ::
+        -   looked for among : namespaces, class names, enums, templates 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 There is no need to use a virtual destructor when any of the below is true:
@@ -96,19 +108,23 @@ if a class has a using declaration of a base _Base class member function _Base::
     -   if _Base::foo is non-virtual, then _Base::foo is executed.
 
 
-
+///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 object Virtual Call :
     -   if a virtual class A is inherited by multiple classes (say B, C) and those classes were inherited 
         by a class D and D makes a virtual function A::f visible through 'using-declaration'
         then a call to an object d of class D, i.e d.f() will be resolved through the state of the virtual table 
         of the class constructed fisrt.
     -   However a call through refrence or pointer will always be resolved to the final overrider in D.
+
     Ex1 : samples/inheritance/mutiples/objectVirtualCall1
         -   E.f() virtual call to E.C::f()
         -   if E was declaring B::f instead of A::f then :
             *   E.f() -> E.C::f()
             *   E.f() -> E.B::f() if D were to be constructed first.
+    
     Ex2: samples/inheritance/mutiples/objectVirtualCall2
+
+
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 Covariance :
     a base object can be assigned an object of a derived class of that object.
@@ -125,7 +141,6 @@ Invariance :
 
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-
 Pointer to member :
     a data structure that stores :
         -   data members : the offset to the member;
@@ -175,22 +190,6 @@ static_cast :
 exlicit keyword
 
 
-///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-object Virtual Call :
-    -   if a virtual class A is inherited by multiple classes (say B, C) and those classes were inherited 
-        by a class D and D makes a virtual function A::f visible through 'using-declaration'
-        then a call to an object d of class D, i.e d.f() will be resolved through the state of the virtual table 
-        of the class constructed fisrt.
-    -   However a call through refrence or pointer will always be resolved to the final overrider in D.
-
-    Ex1 : samples/inheritance/mutiples/objectVirtualCall1
-        -   E.f() virtual call to E.C::f()
-        -   if E was declaring B::f instead of A::f then :
-            *   E.f() -> E.C::f()
-            *   E.f() -> E.B::f() if D were to be constructed first.
-    
-    Ex2: samples/inheritance/mutiples/objectVirtualCall2
-
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
@@ -227,4 +226,12 @@ typeof : a Gcc extension that work like typeid but just at compile-time.
 
 -   defining a member function of a class template : use type<> for scope (mandatory).
 
+///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+precompiled headers:
+    -   used with heavealy used headers (included in to many cpp files)
+    -	used with external headers or headers that are rarely modified
+
+usage :
+    -   compile the headers g++ header.hpp
+    -   g++ -o executable files.cpp -x header.hpp.gch
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
