@@ -13,7 +13,7 @@ bTree::bTree(int value, bTree *left, bTree *right, bTree *parent) : _value(value
 {
 }
 
-bTree::bTree(const bTree& src) : _value(src.getValue()), _leftHeight(src.getLeftHeight()), _rightHeight(src.getRightHeight()), _left(src.getLeft()), _right(src.getRight()), _parent(src.getParent())
+bTree::bTree(const bTree& src) : _value(src._value), _leftHeight(src._leftHeight), _rightHeight(src._rightHeight), _left(src._left), _right(src._right), _parent(src._parent)
 {
 }
 
@@ -23,13 +23,13 @@ bTree::bTree(int value) : _value(value), _leftHeight(0), _rightHeight(0), _left(
 
 bTree   &bTree::operator=(const bTree& rhs)
 {
-	this->_value = rhs.getValue();
-	this->_leftHeight = rhs.getLeftHeight();
-	this->_rightHeight = rhs.getRightHeight();
+	this->_value = rhs._value;
+	this->_leftHeight = rhs._leftHeight;
+	this->_rightHeight = rhs._rightHeight;
 
-	this->_left = rhs.getLeft();
-	this->_right = rhs.getRight();
-	this->_parent = rhs.getParent();
+	this->_left = rhs._left;
+	this->_right = rhs._right;
+	this->_parent = rhs._parent;
 	return *this;
 }
 
@@ -61,16 +61,16 @@ void    bTree::balance()
 
 void    bTree::insert(bTree& node)
 {
-	if (this->_value == node.getValue())
+	if (this->_value == node._value)
 		return;
-	else if (this->_value < node.getValue())
+	else if (this->_value < node._value)
 	{
 		if (this->_right)
 			this->_right->insert(node);
 		else
 		{
 			this->_right = &node;
-			node.setParent(this);
+			node._parent = this;
 		}
 	}
 	else
@@ -80,88 +80,94 @@ void    bTree::insert(bTree& node)
 		else
 		{
 			this->_left = &node;
-			node.setParent(this);
+			node._parent = this;
 		}
 	}
 	this->updateCounts();
 	this->balance();
 }
 
-void	bTree::replace(bTree *node)
-{
-	node->setParent(this->_parent);
-	if (this->_parent)
-	{
-		if (this->_value < this->_parent->getValue())
-			this->_parent->setLeft(node);
-		else
-			this->_parent->setRight(node);
-	}
-	else
-		bTree::root = node;
-}
-
 void	bTree::isolate()
 {
 	if (this->_parent)
 	{
-		if (this->_value < this->_parent->getValue())
-			this->_parent->setLeft(0);
+		if (this->_value < this->_parent->_value)
+			this->_parent->_left = 0;
 		else
-			this->_parent->setRight(0);
+			this->_parent->_right = 0;
 	}
 	else
 		bTree::root = 0;
 }
 
+//node swaps position with 'this'
+void	bTree::swap(bTree *node)
+{
+	bTree	*left;
+	bTree	*right;
+	bTree	*parent;
+
+	parent = node->_parent;
+
+	//parent swap
+	this->replace(node);
+	this->_parent = parent;
+	if (parent)
+	{
+		if (node->_value < parent->_value)
+			this->_parent->_left = this;
+		else
+			this->_parent->_right = this;
+	}
+	else
+		bTree::root = this;
+	
+	//children swap
+	left = node->_left;
+	right = node->_right;
+	node->_left = this->_left;
+	node->_right = this->_right;
+	this->_left = left;
+	this->_right = right;
+}
+
+//node steals the parent of 'this' 
+void	bTree::replace(bTree *node)
+{
+	node->_parent = this->_parent;
+	if (this->_parent)
+	{
+		if (this->_value < this->_parent->_value)
+			this->_parent->_left = node;
+		else
+			this->_parent->_right = node;
+	}
+	else
+		bTree::root = node;
+}
+
+//delete a node from the tree
 void    bTree::erase(int value)
 {
+	bTree	*candidate;
+
 	if (this->_value == value)
 	{
+		//the to-delete node has a both childs
+		if (this->_left && this->_right)
+		{
+			candidate = this->getInOrderSuccessor();
+			this->swap(candidate);
+		}
 		//the to-delete node has no children
 		if (!this->_left && !this->_right)
-		{
-			if (this->_parent)
-			{
-				if (this->_value < this->_parent->getValue())
-					this->_parent->setLeft(0);
-				else
-					this->_parent->setRight(0);
-			}
-			else
-				bTree::root = 0;
-		}
+			this->isolate();
 		//the to-delete node has a left child only
 		else if (this->_left)
-		{
-			if (this->_parent)
-			{
-				if (this->_value < this->_parent->getValue())
-					this->_parent->setLeft(this->_left);
-				else
-					this->_parent->setRight(this->_left);
-			}
-			else
-				bTree::root = this->_left;
-		}
+			this->replace(this->_left);
 		//the to-delete node has a right child only
 		else if (this->_right)
-		{
-			if (this->_parent)
-			{
-				if (this->_value < this->_parent->getValue())
-					this->_parent->setLeft(this->_right);
-				else
-					this->_parent->setRight(this->_right);
-			}
-			else
-				bTree::root = this->_right;
-		}
-		//the to-delete node has a both childs
-		else
-		{
-			
-		}
+			this->replace(this->_right);
 	}
 	else if (this->_value < value)
 	{
@@ -177,6 +183,11 @@ void    bTree::erase(int value)
 	this->balance();
 }
 
+
+/////////////////////////////////////////////////////////////////////////////////////////////////////
+/// Rotations
+/////////////////////////////////////////////////////////////////////////////////////////////////////
+
 void    bTree::llRotate()
 {
 	bTree   *subRoot;
@@ -184,28 +195,19 @@ void    bTree::llRotate()
 	subRoot = this->_left;
 
 	//replace the current node with the subRoot
-	subRoot->setParent(this->_parent);
-	if (this->_parent)
-	{
-		if (this->_value < this->_parent->getValue())
-			this->_parent->setLeft(subRoot);
-		else
-			this->_parent->setRight(subRoot);
-	}
-	else
-		bTree::root = subRoot;
+	this->replace(subRoot);
 	
 	//make the current node the right child of the subRoot
 		//let the right child of the subRoot embrace its left child
-	this->_left = subRoot->getRight();
+	this->_left = subRoot->_right;
 	if (this->_left)
-		this->_left->setParent(this);
+		this->_left->_parent = this;
 		//let the subroot welcome its right child
 	this->_parent = subRoot;
-	subRoot->setRight(this);
+	subRoot->_right = this;
 
 	//update the height of subRoot and its right child
-	subRoot->getRight()->updateCounts();
+	subRoot->_right->updateCounts();
 	subRoot->updateCounts();
 }
 
@@ -216,28 +218,19 @@ void    bTree::rrRotate()
 	subRoot = this->_right;
 
 	//replace the current node with the subRoot
-	subRoot->setParent(this->_parent);
-	if (this->_parent)
-	{
-		if (this->_value < this->_parent->getValue())
-			this->_parent->setLeft(subRoot);
-		else
-			this->_parent->setRight(subRoot);
-	}
-	else
-		bTree::root = subRoot;
+	this->replace(subRoot);
 	
 	//make the current node the left child of the subRoot
 		//let the left child of the subRoot embrace its right child
-	this->_right = subRoot->getLeft();
+	this->_right = subRoot->_left;
 	if (this->_right)
-		this->_right->setParent(this);
+		this->_right->_parent = this;
 		//let the subroot welcome its left child
 	this->_parent = subRoot;
-	subRoot->setLeft(this);
+	subRoot->_left = this;
 	
 	//update the height of subRoot and its left child
-	subRoot->getLeft()->updateCounts();
+	subRoot->_left->updateCounts();
 	subRoot->updateCounts();
 }
 
@@ -245,41 +238,32 @@ void    bTree::lrRotate()
 {
 	bTree   *subRoot;
 
-	subRoot = this->_left->getRight();
+	subRoot = this->_left->_right;
 
 	//replace the current node with the subRoot
-	subRoot->setParent(this->_parent);
-	if (this->_parent)
-	{
-		if (this->_value < this->_parent->getValue())
-			this->_parent->setLeft(subRoot);
-		else
-			this->_parent->setRight(subRoot);
-	}
-	else
-		bTree::root = subRoot;
+	this->replace(subRoot);
 	
 	//adjsut the left child of the subRoot
 		//let the left child of the subroot embrace its new right child
-	this->_left->setRight(subRoot->getLeft());
-	if (subRoot->getLeft())
-		subRoot->getLeft()->setParent(this->_left);
+	this->_left->_right = subRoot->_left;
+	if (subRoot->_left)
+		subRoot->_left->_parent = this->_left;
 		//let the subroot welcome its left child
-	subRoot->setLeft(this->_left);
-	this->_left->setParent(subRoot);
+	subRoot->_left = this->_left;
+	this->_left->_parent = subRoot;
 
 	//adjust the right child of the subRoot
 		//let the right child of the subroot embrace its new left child
-	this->_left = subRoot->getRight();
+	this->_left = subRoot->_right;
 	if (this->_left)
-		this->_left->setParent(this);
+		this->_left->_parent = this;
 		//let the subroot welcome its right child
-	subRoot->setRight(this);
+	subRoot->_right = this;
 	this->_parent = subRoot;
 
 	//update the height of subRoot and its childs
-	subRoot->getLeft()->updateCounts();
-	subRoot->getRight()->updateCounts();
+	subRoot->_left->updateCounts();
+	subRoot->_right->updateCounts();
 	subRoot->updateCounts();
 }
 
@@ -287,52 +271,48 @@ void    bTree::rlRotate()
 {
 	bTree   *subRoot;
 
-	subRoot = this->_right->getLeft();
+	subRoot = this->_right->_left;
 
 	//replace the current node with the subRoot
-	subRoot->setParent(this->_parent);
-	if (this->_parent)
-	{
-		if (this->_value < this->_parent->getValue())
-			this->_parent->setLeft(subRoot);
-		else
-			this->_parent->setRight(subRoot);
-	}
-	else
-		bTree::root = subRoot;
+	this->replace(subRoot);
 	
 	//adjsut the right child of the subRoot
 		//let the right child of the subroot embrace its new left child
-	this->_right->setLeft(subRoot->getRight());
-	if (subRoot->getRight())
-		subRoot->getRight()->setParent(this->_right);
+	this->_right->_left = subRoot->_right;
+	if (subRoot->_right)
+		subRoot->_right->_parent = this->_right;
 		//let the subroot welcome its right child
-	subRoot->setRight(this->_right);
-	this->_right->setParent(subRoot);
+	subRoot->_right = this->_right;
+	this->_right->_parent = subRoot;
 
 	//adjsut the left child of the subRoot
 		//let the left child of the subroot embrace its new right child
-	this->_right = subRoot->getLeft();
+	this->_right = subRoot->_left;
 	if (this->_right)
-		this->_right->setParent(this);
+		this->_right->_parent = this;
 		//let the subroot welcome its left child
-	subRoot->setLeft(this);
+	subRoot->_left = this;
 	this->_parent = subRoot;
 
 	//update the height of subRoot and its childs
-	subRoot->getLeft()->updateCounts();
-	subRoot->getRight()->updateCounts();
+	subRoot->_left->updateCounts();
+	subRoot->_right->updateCounts();
 	subRoot->updateCounts();
 }
+
+/////////////////////////////////////////////////////////////////////////////////////////////////////
+/// Rotations End
+/////////////////////////////////////////////////////////////////////////////////////////////////////
+
 
 void    bTree::updateCounts()
 {
 	if (this->_left)
-		this->_leftHeight = std::max(this->_left->getLeftHeight(), this->_left->getRightHeight()) + 1;
+		this->_leftHeight = std::max(this->_left->_leftHeight, this->_left->_rightHeight) + 1;
 	else
 		this->_leftHeight = 0;
 	if (this->_right)
-		this->_rightHeight = std::max(this->_right->getLeftHeight(), this->_right->getRightHeight()) + 1;
+		this->_rightHeight = std::max(this->_right->_leftHeight, this->_right->_rightHeight) + 1;
 	else
 		this->_rightHeight = 0;
 }
@@ -348,15 +328,15 @@ bTree   *bTree::getInOrderSuccessor() const
 	if (this->_right)
 	{
 		ret = this->_right;
-		while (ret->getLeft())
-			ret = ret->getLeft();
+		while (ret->_left)
+			ret = ret->_left;
 	}
 	//first parent with a key larger than that of the current node
 	else
 	{
 		ret = this->_parent;
-		while (ret && ret->getValue() < this->_value)
-			ret = ret->getParent();
+		while (ret && ret->_value < this->_value)
+			ret = ret->_parent;
 	}
 	return ret;
 }
@@ -372,15 +352,15 @@ bTree   *bTree::getInOrderPredeccessor() const
 	if (this->_left)
 	{
 		ret = this->_left;
-		while (ret->getRight())
-			ret = ret->getRight();
+		while (ret->_right)
+			ret = ret->_right;
 	}
 	//first parent with a key samller than that of the current node
 	else
 	{
 		ret = this->_parent;
-		while (ret && ret->getValue() > this->_value)
-			ret = ret->getParent();
+		while (ret && ret->_value > this->_value)
+			ret = ret->_parent;
 	}
 	return ret;
 }
@@ -389,6 +369,11 @@ int   bTree::getBalanceFactor() const
 {
 	return this->_leftHeight - this->_rightHeight;
 }
+
+
+/////////////////////////////////////////////////////////////////////////////////////////////////////
+/// Getters End
+/////////////////////////////////////////////////////////////////////////////////////////////////////
 
 int   bTree::getValue() const
 {
@@ -419,6 +404,15 @@ bTree *bTree::getParent() const
 	return this->_parent;
 }
 
+/////////////////////////////////////////////////////////////////////////////////////////////////////
+/// Getters End
+/////////////////////////////////////////////////////////////////////////////////////////////////////
+
+
+/////////////////////////////////////////////////////////////////////////////////////////////////////
+/// Setters
+/////////////////////////////////////////////////////////////////////////////////////////////////////
+
 void    bTree::setValue(int value)
 {
 	this->_value = value;
@@ -447,6 +441,10 @@ void    bTree::setParent(bTree *parent)
 {
 	this->_parent = parent;
 }
+
+/////////////////////////////////////////////////////////////////////////////////////////////////////
+/// Setters End
+/////////////////////////////////////////////////////////////////////////////////////////////////////
 
 
 std::ostream &operator<<(std::ostream& ostr, bTree& root)
@@ -508,5 +506,5 @@ void printTree(std::ostream& ostr, bTree* root, Trunk *prev, bool isLeft)
 }
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////
-/// External
+/// External End
 /////////////////////////////////////////////////////////////////////////////////////////////////////

@@ -19,27 +19,10 @@ class bTree
 
 
 		void	isolate();
+		void	swap(bTree *node);
 		void	replace(bTree *node);
 
-	public:
-
-		static bTree    *root;
-
-
-	public:
-
-		bTree();
-		~bTree();
-
-		bTree(int value);
-		bTree(int value, bTree *left, bTree *right, bTree *parent);
-
-		bTree(const bTree& src);
-		bTree   &operator=(const bTree& rhs);
-
 		void    balance();
-		void    erase(int value);
-		void    insert(bTree& node);
 
 		void    llRotate();
 		void    lrRotate();
@@ -52,6 +35,23 @@ class bTree
 		bTree   *getInOrderSuccessor() const;
 		bTree   *getInOrderPredeccessor() const;
 
+
+	public:
+
+		static bTree    *root;
+
+
+		bTree();
+		~bTree();
+
+		bTree(int value);
+		bTree(int value, bTree *left, bTree *right, bTree *parent);
+
+		bTree(const bTree& src);
+		bTree   &operator=(const bTree& rhs);
+
+		void    erase(int value);
+		void    insert(bTree& node);
 
 		int   getValue() const;
 		int   getLeftHeight() const;
