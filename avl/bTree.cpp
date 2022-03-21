@@ -77,7 +77,9 @@ void    bTree::erase(int value)
 		//the to-delete node has a both childs
 		if (this->_left && this->_right)
 		{
+			std::cout << "looking for candidate" << std::endl;
 			candidate = this->getInOrderSuccessor();
+			std::cout << "candidate found : " << candidate->_value << std::endl;
 			this->swap(candidate);
 			candidate->updateCounts();
 		}
@@ -182,12 +184,25 @@ void	bTree::swap(bTree *node)
 		bTree::root = this;
 	
 	//children swap
+		//put the children of node in the hands of a custodian
 	left = node->_left;
 	right = node->_right;
+		//give the children of 'this' to the node
 	node->_left = this->_left;
 	node->_right = this->_right;
+		//make the new children of node recognise node as their parent
+	if (node->_left)
+		node->_left->_parent = node;
+	if (node->_right)
+		node->_right->_parent = node;
+		//get the children of node from the custodian and give them to 'this'
 	this->_left = left;
 	this->_right = right;
+		//make the new children of 'this' recognise node as their parent
+	if (this->_left)
+		this->_left->_parent = this;
+	if (this->_right)
+		this->_right->_parent = this;
 }
 
 //node steals the parent of 'this' 

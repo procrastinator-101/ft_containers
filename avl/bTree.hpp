@@ -48,26 +48,26 @@ class bTree
 		bTree(int value, bTree *left, bTree *right, bTree *parent);
 
 		bTree(const bTree& src);
-		bTree   &operator=(const bTree& rhs);
+		bTree	&operator=(const bTree& rhs);
 
-		void    erase(int value);
-		void    insert(bTree& node);
+		void	erase(int value);
+		void	insert(bTree& node);
 
-		int   getValue() const;
-		int   getLeftHeight() const;
-		int   getRightHeight() const;
+		int		getValue() const;
+		int		getLeftHeight() const;
+		int		getRightHeight() const;
 
-		bTree *getLeft() const;
-		bTree *getRight() const;
-		bTree *getParent() const;
+		bTree	*getLeft() const;
+		bTree	*getRight() const;
+		bTree	*getParent() const;
 
-		void    setValue(int value);
-		void    setLeftHeight(int leftHeight);
-		void    setRightHeight(int rightHeight);
+		void	setValue(int value);
+		void	setLeftHeight(int leftHeight);
+		void	setRightHeight(int rightHeight);
 
-		void    setLeft(bTree *left);
-		void    setRight(bTree *right);
-		void    setParent(bTree *parent);
+		void	setLeft(bTree *left);
+		void	setRight(bTree *right);
+		void	setParent(bTree *parent);
 };
 
 
