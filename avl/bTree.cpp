@@ -86,13 +86,23 @@ void    bTree::erase(int value)
 		parent = this->_parent;
 		//the to-delete node has no children
 		if (!this->_left && !this->_right)
+		{
 			this->isolate();
+			std::cout << "left" << std::endl;
+		}
 		//the to-delete node has a left child only
 		else if (this->_left)
+		{
 			this->replace(this->_left);
+			std::cout << "left" << std::endl;
+		}
 		//the to-delete node has a right child only
 		else if (this->_right)
+		{
 			this->replace(this->_right);
+			std::cout << "right" << std::endl;
+			std::cout << *bTree::root;
+		}
 		while (parent)
 		{
 			parent->updateCounts();
@@ -147,62 +157,48 @@ void    bTree::balance()
 /// Nodes manipulation functions
 /////////////////////////////////////////////////////////////////////////////////////////////////////
 
-//isolates a node from the rest of the tree (its parent does not recongnise him 'poor child')
-void	bTree::isolate()
-{
-	if (this->_parent)
-	{
-		if (this->_value < this->_parent->_value)
-			this->_parent->_left = 0;
-		else
-			this->_parent->_right = 0;
-	}
-	else
-		bTree::root = 0;
-}
-
 //node swaps position with 'this'
 void	bTree::swap(bTree *node)
 {
+	bool	isleft;
 	bTree	*left;
 	bTree	*right;
 	bTree	*parent;
 
-	parent = node->_parent;
-
-	//parent swap
-	this->replace(node);
-	this->_parent = parent;
-	if (parent)
-	{
-		if (node->_value < parent->_value)
-			this->_parent->_left = this;
-		else
-			this->_parent->_right = this;
-	}
-	else
-		bTree::root = this;
-	
-	//children swap
-		//put the children of node in the hands of a custodian
 	left = node->_left;
 	right = node->_right;
-		//give the children of 'this' to the node
-	node->_left = this->_left;
-	node->_right = this->_right;
-		//make the new children of node recognise node as their parent
-	if (node->_left)
-		node->_left->_parent = node;
-	if (node->_right)
-		node->_right->_parent = node;
-		//get the children of node from the custodian and give them to 'this'
-	this->_left = left;
-	this->_right = right;
-		//make the new children of 'this' recognise node as their parent
-	if (this->_left)
-		this->_left->_parent = this;
-	if (this->_right)
-		this->_right->_parent = this;
+	parent = node->_parent;
+	if (parent)
+	{
+		isleft = 0;
+		if (node->_value < parent->_value)
+			isleft = 1;
+	}
+	if (parent == this)
+	{
+		this->replace(node);
+		if (isleft)
+		{
+			node->_left = this;
+			node->_right = this->_right;
+			if (node->_right)
+				node->_right->_parent = node;
+		}
+		else
+		{
+			node->_left = this->_left;
+			if (node->_left)
+				node->_left->_parent = node;
+			node->_right = this;
+		}
+		this->_parent = node;
+		this->_left = left;
+		if (left)
+			left->_parent = this;
+		this->_right = right;
+		if (right)
+			right->_parent = this;
+	}
 }
 
 //node steals the parent of 'this' 
@@ -211,13 +207,27 @@ void	bTree::replace(bTree *node)
 	node->_parent = this->_parent;
 	if (this->_parent)
 	{
-		if (this->_value < this->_parent->_value)
-			this->_parent->_left = node;
+		if (this->_parent->_left == this)
+				this->_parent->_left = node;
 		else
 			this->_parent->_right = node;
 	}
 	else
 		bTree::root = node;
+}
+
+//isolates a node from the rest of the tree (its parent does not recongnise him 'poor child')
+void	bTree::isolate()
+{
+	if (this->_parent)
+	{
+		if (this->_parent->_left == this)
+			this->_parent->_left = 0;
+		else
+			this->_parent->_right = 0;
+	}
+	else
+		bTree::root = 0;
 }
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -507,6 +517,7 @@ std::ostream &operator<<(std::ostream& ostr, bTree& root)
 /////////////////////////////////////////////////////////////////////////////////////////////////////
 /// External
 /////////////////////////////////////////////////////////////////////////////////////////////////////
+
 void showTrunks(std::ostream& ostr, Trunk *p)
 {
 	if (p == nullptr) {
@@ -543,7 +554,7 @@ void printTree(std::ostream& ostr, bTree* root, Trunk *prev, bool isLeft)
  
 	showTrunks(ostr, trunk);
 	// ostr << " (" << root->getValue() << "|" << root->getLeftHeight() << "|" << root->getRightHeight() << ")" << std::endl;
-	// ostr << " (" << root->getValue() << ")" << std::endl;
+	// ostr << " (" << root->getValue() << " | " << (root->getParent() ? root->getParent()->getValue() : -1) << ")" << std::endl;
 	ostr << " " << root->getValue() << std::endl;
 	if (prev) {
 		prev->str = prev_str;

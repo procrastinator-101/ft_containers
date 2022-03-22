@@ -1,1 +1,52 @@
 2 5 6 8 9 5 41 2 3 65 8 9 9 5 80 69 99 100 1556 -10 -58
+
+
+parent = node->_parent;
+
+	//children swap
+		//put the children of node in the hands of a custodian
+	left = node->_left;
+	right = node->_right;
+		//give the children of 'this' to the node
+	node->_left = this->_left;
+	node->_right = this->_right;
+		//make the new children of node recognise node as their parent
+	if (node->_left)
+		node->_left->_parent = node;
+	if (node->_right)
+		node->_right->_parent = node;
+		//get the children of node from the custodian and give them to 'this'
+	this->_left = left;
+	this->_right = right;
+		//make the new children of 'this' recognise node as their parent
+	if (this->_left)
+		this->_left->_parent = this;
+	if (this->_right)
+		this->_right->_parent = this;
+	
+	//if node is a child of 'this'
+	if (parent == this)
+	{
+		this->replace(node);
+		this->_parent = node;
+		if (node->_value < this->_value)
+			this->_parent->_left = this;
+		else
+			this->_parent->_right = this;
+	}
+	//if node is not a child of 'this'
+	else
+	{
+		//parent swap
+		this->replace(node);
+		this->_parent = parent;
+		if (parent)
+		{
+			if (node->_value < parent->_value)
+				this->_parent->_left = this;
+			else
+				this->_parent->_right = this;
+		}
+		else
+			bTree::root = this;
+	}
