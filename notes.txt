@@ -31,6 +31,14 @@ Refrences:
 	-	You cannot reference a bit-field.
 	-	A reference variable must be initialized when it is declared unless it is a member of a class, a function parameter, or a return value.
 	-	Null references are prohibited.
+
+
+universal reference:
+	-	takes place only when type deduction takes place (i.e template and auto).
+		-	exceptions :
+			-	cv qualifications disables it
+			-	member functions taking the same template parameter as their class.
+	-	Otherwise, it is an rvalue reference.
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 value catagories:
 	-	C definitions:
