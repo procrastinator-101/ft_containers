@@ -86,23 +86,13 @@ void    bTree::erase(int value)
 		parent = this->_parent;
 		//the to-delete node has no children
 		if (!this->_left && !this->_right)
-		{
 			this->isolate();
-			std::cout << "left" << std::endl;
-		}
 		//the to-delete node has a left child only
 		else if (this->_left)
-		{
 			this->replace(this->_left);
-			std::cout << "left" << std::endl;
-		}
 		//the to-delete node has a right child only
 		else if (this->_right)
-		{
 			this->replace(this->_right);
-			std::cout << "right" << std::endl;
-			std::cout << *bTree::root;
-		}
 		while (parent)
 		{
 			parent->updateCounts();
@@ -171,12 +161,12 @@ void	bTree::swap(bTree *node)
 	if (parent)
 	{
 		isleft = 0;
-		if (node->_value < parent->_value)
+		if (node->_parent->_left == node)
 			isleft = 1;
 	}
+	this->replace(node);
 	if (parent == this)
 	{
-		this->replace(node);
 		if (isleft)
 		{
 			node->_left = this;
@@ -198,6 +188,37 @@ void	bTree::swap(bTree *node)
 		this->_right = right;
 		if (right)
 			right->_parent = this;
+	}
+	else
+	{
+		this->_parent = parent;
+		if (parent)
+		{
+			if (parent->_left == node)
+				this->_parent->_left = this;
+			else
+				this->_parent->_right = this;
+		}
+		else
+			bTree::root = this;
+		
+		//children swap
+			//give the children of 'this' to the node
+		node->_left = this->_left;
+		node->_right = this->_right;
+			//make the new children of node recognise node as their parent
+		if (node->_left)
+			node->_left->_parent = node;
+		if (node->_right)
+			node->_right->_parent = node;
+			//get the children of node from the custodian and give them to 'this'
+		this->_left = left;
+		this->_right = right;
+			//make the new children of 'this' recognise node as their parent
+		if (this->_left)
+			this->_left->_parent = this;
+		if (this->_right)
+			this->_right->_parent = this;
 	}
 }
 
@@ -359,6 +380,7 @@ void    bTree::rlRotate()
 /////////////////////////////////////////////////////////////////////////////////////////////////////
 /// Statu quo helper functions (do not change the tree nodes disposition)
 /////////////////////////////////////////////////////////////////////////////////////////////////////
+
 void    bTree::updateCounts()
 {
 	if (this->_left)
