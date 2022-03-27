@@ -1,3 +1,4 @@
+#include <algorithm>
 #include <string>
 #include <iostream>
 
@@ -19,20 +20,23 @@ void	foo(const int& s)
 
 }
 
-int	bar()
+void	bar(const int& s)
 {
-	int s = 5;
-	return s;
+	std::cout << "const lvalue" << std::endl;
+}
+
+void	bar(int&& s)
+{
+	std::cout << "rvalue" << std::endl;
 }
 
 int main()
 {
-	cl	obs[5];
-
 	int a = 11;
-	foo(15);
-	foo(a);
-	std::cout << -a << std::endl;
-
-	std::cout << bar() << std::endl;
+	const int ca = 55;
+	bar(15);
+	bar(a);
+	bar(ca);
+	bar(std::move(ca));
+	return 0;
 }

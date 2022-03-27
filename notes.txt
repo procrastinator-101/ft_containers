@@ -1,3 +1,4 @@
+///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 pointer to members:
 	-   to data:
 		-	declaration : dataType class::p;
@@ -34,18 +35,43 @@ Refrences:
 
 
 universal reference:
+	-	rvalue refrence && in a reference collapsing context.
 	-	takes place only when type deduction takes place (i.e template and auto).
 		-	exceptions :
 			-	cv qualifications disables it
 			-	member functions taking the same template parameter as their class.
 	-	Otherwise, it is an rvalue reference.
+
+
+an expression has a:
+	-	type : int, char, someUserDefinedType, an rvalue/lvalue reference to someType.
+	-	category : lvalue (its address can be taken) or rvalue.
+
+
+std::move convert an expression unconditinally to an rvalue expression.
+	-	Ex :
+		void foo(T&& s)
+		{
+			T &&a = std::move(s);	//s is an lvalue expression (has an address)
+									//but its type is a universal refrence
+			T &&b = std::move(10);	//10 is an rvalue expression (does not have an address)
+		}
+std::forward :	takes a universal reference lvalue and convert it into an rvalue only if the expression it’s bound to is an rvalue.
+				it hels to keep the valueness of the bound to expression.
+
+side note:
+-------------------------------------------------------------------------------
+	template : no type deduction when passed a braced initialiser list
+	auot : there is type deduction when passed a braced initialiser list
+-------------------------------------------------------------------------------
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 value catagories:
 	-	C definitions:
 		-	lvalue : an expression that may appear on the left or on the right hand side of an assignment.
 		-	rvalue : an expression that can only appear on the right hand side of an assignment.
 	-	C++ definitions:
-		-	lvalue : 
+		-	lvalue : has a location in memory.
+		-	rvalue : not lvalue.
 
 
 -	const reference accepts rvalue (a memory location is created by the compiler to hold the result of that expression) and lvalue expressions;
@@ -53,6 +79,15 @@ value catagories:
 
 non-class rvalue objects can only be modified by calling member functions.
 
+///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+new and delete operators:
+	-	The new operator doesn't allocate reference types because they're not objects.
+	-	Initializers can't be specified for arrays.
+	-	If you use the placement form of the new operator (the form with more arguments than the size),
+		the compiler doesn't support a placement form of the delete operator if the constructor throws an exception.
+
+
+RAII : Resource acquisition is initialization
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 friend vs member:
 	-	friend:
