@@ -49,12 +49,26 @@ namespace ft
 
 				tmp = _allocator.allocate(newCapacity);
 				for (size_type i = 0; i < _size; i++)
-					tmp[i] = _data[i];
-				for (size_type i = 0; i < _size; i++)
-					_allocator.destroy(&_data[i]);
+					_allocator.construct(&tmp[i], _data[i]);
+				_destroyRange(0, _size);
 				_allocator.deallocate(_data, _capacity);
 				_data = tmp;
 				_capacity = newCapacity;
+			}
+
+			void	_destroyRange(size_type start, size_type end)
+			{
+				for (size_type i = start; i < end; i++)
+					_allocator.destroy(&_data[i]);
+			}
+
+			template<class U>
+			void	_normalSwap(U& a, U& b)
+			{
+				U	tmp(a);
+
+				a = b;
+				b = tmp;
 			}
 		/////////////////////////////////////////////////////////////////////////////////////////////////////
 		/// General private functions End
@@ -68,6 +82,29 @@ namespace ft
 			explicit vector(const allocator_type& alloc = allocator_type()) : _size(0), _capacity(1), _allocator(alloc)
 			{
 				_data = _allocator.allocate(_capacity);//might throw
+			}
+
+			vector&	operator=(const vector& rop)
+			{
+				if (this == &rop)
+					return *this;
+				if (rop._size > _capacity)
+				{
+					_destroyRange(0, _size);
+					_allocator.deallocate(_data, _capacity);
+					_capacity = _getNewCapacity(rop._size);
+					_data = _allocator.allocate(_capacity);
+				}
+				//
+				for (size_type i = 0; i < rop._size; i++)
+					_allocator.construct(&_data[i], rop[i]);
+				_size = rop._size;
+			}
+
+			~vector()
+			{
+				_destroyRange(0, _size);
+				_allocator.deallocate(_data, _capacity);
 			}
 		/////////////////////////////////////////////////////////////////////////////////////////////////////
 		/// destructors and constructors End
@@ -92,8 +129,7 @@ namespace ft
 			{
 				if (n < _size)
 				{
-					for (size_type i = n; i < _size; i++)
-						_allocator.destroy(&_data[i]);
+					_destroyRange(n, _size);
 					_size = n;
 				}
 				else if (n > _size)
@@ -101,7 +137,7 @@ namespace ft
 					if (_capacity <= n)
 						_expandData(_getNewCapacity(n));//might throw
 					for (size_type i = _size; i < n; i++)
-						_data[i] = val;
+						_allocator.construct(&_data[i], val);
 					_size = n;
 				}
 			}
@@ -184,11 +220,44 @@ namespace ft
 		/// Modifiers
 		/////////////////////////////////////////////////////////////////////////////////////////////////////
 		public:
+			void	assign(size_type n, const value_type& val)
+			{
+				_destroyRange(0, _size);
+				if (n > _capacity)
+				{
+					_allocator.deallocate(_data, _capacity);
+					_capacity = _getNewCapacity(n);
+					_data = _allocator.allocate(_capacity);
+				}
+				for (size_type i = 0; i < n; i++)
+					_allocator.construct(&_data[i], val);
+				_size = n;
+			}
+
 			void	push_back(const value_type& val)//might throw
 			{
 				if (_capacity == _size)
 					_expandData(_capacity * 2);
-				_data[_size++] = val;
+				_allocator.construct(&_data[_size++], val);
+			}
+
+			void	pop_back()
+			{
+				_allocator.destroy(&_data[--_size]);
+			}
+
+			void	swap(vector& x)
+			{
+				_normalSwap(_data, x._data);
+				_normalSwap(_size, x._size);
+				_normalSwap(_capacity, x._capacity);
+				_normalSwap(_allocator, x._allocator);
+			}
+
+			void	clear()
+			{
+				_destroyRange(0, _size);
+				_size = 0;
 			}
 		/////////////////////////////////////////////////////////////////////////////////////////////////////
 		/// Modifiers End
@@ -232,12 +301,10 @@ namespace ft
 		/////////////////////////////////////////////////////////////////////////////////////////////////////
 		private:
 
+			T	*_data;
 			size_type	_size;
 			size_type	_capacity;
-
-			T	*_data;
-
-			allocator_type	_allocator;//make static
+			allocator_type	_allocator;
 		/////////////////////////////////////////////////////////////////////////////////////////////////////
 		/// private data members
 		/////////////////////////////////////////////////////////////////////////////////////////////////////

@@ -23,6 +23,7 @@ int main()
 	std::cout << std::endl;
 
 	nums.resize(55);
+	nums.clear();
 	std::cout << "max  = " << nums.max_size() << std::endl;
 	std::cout << "size = " << nums.size() << std::endl;
 	std::cout << "cap  = " << nums.capacity() << std::endl;
@@ -57,6 +58,7 @@ int main()
 	std::cout << std::endl;
 
 	nbs.resize(55);
+	nbs.clear();
 	std::cout << "max  = " << nbs.max_size() << std::endl;
 	std::cout << "size = " << nbs.size() << std::endl;
 	std::cout << "cap  = " << nbs.capacity() << std::endl;

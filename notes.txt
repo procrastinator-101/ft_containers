@@ -17,12 +17,18 @@ function pointer:
 	-	A fp stores the address of a function
 	-	The fps type defines the function signature (of the fp)
 
+Pointer to member is a data structure that holds info (As explained below) about the member it points to. 
+
 pointer to member function:
 	-	A ptmf stores either the address of a non-virtual function or a vtable offset to a virtual function
 	-	A ptmf stores the rules to modify the instance pointer (for the implicit type conversion required when inheritance comes into play)
 	-	A ptmf stores the information whether the ptmf points to a virtual or a non-virtual function
 	-	A ptmfs type defines the function signature (of the ptmf)
 	-	A ptmfs type defines the class they ptmf is related to
+
+
+Pointer to data member :
+		-   stores the offset to the member
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 Refrences:
@@ -126,7 +132,8 @@ copy constructor and copy assignment operator:
 -	when a copy ctor is declared no move ctor is generated.
 
 -	Dispatching tags can be used to make templated ctors for a range specific types (ex : integrals).
-///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+
 Parameterised constructor :
 	-   if it has one parameter only, it can be called like:
 		objectType object = parameter  =(equavalent)= objectType object(parameter) =(equavalent)= objectType object = objectType(parameter)
@@ -245,15 +252,6 @@ Byvariance :
 
 Invariance :
 	no type substitution is possible between a base type and a derived type.
-
-
-///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-Pointer to member :
-	a data structure that stores :
-		-   data members : the offset to the member;
-		-   member functions :
-			+   non-virtual function : address to the functions
-			+   virtual : offset to the address in the vtable
 
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
