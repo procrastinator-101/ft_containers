@@ -15,19 +15,16 @@ class cl
 	}
 };
 
-void	foo(const int& s)
-{
 
+void	bar(int& s)
+{
+	std::cout << "non-const int" << std::endl;
 }
 
-void	bar(const int& s)
+template<class T>
+void	bar(T&& s)
 {
-	std::cout << "const lvalue" << std::endl;
-}
-
-void	bar(int&& s)
-{
-	std::cout << "non-const rvalue" << std::endl;
+	std::cout << "uni value" << std::endl;
 }
 
 int main()

@@ -1,0 +1,3 @@
+data members;
+	-	size (number of elements in the vector)
+	-	capacity (the allocated memory size)
