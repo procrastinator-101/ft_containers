@@ -255,12 +255,57 @@ Invariance :
 
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-Exception :
-	-   Destructors are only called for object that were completely constructor 
+Exceptions :
+
+*	catch (...) :  catches exceptions of any type.
+*	throw :
+	-	forwards an exception to an external catch block.
+	-	if no active exception is present, it just calls terminate().
+
+
+*	Unlike other temporary objects, the exception object is considered to be an lvalue argument when
+	initializing the catch clause parameters, so it can be caught by lvalue reference, modified, and rethrown.
+
+*	a function declared with the 'noexcept' or 'throw()' specifier does not throw exceptions. If it does throw
+	an exception, a call to std::unexpected is performed.
+
+
+*   a function declared with the 'throw(_type)' calls std::unexpected() if it throws an exception with a type 
+	different than _type.
+
+    if there was a user defined unexpected() function that, and a function throws an exception that is 
+    not on the throw list and std::bad_exception was on the the same throw list, BAD_EXCEPTION will be 
+    automatically thrown.
+
+
+*	Destructors may not throw because they are by default noexcept (unless specified otherwise).
+
+Stack unwinding
+=================
+*   when an exception is thrown, it looks for its handler moving from the its scope to the one encapsulating 
+    it and so on. If it does not find one, terminate() is called.
+*   It is implementation-defined whether any stack unwinding takes place for uncaught exceptions.
+
+
+*   If any function that is called directly by the stack unwinding mechanism, after initialization of 
+    the exception object and before the start of the exception handler, exits with an exception, terminate() is called.
+
+*	if stack unwinding causes an object to be destructed, the destructor for that object could run code that
+	throws an exception as long as the exception is caught by some catch block before escaping the destructor.
+
+
+*	destructors are called for all fully-constructed non-static members and base classes, in reverse order of
+	completion of their constructors.
 		Ex. an exception accured during its construction.
 
-Destructors may not throw because they are by default noexcept
 
+*	If the exception is thrown from a constructor that is invoked by a new-expression, the matching deallocation
+	function is called, if available.
+
+
+function-try-block:
+===================
+*	The catch clause associated with a function-try-block must exit via rethrowing if used on a constructor.
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 Nested classes :

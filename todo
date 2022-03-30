@@ -1,12 +1,3 @@
-review:
-    -   notes
-    -   book annotations
-
-chapters:
-    -   templates
-
-
--   the frind vs member example -> override int + int
 
 -   declaring a empty function in a class template : compile-time error ?
 
