@@ -14,10 +14,11 @@ void    myExpHandler()
 {
     cout << "myExpHadnler called" << endl;
     // myTermHandler();
-    throw ' ';
+    // throw ' ';
+    throw ;
 }
 
-void    foo() throw(char, bad_exception)
+void    foo() throw(char)//, bad_exception)
 {
     try 
     {

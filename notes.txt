@@ -266,19 +266,27 @@ Exceptions :
 *	Unlike other temporary objects, the exception object is considered to be an lvalue argument when
 	initializing the catch clause parameters, so it can be caught by lvalue reference, modified, and rethrown.
 
+*	Destructors may not throw because they are by default noexcept (unless specified otherwise).
+
+
+unexpected()
+=================
+*	This handler may itself throw an exception, stop the program, or call terminate( ). However, it must not return to the program.
+
 *	a function declared with the 'noexcept' or 'throw()' specifier does not throw exceptions. If it does throw
 	an exception, a call to std::unexpected is performed.
-
 
 *   a function declared with the 'throw(_type)' calls std::unexpected() if it throws an exception with a type 
 	different than _type.
 
-    if there was a user defined unexpected() function that, and a function throws an exception that is 
-    not on the throw list and std::bad_exception was on the the same throw list, BAD_EXCEPTION will be 
-    automatically thrown.
+*	if a function throws an exception that is not on the throw list and std::bad_exception was on the the same throw list, 
+	BAD_EXCEPTION will be automatically thrown.
 
 
-*	Destructors may not throw because they are by default noexcept (unless specified otherwise).
+terminate()
+=================
+*	The only thing that your terminate handler must do is stop program execution. It must not return to the program or resume it in any way.
+
 
 Stack unwinding
 =================
@@ -305,8 +313,20 @@ Stack unwinding
 
 function-try-block:
 ===================
-*	The catch clause associated with a function-try-block must exit via rethrowing if used on a constructor.
+*	The scope and lifetime of the function parameters (but not any objects declared in the function itself), extend to the end of the handler-sequence.
 
+constructor:
+	*	Every catch-clause in the function-try-block for a constructor must terminate by throwing an exception.
+		-	If the control reaches the end of such handler, the current exception is automatically rethrown as if by throw;.
+		-	The return statement is not allowed in any catch clause of a constructor's function-try-block.
+
+destructor:
+	*	Reaching the end of a catch clause for a function-try-block on a destructor also automatically rethrows the current exception as if by throw;
+		-	the return statement is allowed.
+
+other functions:
+	*	For all other functions, reaching the end of a catch clause is equivalent to return;
+		-	if the function's return type is (possibly cv-qualified) void, otherwise the behavior is undefined.
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 Nested classes :
 	*   Declarations in a nested class can use only type names, static members, and enumerators from the enclosing class.

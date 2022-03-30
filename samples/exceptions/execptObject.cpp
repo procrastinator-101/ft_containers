@@ -18,9 +18,10 @@ void    handler()
 {
     try
     {
-        ft_exception ex;
-        std::cout << &ex << std::endl;
-        throw ex;
+        // ft_exception ex;
+        // std::cout << &ex << std::endl;
+        // throw ex;
+        throw ft_exception();
     }
     catch (ft_exception& e)
     {
