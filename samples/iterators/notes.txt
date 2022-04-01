@@ -1,0 +1,8 @@
+*	Dereferenceable iterators : Iterators for which the behavior of the expression *i is defined are called dereferenceable.
+
+*	Iterators are not dereferenceable if
+
+	-	they are past-the-end iterators (including pointers past the end of an array) or before-begin iterators.
+	-	they are singular iterators, that is, iterators that are not associated with any sequence. 
+		A null pointer, as well as a default-constructed pointer (holding an indeterminate value) is singular
+	-	they were invalidated by one of the iterator-invalidating operations on the sequence to which they refer.
