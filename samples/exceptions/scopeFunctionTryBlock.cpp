@@ -33,7 +33,7 @@ int main()
 
     try
     {
-        cout << foo(p) << endl;
+        cout << "|" << foo(p) << "|" << endl;
     }
     catch (int h)
     {
