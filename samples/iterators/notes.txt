@@ -12,8 +12,9 @@
 *	Input iterator:
 	-	can be dereferenced any number of times.
 	-	once a LegacyInputIterator i has been incremented, all copies of its previous value may be 
-		invalidated (i.e dereferenceable and incrementable).
+		invalidated (i.e dereferenceable, incrementable and in the domain of ==).
 
 *	Output iterator:
 	-	can be dereferenced only once. It has to be incremented to be dereferenced again.
-	-	once a LegacyOutputIterator i has been incremented or dereferenced, all copies of its previous value may be invalidated.
+	-	once a LegacyOutputIterator i has been incremented or dereferenced, all copies of its previous value may
+		be invalidated (i.e dereferenceable and incrementable).

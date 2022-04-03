@@ -51,13 +51,24 @@ namespace ft
 				return doubleCap;
 			}
 
-			void	_expandData(size_type newCapacity)
+			void	_expandData(size_type newCapacity)//might throw
 			{
 				T	*tmp;
+				size_type	i;
 
 				tmp = _allocator.allocate(newCapacity);
-				for (size_type i = 0; i < _size; i++)
-					_allocator.construct(&tmp[i], _data[i]);
+				try
+				{
+					for (i = 0; i < _size; i++)
+						_allocator.construct(tmp + i, _data[i]);
+				}
+				catch (...)
+				{
+					for (size_type j = 0; j < i; j++)
+						_allocator.destory(tmp + j);
+					_allocator.deallocate(tmp, newCapacity);
+					throw ;
+				}
 				_destroyRange(0, _size);
 				_allocator.deallocate(_data, _capacity);
 				_data = tmp;
@@ -67,7 +78,7 @@ namespace ft
 			void	_destroyRange(size_type start, size_type end)
 			{
 				for (size_type i = start; i < end; i++)
-					_allocator.destroy(&_data[i]);
+					_allocator.destroy(_data + i);
 			}
 
 			template<class U>
@@ -143,7 +154,7 @@ namespace ft
 				else if (n > _size)
 				{
 					if (_capacity <= n)
-						_expandData(_getNewCapacity(n));//might throw
+						_expandData(_getNewCapacity(n));
 					for (size_type i = _size; i < n; i++)
 						_allocator.construct(&_data[i], val);
 					_size = n;
@@ -160,7 +171,7 @@ namespace ft
 				return !_size;
 			}
 
-			void reserve(size_type n)//throws length and allocator might throw
+			void reserve(size_type n)//might throw
 			{
 				if (n > max_size())
 					throw length_error();
@@ -282,6 +293,67 @@ namespace ft
 			}
 		/////////////////////////////////////////////////////////////////////////////////////////////////////
 		/// Allocator End
+		/////////////////////////////////////////////////////////////////////////////////////////////////////
+
+
+		/////////////////////////////////////////////////////////////////////////////////////////////////////
+		/// relational operators
+		/////////////////////////////////////////////////////////////////////////////////////////////////////
+		public:
+			friend bool	operator==(const vector<T,Alloc>& lhs, const vector<T,Alloc>& rhs)
+			{
+				if (&lhs == &rhs)
+					return true;
+				if (lhs._size != rhs._size)
+					return false;
+				for (size_type i = 0; i < rhs._size; i++)
+				{
+					if (lhs._data[i] != rhs._data[i])
+						return false;
+				}
+				return true;
+			}
+			
+			friend bool	operator!=(const vector<T,Alloc>& lhs, const vector<T,Alloc>& rhs)
+			{
+				return !(lhs == rhs);
+			}
+
+			friend bool operator<(const vector<T,Alloc>& lhs, const vector<T,Alloc>& rhs)
+			{
+				for (size_type i = 0; i < lhs._size && i < rhs._size; i++)
+				{
+					if (lhs._data[i] >= rhs._data[i])
+						return false;
+				}
+				return lhs._size < rhs._size;
+			}
+
+			friend bool operator>(const vector<T,Alloc>& lhs, const vector<T,Alloc>& rhs)
+			{
+				for (size_type i = 0; i < lhs._size && i < rhs._size; i++)
+				{
+					if (lhs._data[i] <= rhs._data[i])
+						return false;
+				}
+				return lhs._size > rhs._size;
+			}
+
+			friend bool operator<=(const vector<T,Alloc>& lhs, const vector<T,Alloc>& rhs)
+			{
+				if (lhs == rhs)
+					return true;
+				return lhs < rhs;
+			}
+
+			friend bool operator>=(const vector<T,Alloc>& lhs, const vector<T,Alloc>& rhs)
+			{
+				if (lhs == rhs)
+					return true;
+				return lhs > rhs;
+			}
+		/////////////////////////////////////////////////////////////////////////////////////////////////////
+		/// relational operators End
 		/////////////////////////////////////////////////////////////////////////////////////////////////////
 
 

@@ -7,7 +7,7 @@
 namespace ft
 {
 	template <class T, class Distance = ptrdiff_t, class Pointer = T*, class Reference = T& >
-	class output_iterator
+	class output_iterator : std::iterator<std::output_iterator_tag, void, void, void, void>
 	{
 		/////////////////////////////////////////////////////////////////////////////////////////////////////
 		/// Data members
@@ -40,6 +40,12 @@ namespace ft
 				if (this == &rop)
 					return *this;
 				_ptr = rop._ptr;
+				return *this;
+			}
+
+			output_iterator	&operator=(const T& val)
+			{
+				*_ptr = val;
 				return *this;
 			}
 
@@ -78,14 +84,9 @@ namespace ft
 		/// Derefrence operators
 		/////////////////////////////////////////////////////////////////////////////////////////////////////
 		public:
-			Pointer	operator->() const
+			output_iterator	&operator*()
 			{
-				return _ptr;
-			}
-
-			T	&operator*() const
-			{
-				return *_ptr;
+				return *this;
 			}
 		/////////////////////////////////////////////////////////////////////////////////////////////////////
 		/// Derefrence operators End

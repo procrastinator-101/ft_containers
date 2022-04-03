@@ -1,0 +1,30 @@
+resize, insert :
+	-	if the type of the elements is either copyable or no-throw moveable --> no change, no throw
+	-	otherwise : valid state
+
+
+assign :
+	-	valid state
+
+= :
+	-	valid state
+
+
+
+
+valid state:
+	-	each element from 0 to _size is defined
+	-	otherwise _data is null
+
+
+
+checked :
+	-	resize
+	-	reserve
+
+
+
+
+done :
+	-	capacity
+	-	elements acces

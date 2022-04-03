@@ -12,14 +12,14 @@
 
 Author = younes
 
-NAME = input
+NAME = output
 
 CC = clang++
 CFLAGS = -Wall -Werror -Wextra -std=c++98 #-fsanitize=address
 
-SRC = input.cpp
+SRC = output.cpp
 
-HDR = input_iterator.hpp
+HDR = output_iterator.hpp
 
 OBJ = $(SRC:.cpp=.o)
 
