@@ -45,7 +45,7 @@ void	clTest()
 	for (;it != end; ++it)
 		std::cout << it->getN() << std::endl;
 	std::cout << "============================== * ===========================" << std::endl;
-	*clone = arr[2];
+	// *clone = arr[2];
 	std::cout << (*clone).getN() << std::endl;
 	clone->setN(20);
 	std::cout << (*clone).getN() << std::endl;

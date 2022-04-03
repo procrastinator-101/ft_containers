@@ -114,7 +114,7 @@ namespace ft
 				return _ptr;
 			}
 
-			T	operator*() const
+			const T	operator*() const
 			{
 				return *_ptr;
 			}

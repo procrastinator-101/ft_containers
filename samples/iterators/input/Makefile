@@ -17,7 +17,7 @@ NAME = input
 CC = clang++
 CFLAGS = -Wall -Werror -Wextra -std=c++98 #-fsanitize=address
 
-SRC = input.cpp
+SRC = templateFunction.cpp
 
 HDR = input_iterator.hpp
 
