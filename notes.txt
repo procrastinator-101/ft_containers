@@ -33,8 +33,8 @@ Pointer to data member :
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 Refrences:
 	-	You cannot reference another reference (i.e you cannot obtain the address of a reference)
-	-	You cannot create arrays of references.
 	-	You cannot create a pointer to a reference.
+	-	You cannot create arrays of references.
 	-	You cannot reference a bit-field.
 	-	A reference variable must be initialized when it is declared unless it is a member of a class, a function parameter, or a return value.
 	-	Null references are prohibited.
@@ -65,10 +65,21 @@ std::move convert an expression unconditinally to an rvalue expression.
 std::forward :	takes a universal reference lvalue and convert it into an rvalue only if the expression it’s bound to is an rvalue.
 				it hels to keep the valueness of the bound to expression.
 
+refrence collapsing rules :
+	-	rvalue reference to rvalue collpases to rvalue reference
+	-	the other combination collpase to lvalue reference
+
+*	During type deduction, an lvalue is deduced as T& and an rvalue is deduced as T.
+*	when deducing the type for a variable that is itself a reference, the reference part of the type is ignored.
+
+decltype deduction rules :
+	-	given a named variable of non-reference type, type T is deduced.
+	
+
 side note:
 -------------------------------------------------------------------------------
 	template : no type deduction when passed a braced initialiser list
-	auot : there is type deduction when passed a braced initialiser list
+	auto : there is type deduction when passed a braced initialiser list
 -------------------------------------------------------------------------------
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 value catagories:

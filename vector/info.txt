@@ -25,6 +25,8 @@ checked :
 
 
 
+
 done :
 	-	capacity
 	-	elements acces
+	-	relational operators

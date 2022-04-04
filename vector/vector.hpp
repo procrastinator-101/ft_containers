@@ -267,6 +267,8 @@ namespace ft
 
 			void	swap(vector& x)
 			{
+				if (this == &x)
+					return ;
 				_normalSwap(_data, x._data);
 				_normalSwap(_size, x._size);
 				_normalSwap(_capacity, x._capacity);
@@ -306,7 +308,7 @@ namespace ft
 					return true;
 				if (lhs._size != rhs._size)
 					return false;
-				for (size_type i = 0; i < rhs._size; i++)
+				for (size_type i = 0; i < lhs._size; i++)
 				{
 					if (lhs._data[i] != rhs._data[i])
 						return false;
@@ -323,34 +325,27 @@ namespace ft
 			{
 				for (size_type i = 0; i < lhs._size && i < rhs._size; i++)
 				{
-					if (lhs._data[i] >= rhs._data[i])
+					if (lhs._data[i] > rhs._data[i])
 						return false;
+					else if (lhs._data[i] < rhs._data[i])
+						return true;
 				}
 				return lhs._size < rhs._size;
 			}
 
 			friend bool operator>(const vector<T,Alloc>& lhs, const vector<T,Alloc>& rhs)
 			{
-				for (size_type i = 0; i < lhs._size && i < rhs._size; i++)
-				{
-					if (lhs._data[i] <= rhs._data[i])
-						return false;
-				}
-				return lhs._size > rhs._size;
+				return rhs < lhs;
 			}
 
 			friend bool operator<=(const vector<T,Alloc>& lhs, const vector<T,Alloc>& rhs)
 			{
-				if (lhs == rhs)
-					return true;
-				return lhs < rhs;
+				return !(rhs < lhs);
 			}
 
 			friend bool operator>=(const vector<T,Alloc>& lhs, const vector<T,Alloc>& rhs)
 			{
-				if (lhs == rhs)
-					return true;
-				return lhs > rhs;
+				return !(lhs < rhs);
 			}
 		/////////////////////////////////////////////////////////////////////////////////////////////////////
 		/// relational operators End
@@ -389,8 +384,13 @@ namespace ft
 		/// private data members
 		/////////////////////////////////////////////////////////////////////////////////////////////////////
 	};
-}
 
+	template <class T, class Alloc>
+	void swap (vector<T,Alloc>& x, vector<T,Alloc>& y)
+	{
+		x.swap(y);
+	}
+}
 
 
 #endif

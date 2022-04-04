@@ -1,4 +1,10 @@
 
 -	universal refrences
 
--	iterators
+-	forward iterators
+
+
+
+-	templates
+-	equal
+-	lexicographical_compare
