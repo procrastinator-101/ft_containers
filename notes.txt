@@ -74,7 +74,8 @@ refrence collapsing rules :
 
 decltype deduction rules :
 	-	given a named variable of non-reference type, type T is deduced.
-	
+	-	decltype’s type deduction depends only on the decltype expression; the type of the initializing
+		expression (if any) is ignored.
 
 side note:
 -------------------------------------------------------------------------------

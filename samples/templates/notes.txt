@@ -1,0 +1,61 @@
+templates:
+
+-   template class : instantiation of a class template
+-   template function : instantiation of a function template
+
+concepts:
+-	generic function = function template
+-	generated function = template function = instantiated function = function instance
+
+
+-	function template instantiation :
+	-	implicit : through a function  call
+	-	explicit : through creating functions (with specific types) from function templates (with template types).
+	Ex :	-	template<class T> f(T arg){}
+			-	template<> f<int>(int arg){} --> explicit instantiation
+			-	f(12.3)	--> implicit instantiation
+
+
+calling a template function :
+	-   foo<types>(args)
+		does not look for explicit specific functions written in the old style.
+	-   foo<>(args)
+		deduces the right specific function to call. It does not look for explicit 
+		specific functions written in the old style.
+	-   foo(args)
+		deduces the right specific function to call (explicit specific functions are included).
+
+
+-	Template definitions are not subject to the one-definition rule, and functions instantiated from function 
+	templates are implicitly inline, so they are exempt from the one-definition rule.
+
+
+abbreviated function template :
+	-	When the auto keyword is used as a parameter type in a normal function, the compiler will
+		automatically convert the function into a function template with each auto parameter becoming
+		an independent template type parameter
+	-	Ex : auto foo(auto a, auto b);
+
+///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+using NewTypeName = typeName;    ---> tyepedef typeName NewTypeName;
+
+
+
+
+Member template :
+	-   member function template.
+	-   nested class template.
+
+
+-   Local classes are not allowed to have member templates.
+
+
+-   Member template functions cannot be virtual functions and cannot override virtual 
+	functions from a base class when they are declared with the same name as a base class 
+	virtual function.
+
+typeof : a Gcc extension that work like typeid but just at compile-time.
+
+
+-   defining a member function of a class template : use type<> for scope (mandatory).
