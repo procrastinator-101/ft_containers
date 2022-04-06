@@ -12,14 +12,14 @@
 
 Author = younes
 
-NAME = pair
+NAME = algorithm
 
 CC = clang++
 CFLAGS = -Wall -Werror -Wextra -std=c++98 #-fsanitize=address
 
 SRC = main.cpp
 
-HDR = pair.hpp make_pair.hpp
+HDR = equal.hpp lexicographical_compare.hpp
 
 OBJ = $(SRC:.cpp=.o)
 

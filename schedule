@@ -2,6 +2,3 @@
 -	forward iterators
 
 -	templates
--	equal
--	lexicographical_compare
--	test pair

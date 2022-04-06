@@ -36,6 +36,30 @@ abbreviated function template :
 		an independent template type parameter
 	-	Ex : auto foo(auto a, auto b);
 
+
+Non-type parameters:
+	-	Ex: template<typename T, int var) --> var is a non-type parameter (can't have default value untill c++11)
+	-	A non-type template-parameter shall have one of the following (optionally cv-qualified) types:
+		—	integral or enumeration type,
+		—	pointer to a global object or function,
+		—	reference to a global object or function,
+		—	pointer to member (argument must be expressed as &Class::Member)
+		-	std::nullptr_t
+		-	A floating point type(since C++20)
+	-	Thus, non-type parameters should themselves be thought of as constants, since their values cannot be changed.
+
+-	default template arguments for a function template are a C++11 extension;
+
+template member definition:
+	-	Each templated member function defined outside the class declaration needs its own template declaration.
+	-	when defining a member function of a class template outside of the class, the use of type<> for scope is mandatory.
+	Ex :
+		-	template <typename T> void array<t>::getSize(){}; //valid
+		-	template <typename T> void array::getSize(){}; //invalid --> refers to a non-template class array
+
+
+-	a specialized member function must specialize an explicit function (not one that the compiler is providing a
+	default for, Ex: ctors)
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 using NewTypeName = typeName;    ---> tyepedef typeName NewTypeName;
@@ -58,4 +82,4 @@ Member template :
 typeof : a Gcc extension that work like typeid but just at compile-time.
 
 
--   defining a member function of a class template : use type<> for scope (mandatory).
+-   
