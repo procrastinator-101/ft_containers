@@ -60,6 +60,41 @@ template member definition:
 
 -	a specialized member function must specialize an explicit function (not one that the compiler is providing a
 	default for, Ex: ctors)
+
+
+*	default parameters, when not specified, are deduced first, then happens the lookup.
+	Ex : partialSpecDefault.cpp
+
+
+-	full template specialization : specify all template parameters.
+	Ex :
+	-	function template : template <typename T, typename U> void show(T s, U del, int size){};
+	-	specialization : template <> void show(string s, char del, int size){};
+
+
+Member function templates
+================================
+*	A member function template cannot be virtual.
+*	A member function template in a derived class cannot override a virtual member function from the base class.
+	the base class one will be chosen.
+
+
+partial template specialization
+================================
+-	partial template specialization : specify some (but not all) template parameters. Possible only for classes.
+	*	Ex:
+		-	class template : template<class T1, class T2, class T3 = int> class A {};
+		-	specialization : template <typename T> void show(T s, char del, int size){};
+
+	*	The argument list restrictions:
+		-	The argument list cannot be identical to the non-specialized argument list (it must specialize something).
+		-	Default arguments cannot appear in the argument list.
+		-	If any argument is a pack expansion (typename ...types), it must be the last argument in the list.
+		-	Non-type argument expressions can use template parameters as long as the parameter appears at least
+			once outside a non-deduced context (note that only clang supports this feature currently)
+		-	Non-type template argument cannot specialize a template parameter whose type depends
+			on a parameter of the specialization.
+	*	Name lookup: Only if the primary template is found by name lookup, its partial specializations are considered.
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 using NewTypeName = typeName;    ---> tyepedef typeName NewTypeName;
