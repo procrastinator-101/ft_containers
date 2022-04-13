@@ -4,6 +4,8 @@
 #include <memory>
 #include <stdexcept>
 
+#include "vectorIterator.hpp"
+
 namespace ft
 {
 	template < class T, class Alloc = std::allocator<T> >
@@ -22,6 +24,9 @@ namespace ft
 			typedef typename allocator_type::pointer pointer;
 			typedef typename allocator_type::const_pointer const_pointer;
 
+			typedef ft::vectorIterator<pointer> iterator;
+			typedef ft::vectorIterator<const_pointer> const_iterator;
+
 			typedef size_t size_type;
 
 		/////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -30,10 +35,29 @@ namespace ft
 
 
 		/////////////////////////////////////////////////////////////////////////////////////////////////////
-		/// Iterator
+		/// Iterators
 		/////////////////////////////////////////////////////////////////////////////////////////////////////
+		iterator	begin()
+		{
+			return iterator(_data);
+		}
+
+		const_iterator	begin() const
+		{
+			return const_iterator(_data);
+		}
+
+		iterator	end()
+		{
+			return iterator(_data + _size);
+		}
+
+		const_iterator	end() const
+		{
+			return const_iterator(_data + _size);
+		}
 		/////////////////////////////////////////////////////////////////////////////////////////////////////
-		/// Iterator End
+		/// Iterators End
 		/////////////////////////////////////////////////////////////////////////////////////////////////////
 
 
@@ -65,7 +89,7 @@ namespace ft
 				catch (...)
 				{
 					for (size_type j = 0; j < i; j++)
-						_allocator.destory(tmp + j);
+						_allocator.destroy(tmp + j);
 					_allocator.deallocate(tmp, newCapacity);
 					throw ;
 				}

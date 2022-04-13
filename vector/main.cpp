@@ -1,76 +1,89 @@
 #include <exception>
+#include <iterator>
 #include <memory>
+#include <sys/_types/_size_t.h>
 #include <vector>
 #include <iostream>
 
 #include "vector.hpp"
 
+#include "../iterator/iterator_traits.hpp"
+
+
+void	printVector(const std::vector<int>& vec)
+{
+	std::cout << "======================= STD ==========================" << std::endl;
+	std::cout << "======================= data =========================" << std::endl;
+	for (size_t i = 0; i < vec.size(); i++)
+		std::cout << vec[i] << " ";
+	std::cout << std::endl;
+	std::cout << "===================== capacity =======================" << std::endl;
+	std::cout << "max  = " << vec.max_size() << std::endl;
+	std::cout << "size = " << vec.size() << std::endl;
+	std::cout << "cap  = " << vec.capacity() << std::endl;
+	std::cout << "======================================================" << std::endl;
+
+}
+
+void	printVector(const ft::vector<int>& vec)
+{
+	std::cout << "======================== FT ==========================" << std::endl;
+	for (size_t i = 0; i < vec.size(); i++)
+		std::cout << vec[i] << " ";
+	std::cout << std::endl;
+	std::cout << "===================== capacity =======================" << std::endl;
+	std::cout << "max  = " << vec.max_size() << std::endl;
+	std::cout << "size = " << vec.size() << std::endl;
+	std::cout << "cap  = " << vec.capacity() << std::endl;
+	std::cout << "======================================================" << std::endl;
+}
+
+void	fillVector(std::vector<int>& vec, size_t n)
+{
+	for (size_t i = 0; i < n; i++)
+		vec.push_back(std::rand() % n + 100);
+}
+
+void	fillVector(ft::vector<int>& vec, size_t n)
+{
+	for (size_t i = 0; i < n; i++)
+		vec.push_back(std::rand() % n + 100);
+}
+
+template<typename INPUT_ITERATOR>
+void	show(INPUT_ITERATOR first, INPUT_ITERATOR last)
+{
+	std::cout << "======================= Show =========================" << std::endl;
+	while (first != last)
+	{
+		std::cout << *first << " ";
+		++first;
+	}
+	std::cout << std::endl;
+	std::cout << "======================================================" << std::endl;
+}
+
 int main()
 {
 	int n = 19;
 
-	std::cout << "======================================================" << std::endl;
+	ft::vector<int>		nbs;
 	std::vector<int>	nums;
 
-	std::cout << "max  = " << nums.max_size() << std::endl;
-	std::cout << "size = " << nums.size() << std::endl;
-	std::cout << "cap  = " << nums.capacity() << std::endl;
+	fillVector(nbs, n);
+	fillVector(nums, n);
 
-	for (int i = 0; i < n; i++)
-		nums.push_back(i);
-	for (int i = 0; i < n; i++)
-		std::cout << nums[i] << " ";
-	std::cout << std::endl;
+	printVector(nbs);
+	printVector(nums);
 
-	nums.resize(55);
-	nums.clear();
-	std::cout << "max  = " << nums.max_size() << std::endl;
-	std::cout << "size = " << nums.size() << std::endl;
-	std::cout << "cap  = " << nums.capacity() << std::endl;
-	std::cout << "======================================================" << std::endl;
+	show(nbs.begin(), nbs.end());
+	show(nums.begin(), nums.end());
 	
-	try
-	{
-		std::cout << nums.at(20);
-	}
-	catch (std::exception& e)
-	{
-		std::cout << e.what() << std::endl;
-	}
-	
-	std::cout << "======================================================" << std::endl;
-	std::allocator<int> s;
 
-	std::cout << nums.max_size() << std::endl;
-	std::cout << "======================================================" << std::endl;
+	std::vector<int>::const_iterator	it = nums.begin();
+	ft::vector<int>::const_iterator		it2 = nbs.begin();
 
-	std::cout << "======================================================" << std::endl;
-	ft::vector<int>	nbs;
-
-	std::cout << "max  = " << nbs.max_size() << std::endl;
-	std::cout << "size = " << nbs.size() << std::endl;
-	std::cout << "cap  = " << nums.capacity() << std::endl;
-
-	for (int i = 0; i < n; i++)
-		nbs.push_back(i);
-	for (int i = 0; i < n; i++)
-		std::cout << nbs[i] << " ";
-	std::cout << std::endl;
-
-	nbs.resize(55);
-	nbs.clear();
-	std::cout << "max  = " << nbs.max_size() << std::endl;
-	std::cout << "size = " << nbs.size() << std::endl;
-	std::cout << "cap  = " << nbs.capacity() << std::endl;
-	std::cout << "======================================================" << std::endl;
-	try
-	{
-		std::cout << nbs.at(20);
-	}
-	catch (std::exception& e)
-	{
-		std::cout << e.what() << std::endl;
-	}
-	
+	std::cout << (typeid(std::iterator_traits<int *>::pointer) == typeid(int *)) << std::endl;
+	std::cout << (typeid(ft::iterator_traits<int *>::pointer) == typeid(int *)) << std::endl;
 	return 0;
 }

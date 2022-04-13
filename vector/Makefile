@@ -19,7 +19,7 @@ CFLAGS = -Wall -Werror -Wextra -std=c++98 #-fsanitize=address
 
 SRC = main.cpp
 
-HDR = vector.hpp
+HDR = vector.hpp vectorIterator.hpp
 
 OBJ = $(SRC:.cpp=.o)
 
