@@ -2,30 +2,31 @@
 # define VECTORITERATOR_HPP
 
 #include <iterator>
+#include <iostream>//
 
 # include "../iterator/iterator_traits.hpp"
 
 
 namespace ft
 {
-	template <class Pointer>
+	template <class T, class Distance = ptrdiff_t, class Pointer = T*, class Reference = T& >
 	class vectorIterator
 	{
 		/////////////////////////////////////////////////////////////////////////////////////////////////////
 		/// type definitions
 		/////////////////////////////////////////////////////////////////////////////////////////////////////
+		private:
+			typedef vectorIterator<const T> vectorConstIterator;
+		
 		public:
 			typedef std::random_access_iterator_tag iterator_category;
-			typedef typename iterator_traits<Pointer>::value_type value_type;
-			typedef typename iterator_traits<Pointer>::difference_type difference_type;
-			typedef typename iterator_traits<Pointer>::pointer pointer;
-			typedef typename iterator_traits<Pointer>::reference reference;
-
-			typedef const pointer const_pointer;
+			typedef T value_type;
+			typedef Distance difference_type;
+			typedef Pointer pointer;
+			typedef Reference reference;
 		/////////////////////////////////////////////////////////////////////////////////////////////////////
 		/// type definitions End
 		/////////////////////////////////////////////////////////////////////////////////////////////////////
-		
 
 
 		/////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -57,6 +58,20 @@ namespace ft
 			}
 		/////////////////////////////////////////////////////////////////////////////////////////////////////
 		/// Constructors, assignment operators, and destructors End
+		/////////////////////////////////////////////////////////////////////////////////////////////////////
+
+
+		/////////////////////////////////////////////////////////////////////////////////////////////////////
+		/// Conversion operators
+		/////////////////////////////////////////////////////////////////////////////////////////////////////
+		public:
+			operator vectorConstIterator()
+			{
+				std::cout << "conversion" << std::endl;
+				return vectorConstIterator(_ptr);
+			}
+		/////////////////////////////////////////////////////////////////////////////////////////////////////
+		/// Conversion operators End
 		/////////////////////////////////////////////////////////////////////////////////////////////////////
 
 
@@ -138,7 +153,6 @@ namespace ft
 			{
 				vectorIterator	ret(*this);
 
-				(void)n;
 				_ptr++;
 				return ret;
 			}
@@ -153,7 +167,6 @@ namespace ft
 			{
 				vectorIterator	ret(*this);
 
-				(void)n;
 				_ptr--;
 				return ret;
 			}
@@ -171,12 +184,12 @@ namespace ft
 				return _ptr;
 			}
 
-			value_type	&operator*()
+			T	&operator*()
 			{
 				return *_ptr;
 			}
 
-			value_type	&operator[](difference_type n)
+			T	&operator[](difference_type n)
 			{
 				return _ptr[n];
 			}

@@ -24,40 +24,13 @@ namespace ft
 			typedef typename allocator_type::pointer pointer;
 			typedef typename allocator_type::const_pointer const_pointer;
 
-			typedef ft::vectorIterator<pointer> iterator;
-			typedef ft::vectorIterator<const_pointer> const_iterator;
+			typedef ft::vectorIterator<T> iterator;
+			typedef ft::vectorIterator<const T> const_iterator;
 
 			typedef size_t size_type;
 
 		/////////////////////////////////////////////////////////////////////////////////////////////////////
 		/// type definitions End
-		/////////////////////////////////////////////////////////////////////////////////////////////////////
-
-
-		/////////////////////////////////////////////////////////////////////////////////////////////////////
-		/// Iterators
-		/////////////////////////////////////////////////////////////////////////////////////////////////////
-		iterator	begin()
-		{
-			return iterator(_data);
-		}
-
-		const_iterator	begin() const
-		{
-			return const_iterator(_data);
-		}
-
-		iterator	end()
-		{
-			return iterator(_data + _size);
-		}
-
-		const_iterator	end() const
-		{
-			return const_iterator(_data + _size);
-		}
-		/////////////////////////////////////////////////////////////////////////////////////////////////////
-		/// Iterators End
 		/////////////////////////////////////////////////////////////////////////////////////////////////////
 
 
@@ -122,25 +95,68 @@ namespace ft
 		/// destructors, constructors, and assignment operators
 		/////////////////////////////////////////////////////////////////////////////////////////////////////
 		public:
+			//might throw
 			explicit vector(const allocator_type& alloc = allocator_type()) : _size(0), _capacity(1), _allocator(alloc)
 			{
-				_data = _allocator.allocate(_capacity);//might throw
+				_data = _allocator.allocate(_capacity);
 			}
 
+			//might throw
+			explicit vector(size_type n, const value_type& val = value_type(), const allocator_type& alloc = allocator_type()) : _size(n), _capacity(n), _allocator(alloc)
+			{
+				_data = _allocator.allocate(_capacity);
+				for (size_type i = 0; i < _size; i++)
+					_allocator.construct(_data + i, val);
+			}
+
+			vector (const vector& src) : _size(src._size), _capacity(src._capacity), _allocator(src._allocator)
+			{
+				size_type	i;
+
+				_data = _allocator.allocate(_capacity);
+				//construct the extended range
+				try
+				{
+					for (; i < src._size; i++)
+						_allocator.construct(_data + i, src[i]);
+				}
+				catch (...)
+				{
+					_size = i;
+					throw ;
+				}
+				_size = src._size;
+			}
+
+			//might throw
 			vector&	operator=(const vector& rop)
 			{
+				size_type	i;
+
 				if (this == &rop)
 					return *this;
 				if (rop._size > _capacity)
 				{
 					_destroyRange(0, _size);
 					_allocator.deallocate(_data, _capacity);
+					_size = 0;
 					_capacity = _getNewCapacity(rop._size);
 					_data = _allocator.allocate(_capacity);
 				}
-				//
-				for (size_type i = 0; i < rop._size; i++)
-					_allocator.construct(&_data[i], rop[i]);
+				//assign to the already constructed objects
+				for (i = 0; i < _size; i++)
+					_data[i] = rop[i];
+				//construct the extended range
+				try
+				{
+					for (; i < rop._size; i++)
+						_allocator.construct(_data + i, rop[i]);
+				}
+				catch (...)
+				{
+					_size = i;
+					throw ;
+				}
 				_size = rop._size;
 			}
 
@@ -151,6 +167,33 @@ namespace ft
 			}
 		/////////////////////////////////////////////////////////////////////////////////////////////////////
 		/// destructors and constructors End
+		/////////////////////////////////////////////////////////////////////////////////////////////////////
+
+
+		/////////////////////////////////////////////////////////////////////////////////////////////////////
+		/// Iterators
+		/////////////////////////////////////////////////////////////////////////////////////////////////////
+		iterator	begin()
+		{
+			return iterator(_data);
+		}
+
+		const_iterator	begin() const
+		{
+			return const_iterator(_data);
+		}
+
+		iterator	end()
+		{
+			return iterator(_data + _size);
+		}
+
+		const_iterator	end() const
+		{
+			return const_iterator(_data + _size);
+		}
+		/////////////////////////////////////////////////////////////////////////////////////////////////////
+		/// Iterators End
 		/////////////////////////////////////////////////////////////////////////////////////////////////////
 
 
