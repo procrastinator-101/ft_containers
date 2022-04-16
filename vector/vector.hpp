@@ -74,45 +74,79 @@ namespace ft
 			}
 
 			//might throw
-			//in case of exception, nothing get constructed
-			void	_constructRange(pointer ptr, size_type start, size_type end, value_type val)
+			void	_allocate(size_type n)
 			{
-				size_type	i;
+				_data = _allocator.allocate(n);
+				_capacity = n;
+			}
 
-				try
-				{
-					for (i = start; i < end; i++)
-						_allocator.construct(ptr + i, val);
-				}
-				catch (...)
-				{
-					_destroyRange(ptr, start, i);
-					throw ;
-				}
+			void	_deallocate()
+			{
+				_allocator.deallocate(_data, _capacity);
+				_data = 0;
+				_capacity = 0;
 			}
 
 			//might throw
 			//in case of exception, nothing get constructed
-			void	_constructRange(pointer ptr, size_type start, size_type end, pointer src)
+			void	_constructRange(size_type start, size_type end, value_type val)
 			{
 				size_type	i;
 
 				try
 				{
 					for (i = start; i < end; i++)
-						_allocator.construct(ptr + i, src[i]);
+						_allocator.construct(_data + i, val);
 				}
 				catch (...)
 				{
-					_destroyRange(ptr, start, i);
+					_destroyRange(start, i);
 					throw ;
 				}
+				_size = end;
 			}
 
-			void	_destroyRange(pointer ptr, size_type start, size_type end)
+			//might throw
+			//in case of exception, nothing get constructed
+			void	_constructRange(size_type start, size_type end, pointer src)
+			{
+				size_type	i;
+
+				try
+				{
+					for (i = start; i < end; i++)
+						_allocator.construct(_data + i, src[i]);
+				}
+				catch (...)
+				{
+					_destroyRange(start, i);
+					throw ;
+				}
+				_size = end;
+			}
+
+			void	_destroyRange(size_type start, size_type end)
 			{
 				for (size_type i = start; i < end; i++)
-					_allocator.destroy(ptr + i);
+					_allocator.destroy(_data + i);
+				_size = start;
+			}
+
+			void	_copyRange(size_type start, size_type end, pointer src)
+			{
+				size_type	i;
+
+				try
+				{
+					for (i = start; i < end; i++)
+						_data[i] = src[i];
+				}
+				catch (...)
+				{
+					_size = i;
+					throw ;
+				}
+				_size = end;
 			}
 
 			template<class U>
@@ -133,26 +167,22 @@ namespace ft
 		/////////////////////////////////////////////////////////////////////////////////////////////////////
 		public:
 			//might throw
-			explicit vector(const allocator_type& alloc = allocator_type()) : _size(0), _capacity(1), _allocator(alloc)
+			explicit vector(const allocator_type& alloc = allocator_type()) : _size(0), _capacity(0), _allocator(alloc)
 			{
-				_data = _allocator.allocate(_capacity);
+				_allocate(1);
 			}
 
 			//might throw
-			explicit vector(size_type n, const value_type& val = value_type(), const allocator_type& alloc = allocator_type()) : _size(n), _capacity(n), _allocator(alloc)
+			explicit vector(size_type n, const value_type& val = value_type(), const allocator_type& alloc = allocator_type()) : _size(0), _capacity(0), _allocator(alloc)
 			{
-				size_type	i;
-
-				_data = _allocator.allocate(_capacity);
+				_allocate(n);
 				try
 				{
-					for (i = 0; i < _size; i++)
-						_allocator.construct(_data + i, val);
+					_constructRange(0, n, val);
 				}
 				catch (...)
 				{
-					_destroyRange(0, i);
-					_allocator.deallocate(_data, _capacity);
+					_deallocate();
 					throw ;
 				}
 			}
@@ -160,18 +190,14 @@ namespace ft
 			//might throw
 			vector (const vector& src) : _size(src._size), _capacity(src._capacity), _allocator(src._allocator)
 			{
-				size_type	i;
-
-				_data = _allocator.allocate(_capacity);
+				_allocate(src._capacity);
 				try
 				{
-					for (i = 0; i < _size; i++)
-						_allocator.construct(_data + i, src[i]);
+					_constructRange(0, src._size, src._data);
 				}
 				catch (...)
 				{
-					_destroyRange(0, i);
-					_allocator.deallocate(_data, _capacity);
+					_deallocate();
 					throw ;
 				}
 			}
@@ -191,33 +217,19 @@ namespace ft
 			//might throw
 			vector&	operator=(const vector& rop)
 			{
-				size_type	i;
-
 				if (this == &rop)
 					return *this;
 				if (rop._size > _capacity)
 				{
 					_destroyRange(0, _size);
-					_allocator.deallocate(_data, _capacity);
-					_size = 0;
-					_capacity = _getNewCapacity(rop._size);
-					_data = _allocator.allocate(_capacity);
+					_deallocate();
+					_allocate(_getNewCapacity(rop._size));
 				}
-				//assign to the already constructed objects
-				for (i = 0; i < _size; i++)
-					_data[i] = rop[i];
-				//construct the extended range
-				try
-				{
-					for (; i < rop._size; i++)
-						_allocator.construct(_data + i, rop[i]);
-				}
-				catch (...)
-				{
-					_size = i;
-					throw ;
-				}
-				_size = rop._size;
+				_copyRange(0, std::min(_size, rop._size), rop._data);
+				if (_size < rop._size)
+					_constructRange(_size, rop._size, rop._data);
+				else
+					_destroyRange(rop._size, _size);
 			}
 
 			~vector()
