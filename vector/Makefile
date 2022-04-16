@@ -17,9 +17,9 @@ NAME = vector
 CC = clang++
 CFLAGS = -Wall -Werror -Wextra -std=c++98 #-fsanitize=address
 
-SRC = main.cpp
+SRC = main.cpp court.cpp testUtilities.cpp
 
-HDR = vector.hpp vectorIterator.hpp
+HDR = vector.hpp vectorIterator.hpp court.hpp
 
 OBJ = $(SRC:.cpp=.o)
 

@@ -14,7 +14,7 @@ assign :
 
 valid state:
 	-	each element from 0 to _size is defined
-	_	allocation failure for constructors
+	_	allocation failure for non-constructors
 		-	size = 0;
 		-	capacity = 0
 

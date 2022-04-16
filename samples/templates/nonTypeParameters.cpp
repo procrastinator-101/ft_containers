@@ -2,12 +2,12 @@
 
 float s = 15.36;
 
-class cl
+class court
 {
 	public:
 	int s;
 
-	cl(){};
+	court(){};
 	void	set(int i) {s = i;}
 	int		get() const {return s;}
 };
@@ -34,7 +34,7 @@ T bar(T x)
 }
 
 static float d = 0.2365;
-const int cl::*ptr = &cl::s;
+const int court::*ptr = &court::s;
 
 int main()
 {
@@ -48,7 +48,7 @@ int main()
 	max<>(i, j);
 	max(x, y);
 	max(a, b);
-	foo<float, &cl::s>(14);
+	foo<float, &court::s>(14);
 	// foo<float, ptr>(14); //invalid
 
 	bar<int, 5>(10);

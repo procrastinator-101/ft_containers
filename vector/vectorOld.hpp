@@ -73,46 +73,10 @@ namespace ft
 				_capacity = newCapacity;
 			}
 
-			//might throw
-			//in case of exception, nothing get constructed
-			void	_constructRange(pointer ptr, size_type start, size_type end, value_type val)
-			{
-				size_type	i;
-
-				try
-				{
-					for (i = start; i < end; i++)
-						_allocator.construct(ptr + i, val);
-				}
-				catch (...)
-				{
-					_destroyRange(ptr, start, i);
-					throw ;
-				}
-			}
-
-			//might throw
-			//in case of exception, nothing get constructed
-			void	_constructRange(pointer ptr, size_type start, size_type end, pointer src)
-			{
-				size_type	i;
-
-				try
-				{
-					for (i = start; i < end; i++)
-						_allocator.construct(ptr + i, src[i]);
-				}
-				catch (...)
-				{
-					_destroyRange(ptr, start, i);
-					throw ;
-				}
-			}
-
-			void	_destroyRange(pointer ptr, size_type start, size_type end)
+			void	_destroyRange(size_type start, size_type end)
 			{
 				for (size_type i = start; i < end; i++)
-					_allocator.destroy(ptr + i);
+					_allocator.destroy(_data + i);
 			}
 
 			template<class U>
@@ -157,7 +121,6 @@ namespace ft
 				}
 			}
 
-			//might throw
 			vector (const vector& src) : _size(src._size), _capacity(src._capacity), _allocator(src._allocator)
 			{
 				size_type	i;
@@ -178,7 +141,7 @@ namespace ft
 
 			//might throw
 			template <class InputIterator>
-			vector (InputIterator first, InputIterator last, const allocator_type& alloc = allocator_type()) : _size(0), _capacity(1), _allocator(alloc)//
+			vector (InputIterator first, InputIterator last, const allocator_type& alloc = allocator_type()) : _size(0), _capacity(1), _allocator(alloc)
 			{
 				_data = _allocator.allocate(_capacity);
 				while (first != last)
@@ -503,7 +466,7 @@ namespace ft
 		/////////////////////////////////////////////////////////////////////////////////////////////////////
 		private:
 
-			pointer	_data;
+			T	*_data;
 			size_type	_size;
 			size_type	_capacity;
 			allocator_type	_allocator;

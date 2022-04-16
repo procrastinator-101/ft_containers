@@ -5,15 +5,10 @@ templates:
 
 concepts:
 -	generic function = function template
--	generated function = template function = instantiated function = function instance
+-	generated function = template function = instantiated function = function (template) instance
 
 
--	function template instantiation :
-	-	implicit : through a function  call
-	-	explicit : through creating functions (with specific types) from function templates (with template types).
-	Ex :	-	template<class T> f(T arg){}
-			-	template<> f<int>(int arg){} --> explicit instantiation
-			-	f(12.3)	--> implicit instantiation
+
 
 
 calling a template function :
@@ -70,6 +65,40 @@ template member definition:
 	Ex :
 	-	function template : template <typename T, typename U> void show(T s, U del, int size){};
 	-	specialization : template <> void show(string s, char del, int size){};
+
+template instantiation
+================================
+*	template instantiation : tells the compiler when it should generate a definition from a template.
+
+*	template instantiation :
+	-	implicit : through a function  call
+	Ex :	-	f(12.3)	--> implicit instantiation
+	-	explicit : through creating functions (with specific types) from function templates.
+	Ex :	-	template<> f<int>(int arg);
+			-	template<> struct cl<int>;
+			
+//----
+*	The explicit instantiation declarations feature is introduced in the C++11 standard.
+	With this feature, you can suppress the implicit instantiation of a template specialization or its members.
+*	An explicit instantiation definition is an instantiation of a template specialization or a its members.
+
+explicit template instantiation : tells the compiler : do not bother generating this code, because. i defined it somewhere else.
+	*	explicit template instantiation declaration : extern template<> class cl<int>;
+	*	explicit template instantiation definition : template<> class cl<int>;
+
+*	declaration (needs to be visible) requirement only :
+	-	function template
+	-	member function or static data member of a class template
+	-	member function template
+*	definition requirement (unless an explicit specialization with the same template arguments appeared before):
+	-	class template
+	-	member class of a class template
+	-	member class template
+
+*	the template definition must be present in the same translation unit when an explicit instantiation defintion of :
+	-	function template
+	-	member function template
+	-	member function or static data member of a class template
 
 
 Member function templates

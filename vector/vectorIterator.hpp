@@ -152,7 +152,8 @@ namespace ft
 			vectorIterator	operator++(int n)
 			{
 				vectorIterator	ret(*this);
-
+				
+				(void)n;
 				_ptr++;
 				return ret;
 			}
@@ -167,6 +168,7 @@ namespace ft
 			{
 				vectorIterator	ret(*this);
 
+				(void)n;
 				_ptr--;
 				return ret;
 			}
