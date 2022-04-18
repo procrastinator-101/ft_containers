@@ -1,6 +1,7 @@
 #ifndef VECTOR_HPP
 # define VECTOR_HPP
 
+#include <cstring>
 #include <memory>
 #include <stdexcept>
 
@@ -48,28 +49,20 @@ namespace ft
 				return doubleCap;
 			}
 
+			void	_copyElision(pointer src, size_type dstStart, size_type srcStart, size_type size)
+			{
+				::memmove(_data + dstStart, src + srcStart, size * sizeof(value_type));
+			}
+
 			//might throw
 			void	_expandData(size_type newCapacity)
 			{
 				T	*tmp;
-				size_type	i;
 
 				tmp = _allocator.allocate(newCapacity);
-				try
-				{
-					for (i = 0; i < _size; i++)
-						_allocator.construct(tmp + i, _data[i]);
-				}
-				catch (...)
-				{
-					for (size_type j = 0; j < i; j++)
-						_allocator.destroy(tmp + j);
-					_allocator.deallocate(tmp, newCapacity);
-					throw ;
-				}
-				_destroyRange(0, _size);
-				_allocator.deallocate(_data, _capacity);
-				_data = tmp;
+				_normalSwap(_data, tmp);
+				_copyElision(tmp, 0, 0, _size);
+				_allocator.deallocate(tmp, _capacity);
 				_capacity = newCapacity;
 			}
 
@@ -204,9 +197,9 @@ namespace ft
 
 			//might throw
 			template <class InputIterator>
-			vector (InputIterator first, InputIterator last, const allocator_type& alloc = allocator_type()) : _size(0), _capacity(1), _allocator(alloc)//
+			vector (InputIterator first, InputIterator last, const allocator_type& alloc = allocator_type()) : _size(0), _capacity(0), _allocator(alloc)//
 			{
-				_data = _allocator.allocate(_capacity);
+				_allocate(1);
 				while (first != last)
 				{
 					push_back(*first);
@@ -378,30 +371,77 @@ namespace ft
 		/// Modifiers
 		/////////////////////////////////////////////////////////////////////////////////////////////////////
 		public:
+			//might throw
 			void	assign(size_type n, const value_type& val)
 			{
 				_destroyRange(0, _size);
 				if (n > _capacity)
 				{
 					_allocator.deallocate(_data, _capacity);
-					_capacity = _getNewCapacity(n);
-					_data = _allocator.allocate(_capacity);
+					_allocate(_getNewCapacity(n));
 				}
-				for (size_type i = 0; i < n; i++)
-					_allocator.construct(&_data[i], val);
-				_size = n;
+				_constructRange(0, n, val);
 			}
 
-			void	push_back(const value_type& val)//might throw
+			//might throw
+			void	push_back(const value_type& val)
 			{
 				if (_capacity == _size)
 					_expandData(_capacity * 2);
-				_allocator.construct(&_data[_size++], val);
+				_allocator.construct(_data + _size, val);
+				++_size;
 			}
 
 			void	pop_back()
 			{
 				_allocator.destroy(&_data[--_size]);
+			}
+
+			iterator	insert(iterator position, const value_type& val)
+			{
+				pointer		tmp;
+				size_type	start;
+				size_type	newCapacity;
+
+				start = position - begin();
+				if (_capacity == _size)
+				{
+					newCapacity = _getNewCapacity(_capacity);
+					tmp = _allocator.allocate(newCapacity);
+					_normalSwap(tmp, _data);
+					_normalSwap(_capacity, newCapacity);
+					std::cout << "hola" << std::endl;
+					if (start > 0)
+						_copyElision(tmp, 0, 0, start - 1);
+					try
+					{
+						_allocator.construct(_data + start, val);
+					}
+					catch (...)
+					{
+						_copyElision(tmp, start, start, _size - start);
+						_allocator.deallocate(tmp, newCapacity);
+						throw ;
+					}
+					_copyElision(tmp, start + 1, start, _size - start);
+					std::cout << "hola" << std::endl;
+					_allocator.deallocate(tmp, newCapacity);
+				}
+				else
+				{
+					_copyElision(_data, start + 1, start, _size - start);
+					try
+					{
+						_allocator.construct(_data + start, val);
+					}
+					catch (...)
+					{
+						_copyElision(_data, start, start + 1, _size - start);
+						throw ;
+					}
+				}
+				++_size;
+				return iterator(_data + start);
 			}
 
 			void	swap(vector& x)
@@ -417,7 +457,6 @@ namespace ft
 			void	clear()
 			{
 				_destroyRange(0, _size);
-				_size = 0;
 			}
 		/////////////////////////////////////////////////////////////////////////////////////////////////////
 		/// Modifiers End

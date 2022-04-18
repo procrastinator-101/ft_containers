@@ -67,7 +67,6 @@ namespace ft
 		public:
 			operator vectorConstIterator()
 			{
-				std::cout << "conversion" << std::endl;
 				return vectorConstIterator(_ptr);
 			}
 		/////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -126,9 +125,9 @@ namespace ft
 				return vectorIterator(_ptr - d);
 			}
 
-			vectorIterator	operator-(const vectorIterator& rop)
+			difference_type	operator-(const vectorIterator& rop)
 			{
-				return vectorIterator(_ptr - rop._ptr);
+				return _ptr - rop._ptr;
 			}
 
 			vectorIterator	&operator+=(difference_type d)

@@ -1,5 +1,6 @@
 #include <vector>
 
+#include "court.hpp"
 #include "vector.hpp"
 
 
@@ -56,6 +57,69 @@ void	show(INPUT_ITERATOR first, INPUT_ITERATOR last)
 	std::cout << "======================================================" << std::endl;
 }
 
+
+void	testConstructor()
+{
+	std::cout << court::getCount() << std::endl;
+	std::cout << "/////////////////////////////////////////////////////////" << std::endl;
+	try
+	{
+		std::vector<court>stdVector(6);
+		std::cout << "========================================================" << std::endl;
+		std::cout << court::getCount() << std::endl;
+		std::cout << "========================================================" << std::endl;
+		std::vector<court>clone(stdVector);
+		std::cout << "========================================================" << std::endl;
+	}
+	catch (std::exception& e)
+	{
+		std::cout << e.what() << std::endl;
+	}
+	std::cout << "/////////////////////////////////////////////////////////" << std::endl;
+	std::cout << court::getCount() << std::endl;
+	std::cout << "/////////////////////////////////////////////////////////" << std::endl;
+	try
+	{
+		ft::vector<court>stdVector(6);
+		std::cout << "========================================================" << std::endl;
+		std::cout << court::getCount() << std::endl;
+		std::cout << "========================================================" << std::endl;
+		ft::vector<court>clone(stdVector);
+		std::cout << "========================================================" << std::endl;
+	}
+	catch (std::exception& e)
+	{
+		std::cout << e.what() << std::endl;
+	}
+	std::cout << "/////////////////////////////////////////////////////////" << std::endl;
+	std::cout << court::getCount() << std::endl;
+}
+
+void	testInsert()
+{
+	std::cout << "////////////////////////// Insert /////////////////////////////" << std::endl;
+	std::cout << "///////////////////////////////////////////////////////////////" << std::endl;
+	int n = 8;
+	int	position = 9;
+
+	ft::vector<int>		nbs;
+	std::vector<int>	nums;
+
+	fillVector(nbs, n);
+	fillVector(nums, n);
+
+	printVector(nbs);
+	printVector(nums);
+
+	nbs.insert(nbs.begin() + position, 99);
+	nums.insert(nums.begin() + position, 99);
+
+	printVector(nbs);
+	printVector(nums);
+	std::cout << "//////////////////////// Insert End ///////////////////////////" << std::endl;
+	std::cout << "///////////////////////////////////////////////////////////////" << std::endl;
+}
+
 void	testVector()
 {
 	int n = 19;
@@ -81,4 +145,6 @@ void	testVector()
 	
 	std::cout << (typeid(std::iterator_traits<int *>::pointer) == typeid(int *)) << std::endl;
 	std::cout << (typeid(ft::iterator_traits<int *>::pointer) == typeid(int *)) << std::endl;
+	testConstructor();
+	testInsert();
 }
