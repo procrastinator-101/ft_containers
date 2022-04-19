@@ -12,6 +12,7 @@ void	testVector();
 
 int main()
 {
+	srand(time(0));
 	testVector();
 	return 0;
 }

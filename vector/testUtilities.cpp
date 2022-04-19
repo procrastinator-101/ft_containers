@@ -100,7 +100,7 @@ void	testInsert()
 	std::cout << "////////////////////////// Insert /////////////////////////////" << std::endl;
 	std::cout << "///////////////////////////////////////////////////////////////" << std::endl;
 	int n = 8;
-	int	position = 9;
+	int	position = 0;
 
 	ft::vector<int>		nbs;
 	std::vector<int>	nums;
@@ -113,6 +113,8 @@ void	testInsert()
 
 	nbs.insert(nbs.begin() + position, 99);
 	nums.insert(nums.begin() + position, 99);
+	nbs.insert(nbs.end(), 65);
+	nums.insert(nums.end(), 65);
 
 	printVector(nbs);
 	printVector(nums);

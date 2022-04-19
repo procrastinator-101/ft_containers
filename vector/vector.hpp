@@ -49,9 +49,11 @@ namespace ft
 				return doubleCap;
 			}
 
-			void	_copyElision(pointer src, size_type dstStart, size_type srcStart, size_type size)
+			void	_copyElision(pointer src, size_type dstStart, size_type srcStart, size_type srcEnd)
 			{
-				::memmove(_data + dstStart, src + srcStart, size * sizeof(value_type));
+				std::cout << dstStart << " " << srcStart << " " << srcEnd << std::endl;
+				if (srcEnd > srcStart)
+					::memmove(_data + dstStart, src + srcStart, (srcEnd - srcStart) * sizeof(value_type));
 			}
 
 			//might throw
@@ -410,33 +412,30 @@ namespace ft
 					tmp = _allocator.allocate(newCapacity);
 					_normalSwap(tmp, _data);
 					_normalSwap(_capacity, newCapacity);
-					std::cout << "hola" << std::endl;
-					if (start > 0)
-						_copyElision(tmp, 0, 0, start - 1);
+					_copyElision(tmp, 0, 0, start);
 					try
 					{
 						_allocator.construct(_data + start, val);
 					}
 					catch (...)
 					{
-						_copyElision(tmp, start, start, _size - start);
+						_copyElision(tmp, start, start, _size);
 						_allocator.deallocate(tmp, newCapacity);
 						throw ;
 					}
-					_copyElision(tmp, start + 1, start, _size - start);
-					std::cout << "hola" << std::endl;
+					_copyElision(tmp, start + 1, start, _size);
 					_allocator.deallocate(tmp, newCapacity);
 				}
 				else
 				{
-					_copyElision(_data, start + 1, start, _size - start);
+					_copyElision(_data, start + 1, start, _size);
 					try
 					{
 						_allocator.construct(_data + start, val);
 					}
 					catch (...)
 					{
-						_copyElision(_data, start, start + 1, _size - start);
+						_copyElision(_data, start, start + 1, _size);
 						throw ;
 					}
 				}
