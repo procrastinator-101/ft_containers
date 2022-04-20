@@ -51,7 +51,6 @@ namespace ft
 
 			void	_copyElision(pointer src, size_type dstStart, size_type srcStart, size_type srcEnd)
 			{
-				std::cout << dstStart << " " << srcStart << " " << srcEnd << std::endl;
 				if (srcEnd > srcStart)
 					::memmove(_data + dstStart, src + srcStart, (srcEnd - srcStart) * sizeof(value_type));
 			}
@@ -84,7 +83,7 @@ namespace ft
 
 			//might throw
 			//in case of exception, nothing get constructed
-			void	_constructRange(size_type start, size_type end, value_type val)
+			void	_constructRange(size_type start, size_type end, const value_type& val)
 			{
 				size_type	i;
 
@@ -435,7 +434,7 @@ namespace ft
 					}
 					catch (...)
 					{
-						_copyElision(_data, start, start + 1, _size);
+						_copyElision(_data, start, start + 1, _size + 1);
 						throw ;
 					}
 				}

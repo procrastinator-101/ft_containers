@@ -17,9 +17,20 @@ NAME = vector
 CC = clang++
 CFLAGS = -Wall -Werror -Wextra -std=c++98 #-fsanitize=address
 
-SRC = main.cpp court.cpp testUtilities.cpp
+TEST_UTILITIES_PATH = testUtilities
 
-HDR = vector.hpp vectorIterator.hpp court.hpp
+TEST_UTILITIES_SRC = $(TEST_UTILITIES_PATH)/constructor.cpp \
+					 $(TEST_UTILITIES_PATH)/court.cpp \
+					 $(TEST_UTILITIES_PATH)/fillVector.cpp \
+					 $(TEST_UTILITIES_PATH)/insert.cpp \
+					 $(TEST_UTILITIES_PATH)/testUtilities.cpp
+
+TEST_UTILITIES_HDR = $(TEST_UTILITIES_PATH)/court.hpp \
+					 $(TEST_UTILITIES_PATH)/testUtilities.hpp
+
+SRC = main.cpp $(TEST_UTILITIES_SRC)
+
+HDR = vector.hpp vectorIterator.hpp $(TEST_UTILITIES_HDR)
 
 OBJ = $(SRC:.cpp=.o)
 
