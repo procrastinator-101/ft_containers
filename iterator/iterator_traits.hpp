@@ -2,7 +2,6 @@
 # define ITERATOR_TRAITS_HPP
 
 #include <iterator>
-#include <type_traits>
 
 namespace ft
 {

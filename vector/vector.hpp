@@ -4,6 +4,8 @@
 #include <cstring>
 #include <memory>
 #include <stdexcept>
+#include <algorithm>
+#include <iostream>//
 
 #include "vectorIterator.hpp"
 

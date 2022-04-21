@@ -32,3 +32,8 @@ done :
 	-	capacity
 	-	elements acces
 	-	relational operators
+
+
+
+insert : copy construct the last element at the end and then make arr[i] = arr[i - 1] until you reach 'position'
+		 and then assign val to it.

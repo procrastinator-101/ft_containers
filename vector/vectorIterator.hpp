@@ -2,14 +2,13 @@
 # define VECTORITERATOR_HPP
 
 #include <iterator>
-#include <iostream>//
 
 # include "../iterator/iterator_traits.hpp"
 
 
 namespace ft
 {
-	template <class T, class Distance = ptrdiff_t, class Pointer = T*, class Reference = T& >
+	template <class T, class Distance = std::ptrdiff_t, class Pointer = T*, class Reference = T& >
 	class vectorIterator
 	{
 		/////////////////////////////////////////////////////////////////////////////////////////////////////

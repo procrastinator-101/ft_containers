@@ -5,7 +5,7 @@
 
 
 #define STRSIZE 6
-#define MAXCOUNT 6
+#define MAXCOUNT 100
 
 namespace ft
 {
@@ -37,7 +37,7 @@ namespace ft
 	court::court(const court& src) : _name(src._name), _str(0)
 	{
 		count++;
-		std::cout << "Copy constructor : " << count << std::endl;
+		std::cout << "Copy constructor : " << count << " " << _name << std::endl;
 		checkMaxCount();
 		_buildStr();
 	}

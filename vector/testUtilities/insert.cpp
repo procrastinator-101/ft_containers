@@ -43,7 +43,7 @@ void	testInsertInt()
 }
 
 template<typename T, typename U>
-static void	insertExcept(T& v, typename T::iterator position, const U val)
+static void	insertExcept(T& v, typename T::iterator position, const U& val)
 {
 	std::cout << "///////////////////////////////////////////////////////////////" << std::endl;
 	try
@@ -62,23 +62,21 @@ void	testInsertCourt()
 {
 	std::cout << "/////////////////////// InsertCourt ///////////////////////////" << std::endl;
 	std::cout << "///////////////////////////////////////////////////////////////" << std::endl;
-	int n = 5;
-	int	position = 5;
+	int n = 3;
+	int	position = 4;
 
 	ft::vector<ft::court>		nbs;
 	std::vector<ft::court>	nums;
 
 	fillVector(nbs, n);
-	fillVector(nums, n);
-
 	std::cout << nbs << std::endl;
-	std::cout << nums << std::endl;
-
 	insertExcept(nbs, nbs.begin(), ft::court("first"));
 	insertExcept(nbs, nbs.begin() + position, ft::court("middle"));
 	insertExcept(nbs, nbs.end(), ft::court("end"));
 	nbs.clear();
 
+	fillVector(nums, n);
+	std::cout << nums << std::endl;
 	insertExcept(nums, nums.begin(), ft::court("first"));
 	insertExcept(nums, nums.begin() + position, ft::court("middle"));
 	insertExcept(nums, nums.end(), ft::court("end"));
@@ -90,6 +88,6 @@ void	testInsertCourt()
 
 void	testInsert()
 {
-	testInsertInt();
+	// testInsertInt();
 	testInsertCourt();
 }

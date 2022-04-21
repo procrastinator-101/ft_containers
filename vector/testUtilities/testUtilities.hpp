@@ -49,7 +49,7 @@ std::ostream	&operator<<(std::ostream& ostr, const ft::vector<T>& v)
 template<typename T>
 std::ostream	&operator<<(std::ostream& ostr, const std::vector<T>& v)
 {
-	ostr << "======================== FT ==========================" << std::endl;
+	ostr << "======================== STD =========================" << std::endl;
 	for (size_t i = 0; i < v.size(); i++)
 		ostr << v[i] << " ";
 	ostr << std::endl;
