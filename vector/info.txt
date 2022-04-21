@@ -26,8 +26,6 @@ checked :
 
 
 
-
-
 done :
 	-	capacity
 	-	elements acces
@@ -35,5 +33,16 @@ done :
 
 
 
+=======================================================================================================================
+ft::vector
+	-	insert : copy elision what's after the position and copy construct arr[position] by val
+
+	-	insert n : copy elision what's after the position and copy construct arr[position : position + n] by val
+
+	-	
+
+=======================================================================================================================
+std::vector
 insert : copy construct the last element at the end and then make arr[i] = arr[i - 1] until you reach 'position'
 		 and then assign val to it.
+=======================================================================================================================

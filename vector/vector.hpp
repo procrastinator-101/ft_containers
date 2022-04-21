@@ -7,7 +7,9 @@
 #include <algorithm>
 #include <iostream>//
 
+#include "testUtilities/display.hpp"
 #include "vectorIterator.hpp"
+
 
 namespace ft
 {
@@ -184,7 +186,7 @@ namespace ft
 			}
 
 			//might throw
-			vector (const vector& src) : _size(src._size), _capacity(src._capacity), _allocator(src._allocator)
+			vector(const vector& src) : _size(src._size), _capacity(src._capacity), _allocator(src._allocator)
 			{
 				_allocate(src._capacity);
 				try
@@ -200,7 +202,7 @@ namespace ft
 
 			//might throw
 			template <class InputIterator>
-			vector (InputIterator first, InputIterator last, const allocator_type& alloc = allocator_type()) : _size(0), _capacity(0), _allocator(alloc)//
+			vector(InputIterator first, InputIterator last, const allocator_type& alloc = allocator_type()) : _size(0), _capacity(0), _allocator(alloc)//
 			{
 				_allocate(1);
 				while (first != last)
@@ -241,25 +243,26 @@ namespace ft
 		/////////////////////////////////////////////////////////////////////////////////////////////////////
 		/// Iterators
 		/////////////////////////////////////////////////////////////////////////////////////////////////////
-		iterator	begin()
-		{
-			return iterator(_data);
-		}
+		public:
+			iterator	begin()
+			{
+				return iterator(_data);
+			}
 
-		const_iterator	begin() const
-		{
-			return const_iterator(_data);
-		}
+			const_iterator	begin() const
+			{
+				return const_iterator(_data);
+			}
 
-		iterator	end()
-		{
-			return iterator(_data + _size);
-		}
+			iterator	end()
+			{
+				return iterator(_data + _size);
+			}
 
-		const_iterator	end() const
-		{
-			return const_iterator(_data + _size);
-		}
+			const_iterator	end() const
+			{
+				return const_iterator(_data + _size);
+			}
 		/////////////////////////////////////////////////////////////////////////////////////////////////////
 		/// Iterators End
 		/////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -400,6 +403,7 @@ namespace ft
 				_allocator.destroy(&_data[--_size]);
 			}
 
+			//might throw
 			iterator	insert(iterator position, const value_type& val)
 			{
 				pointer		tmp;
@@ -412,7 +416,7 @@ namespace ft
 					newCapacity = _getNewCapacity(_capacity);
 					tmp = _allocator.allocate(newCapacity);
 					_normalSwap(tmp, _data);
-					_normalSwap(_capacity, newCapacity);
+					_normalSwap(newCapacity, _capacity);
 					_copyElision(tmp, 0, 0, start);
 					try
 					{
@@ -420,8 +424,9 @@ namespace ft
 					}
 					catch (...)
 					{
-						_copyElision(tmp, start, start, _size);
-						_allocator.deallocate(tmp, newCapacity);
+						_allocator.deallocate(_data, _capacity);
+						_data = tmp;
+						_capacity = newCapacity;
 						throw ;
 					}
 					_copyElision(tmp, start + 1, start, _size);
@@ -442,6 +447,80 @@ namespace ft
 				}
 				++_size;
 				return iterator(_data + start);
+			}
+
+			//might throw
+			void	insert(iterator position, size_type n, const value_type& val)
+			{
+				pointer		tmp;
+				size_type	start;
+				size_type	oldSize;
+				size_type	newCapacity;
+
+				oldSize = _size;
+				start = position - begin();
+				if (_capacity < _size + n)
+				{
+					newCapacity = _getNewCapacity(_size + n);
+					tmp = _allocator.allocate(newCapacity);
+					_normalSwap(tmp, _data);
+					_normalSwap(newCapacity, _capacity);
+					_copyElision(tmp, 0, 0, start);
+					try
+					{
+						_constructRange(start, start + n, val);
+					}
+					catch (...)
+					{
+						_allocator.deallocate(_data, _capacity);
+						_data = tmp;
+						_capacity = newCapacity;
+						throw ;
+					}
+					_copyElision(tmp, start + n, start, oldSize);
+					_allocator.deallocate(tmp, newCapacity);
+				}
+				else
+				{
+					_copyElision(_data, start + n, start, oldSize);
+					try
+					{
+						_constructRange(start, start + n, val);
+					}
+					catch (...)
+					{
+						_copyElision(_data, start, start + n, oldSize + n);
+						throw ;
+					}
+				}
+				_size = oldSize + n;
+			}
+
+			//might throw
+			//needs SFINAE protection agaist integral types
+			template <class InputIterator>
+			void	insert(iterator position, InputIterator first, InputIterator last)
+			{
+				vector		tmp(first, last);
+				pointer		newData;
+				size_type	start;
+				size_type	newCapacity;
+
+				newData = _data;
+				start = position - begin();
+				newCapacity = tmp._size + _size;
+				if (_capacity < newCapacity)
+				{
+					newCapacity = _getNewCapacity(newCapacity);
+					newData = _allocator.allocate(newCapacity);
+					_capacity = newCapacity;
+					_normalSwap(_data, newData);
+					_copyElision(newData, 0, 0, start);
+				}
+				_copyElision(newData, start + tmp._size, start, _size);
+				_copyElision(tmp._data, start, 0, tmp._size);
+				_size += tmp._size;
+				tmp._size = 0;
 			}
 
 			void	swap(vector& x)
