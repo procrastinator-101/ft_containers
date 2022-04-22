@@ -417,3 +417,7 @@ usage :
 	-   compile the headers g++ header.hpp
 	-   g++ -o executable files.cpp -x header.hpp.gch
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+SFINAE
+-	name lookup
+-	specialise the function template for the given arguments (where SFINAE happens)
+-	choose the most close version

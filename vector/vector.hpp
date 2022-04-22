@@ -7,8 +7,9 @@
 #include <algorithm>
 #include <iostream>//
 
-#include "testUtilities/display.hpp"
 #include "vectorIterator.hpp"
+#include "testUtilities/display.hpp"
+#include "../type_traits/type_traits.hpp"
 
 
 namespace ft
@@ -201,8 +202,9 @@ namespace ft
 			}
 
 			//might throw
+			//needs SFINAE protection
 			template <class InputIterator>
-			vector(InputIterator first, InputIterator last, const allocator_type& alloc = allocator_type()) : _size(0), _capacity(0), _allocator(alloc)//
+			vector(InputIterator first, InputIterator last, const allocator_type& alloc = allocator_type()) : _size(0), _capacity(0), _allocator(alloc)
 			{
 				_allocate(1);
 				while (first != last)
