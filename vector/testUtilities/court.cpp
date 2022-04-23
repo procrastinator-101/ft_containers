@@ -14,14 +14,14 @@ namespace ft
 	court::court() : _str(0)
 	{
 		count++;
-		std::cout << "Default constructor : " << count << std::endl;
+		// std::cout << "Default constructor : " << count << std::endl;
 		checkMaxCount();
 		_buildStr();
 	}
 
 	court::~court()
 	{
-		std::cout << "Default destructor : " << count << std::endl;
+		// std::cout << "Default destructor : " << count << std::endl;
 		count--;
 		_destroyStr();
 	}
@@ -29,7 +29,7 @@ namespace ft
 	court::court(const std::string& name) : _name(name), _str(0)
 	{
 		count++;
-		std::cout << "Parameterised constructor : " << count << std::endl;
+		// std::cout << "Parameterised constructor : " << count << std::endl;
 		checkMaxCount();
 		_buildStr();
 	}
@@ -37,14 +37,14 @@ namespace ft
 	court::court(const court& src) : _name(src._name), _str(0)
 	{
 		count++;
-		std::cout << "Copy constructor : " << count << " " << _name << std::endl;
+		// std::cout << "Copy constructor : " << count << " " << _name << std::endl;
 		checkMaxCount();
 		_buildStr();
 	}
 
 	court	&court::operator=(const court& rop)
 	{
-		std::cout << "Assignment operator" << std::endl;
+		// std::cout << "Assignment operator" << std::endl;
 		if (this == &rop)
 			return *this;
 		_name = rop._name;
@@ -84,6 +84,36 @@ namespace ft
 	void	court::_destroyStr()
 	{
 		delete [] _str;
+	}
+
+	bool	operator==(const court& lhs, const court& rhs)
+	{
+		return lhs._name == rhs._name && !strcmp(lhs._str, rhs._str);
+	}
+
+	bool	operator!=(const court& lhs, const court& rhs)
+	{
+		return !(lhs == rhs);
+	}
+
+	bool operator<(const court& lhs, const court& rhs)
+	{
+		return lhs._name < rhs._name && strcmp(lhs._str, rhs._str) < 0;
+	}
+
+	bool operator>(const court& lhs, const court& rhs)
+	{
+		return rhs < lhs;
+	}
+
+	bool operator<=(const court& lhs, const court& rhs)
+	{
+		return !(rhs < lhs);
+	}
+
+	bool operator>=(const court& lhs, const court& rhs)
+	{
+		return !(lhs < rhs);
 	}
 }
 

@@ -28,6 +28,13 @@ namespace ft
 			static int	getCount();
 			std::string	getName() const;
 			void	setName(const std::string& name);
+
+			friend bool	operator==(const court& lhs, const court& rhs);
+			friend bool	operator!=(const court& lhs, const court& rhs);
+			friend bool operator<(const court& lhs, const court& rhs);
+			friend bool operator>(const court& lhs, const court& rhs);
+			friend bool operator<=(const court& lhs, const court& rhs);
+			friend bool operator>=(const court& lhs, const court& rhs);
 	};
 
 }

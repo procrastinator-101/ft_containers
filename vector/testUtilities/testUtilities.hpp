@@ -10,6 +10,7 @@
 #include "display.hpp"
 #include "../vector.hpp"
 
+void	testErase();
 void	testInsert();
 void	testConstructor();
 

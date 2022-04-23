@@ -7,6 +7,9 @@
 #include <algorithm>
 #include <iostream>//
 
+#include "../algorithm/equal.hpp"
+#include "../algorithm/lexicographical_compare.hpp"
+
 #include "vectorIterator.hpp"
 #include "testUtilities/display.hpp"
 #include "../type_traits/type_traits.hpp"
@@ -63,7 +66,7 @@ namespace ft
 			//might throw
 			void	_expandData(size_type newCapacity)
 			{
-				T	*tmp;
+				pointer	tmp;
 
 				tmp = _allocator.allocate(newCapacity);
 				_normalSwap(_data, tmp);
@@ -394,9 +397,28 @@ namespace ft
 			//might throw
 			void	push_back(const value_type& val)
 			{
+				pointer		tmp;
+				size_type	newCapacity;
+
 				if (_capacity == _size)
-					_expandData(_capacity * 2);
-				_allocator.construct(_data + _size, val);
+				{
+					newCapacity = _getNewCapacity(_capacity * 2);
+					tmp = _allocator.allocate(newCapacity);
+					try
+					{
+						_allocator.construct(tmp + _size, val);
+					}
+					catch (...)
+					{
+						_allocator.deallocate(tmp, newCapacity);
+					}
+					_normalSwap(_data, tmp);
+					_copyElision(tmp, 0, 0, _size);
+					_allocator.deallocate(tmp, _capacity);
+					_capacity = newCapacity;
+				}
+				else
+					_allocator.construct(_data + _size, val);
 				++_size;
 			}
 
@@ -523,6 +545,32 @@ namespace ft
 				_copyElision(tmp._data, start, 0, tmp._size);
 				_size += tmp._size;
 				tmp._size = 0;
+			}
+
+			iterator	erase(iterator position)
+			{
+				size_type	target;
+
+				target = position - begin();
+				_allocator.destroy(_data + target);
+				_copyElision(_data, target, target + 1, _size);
+				--_size;
+				return iterator(_data + target);
+			}
+
+			iterator	erase(iterator first, iterator last)
+			{
+				size_type	end;
+				size_type	start;
+				size_type	oldSize;
+
+				oldSize = _size;
+				end = last - begin();
+				start = first - begin();
+				_destroyRange(start, end);
+				_copyElision(_data, start, end, oldSize);
+				_size = oldSize - (end - start);
+				return iterator(_data + start);
 			}
 
 			void	swap(vector& x)

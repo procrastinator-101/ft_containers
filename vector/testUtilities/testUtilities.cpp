@@ -3,5 +3,6 @@
 void	testVector()
 {
 	// testConstructor();
-	testInsert();
+	// testInsert();
+	testErase();
 }

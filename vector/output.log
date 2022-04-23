@@ -1,289 +1,82 @@
-////////////////////// InsertCourtIter ////////////////////////
-///////////////////////////////////////////////////////////////
-Default constructor : 1
-Default constructor : 2
-Default constructor : 3
-Default constructor : 4
-Default constructor : 5
-Default constructor : 6
-Default constructor : 7
-Default constructor : 8
-Default constructor : 9
-Default constructor : 10
-Default constructor : 11
-Default constructor : 12
-Default constructor : 13
-Default constructor : 14
-Default constructor : 15
-Default constructor : 16
-Default constructor : 17
-Default constructor : 18
-Default constructor : 19
-Default constructor : 20
-Parameterised constructor : 21
-Assignment operator
-Default destructor : 21
-Parameterised constructor : 21
-Assignment operator
-Default destructor : 21
-Parameterised constructor : 21
-Assignment operator
-Default destructor : 21
-Parameterised constructor : 21
-Assignment operator
-Default destructor : 21
-Parameterised constructor : 21
-Assignment operator
-Default destructor : 21
-Parameterised constructor : 21
-Assignment operator
-Default destructor : 21
-Parameterised constructor : 21
-Assignment operator
-Default destructor : 21
-Parameterised constructor : 21
-Assignment operator
-Default destructor : 21
-Parameterised constructor : 21
-Assignment operator
-Default destructor : 21
-Parameterised constructor : 21
-Assignment operator
-Default destructor : 21
-Parameterised constructor : 21
-Assignment operator
-Default destructor : 21
-Parameterised constructor : 21
-Assignment operator
-Default destructor : 21
-Parameterised constructor : 21
-Assignment operator
-Default destructor : 21
-Parameterised constructor : 21
-Assignment operator
-Default destructor : 21
-Parameterised constructor : 21
-Assignment operator
-Default destructor : 21
-Parameterised constructor : 21
-Assignment operator
-Default destructor : 21
-Parameterised constructor : 21
-Assignment operator
-Default destructor : 21
-Parameterised constructor : 21
-Assignment operator
-Default destructor : 21
-Parameterised constructor : 21
-Assignment operator
-Default destructor : 21
-Parameterised constructor : 21
-Assignment operator
-Default destructor : 21
-in
------------------------------------------------------------------------
-Parameterised constructor : 21
-Copy constructor : 22 |name 11|
-Default destructor : 22
------------------------------------------------------------------------
------------------------------------------------------------------------
-Parameterised constructor : 22
-Copy constructor : 23 |name 2|
-Default destructor : 23
------------------------------------------------------------------------
------------------------------------------------------------------------
-Parameterised constructor : 23
-Copy constructor : 24 |name 13|
-Default destructor : 24
------------------------------------------------------------------------
-out
--in
------------------------------------------------------------------------
-Parameterised constructor : 24
-Copy constructor : 25 |name 1|
-Default destructor : 25
------------------------------------------------------------------------
------------------------------------------------------------------------
-Parameterised constructor : 25
-Copy constructor : 26 |name 9|
-Copy constructor : 27 |name 1|
-Default destructor : 27
-Default destructor : 26
------------------------------------------------------------------------
------------------------------------------------------------------------
-Parameterised constructor : 26
-Copy constructor : 27 |name 2|
-Copy constructor : 28 |name 9|
-Copy constructor : 29 |name 1|
-Default destructor : 29
-Default destructor : 28
-Default destructor : 27
------------------------------------------------------------------------
--out
+///////////////////////// EraseInt ////////////////////////////
 ======================== FT ==========================
-|name 11| |name 2| |name 13| 
+100 103 100 100 103 107 100 104 105 107 
+===================== capacity =======================
+max  = 4611686018427387903
+size = 10
+cap  = 16
+======================================================
+
+======================== STD =========================
+100 103 100 100 103 107 100 104 105 107 
+===================== capacity =======================
+max  = 4611686018427387903
+size = 10
+cap  = 16
+======================================================
+
+nums == nbs : true
+///////////////////////////////////////////////////////////////
+nums == nbs : true
+///////////////////////////////////////////////////////////////
+nums == nbs : true
+///////////////////////////////////////////////////////////////
+======================== FT ==========================
+100 104 107 
+===================== capacity =======================
+max  = 4611686018427387903
+size = 3
+cap  = 16
+======================================================
+
+======================== STD =========================
+100 104 107 
+===================== capacity =======================
+max  = 4611686018427387903
+size = 3
+cap  = 16
+======================================================
+
+////////////////////// EraseInt End ///////////////////////////
+
+/////////////////////// EraseCourt ////////////////////////////
+======================== FT ==========================
+|name 11| |name 14| |name 16| |name 13| |name 18| |name 25| |name 25| |name 20| |name 14| |name 2| 
+===================== capacity =======================
+max  = 576460752303423487
+size = 10
+cap  = 16
+======================================================
+
+======================== STD =========================
+|name 11| |name 14| |name 16| |name 13| |name 18| |name 25| |name 25| |name 20| |name 14| |name 2| 
+===================== capacity =======================
+max  = 576460752303423487
+size = 10
+cap  = 16
+======================================================
+
+nums == nbs : true
+///////////////////////////////////////////////////////////////
+nums == nbs : true
+///////////////////////////////////////////////////////////////
+nums == nbs : true
+///////////////////////////////////////////////////////////////
+======================== FT ==========================
+|name 25| |name 20| |name 2| 
 ===================== capacity =======================
 max  = 576460752303423487
 size = 3
-cap  = 4
+cap  = 16
 ======================================================
 
 ======================== STD =========================
-|name 1| |name 9| |name 2| 
+|name 25| |name 20| |name 2| 
 ===================== capacity =======================
 max  = 576460752303423487
 size = 3
-cap  = 4
-======================================================
-
-///////////////////////////////////////////////////////////////
-Copy constructor : 27 |name 15|
-Copy constructor : 28 |name 11|
-Copy constructor : 29 |name 22|
-======================== FT ==========================
-|name 15| |name 11| |name 22| |name 11| |name 2| |name 13| 
-===================== capacity =======================
-max  = 576460752303423487
-size = 6
-cap  = 8
-======================================================
-
-///////////////////////////////////////////////////////////////
-///////////////////////////////////////////////////////////////
-Copy constructor : 30 |name 20|
-Copy constructor : 31 |name 3|
-Copy constructor : 32 |name 20|
-Copy constructor : 33 |name 20|
-Copy constructor : 34 |name 7|
-Copy constructor : 35 |name 23|
-Copy constructor : 36 |name 16|
-======================== FT ==========================
-|name 15| |name 20| |name 3| |name 20| |name 20| |name 7| |name 23| |name 16| |name 11| |name 22| |name 11| |name 2| |name 13| 
-===================== capacity =======================
-max  = 576460752303423487
-size = 13
 cap  = 16
 ======================================================
 
-///////////////////////////////////////////////////////////////
-///////////////////////////////////////////////////////////////
-Copy constructor : 37 |name 13|
-======================== FT ==========================
-|name 15| |name 20| |name 3| |name 20| |name 20| |name 7| |name 23| |name 16| |name 11| |name 22| |name 11| |name 2| |name 13| |name 13| 
-===================== capacity =======================
-max  = 576460752303423487
-size = 14
-cap  = 16
-======================================================
+///////////////////// EraseCourt End //////////////////////////
 
-///////////////////////////////////////////////////////////////
-///////////////////////////////////////////////////////////////
-///////////////////////////////////////////////////////////////
-Copy constructor : 38 |name 15|
-Copy constructor : 39 |name 11|
-Copy constructor : 40 |name 22|
-Copy constructor : 41 |name 1|
-Copy constructor : 42 |name 9|
-Copy constructor : 43 |name 2|
-Default destructor : 43
-Default destructor : 42
-Default destructor : 41
-======================== STD =========================
-|name 15| |name 11| |name 22| |name 1| |name 9| |name 2| 
-===================== capacity =======================
-max  = 576460752303423487
-size = 6
-cap  = 8
-======================================================
-
-///////////////////////////////////////////////////////////////
-///////////////////////////////////////////////////////////////
-Copy constructor : 41 |name 20|
-Copy constructor : 42 |name 3|
-Copy constructor : 43 |name 20|
-Copy constructor : 44 |name 20|
-Copy constructor : 45 |name 7|
-Copy constructor : 46 |name 23|
-Copy constructor : 47 |name 16|
-Copy constructor : 48 |name 15|
-Copy constructor : 49 |name 11|
-Copy constructor : 50 |name 22|
-Copy constructor : 51 |name 1|
-Copy constructor : 52 |name 9|
-Copy constructor : 53 |name 2|
-Default destructor : 53
-Default destructor : 52
-Default destructor : 51
-Default destructor : 50
-Default destructor : 49
-Default destructor : 48
-======================== STD =========================
-|name 15| |name 20| |name 3| |name 20| |name 20| |name 7| |name 23| |name 16| |name 11| |name 22| |name 1| |name 9| |name 2| 
-===================== capacity =======================
-max  = 576460752303423487
-size = 13
-cap  = 16
-======================================================
-
-///////////////////////////////////////////////////////////////
-///////////////////////////////////////////////////////////////
-Copy constructor : 48 |name 13|
-======================== STD =========================
-|name 15| |name 20| |name 3| |name 20| |name 20| |name 7| |name 23| |name 16| |name 11| |name 22| |name 1| |name 9| |name 2| |name 13| 
-===================== capacity =======================
-max  = 576460752303423487
-size = 14
-cap  = 16
-======================================================
-
-///////////////////////////////////////////////////////////////
-//////////////////// InsertCourtIter End //////////////////////
-///////////////////////////////////////////////////////////////
-Default destructor : 48
-Default destructor : 47
-Default destructor : 46
-Default destructor : 45
-Default destructor : 44
-Default destructor : 43
-Default destructor : 42
-Default destructor : 41
-Default destructor : 40
-Default destructor : 39
-Default destructor : 38
-Default destructor : 37
-Default destructor : 36
-Default destructor : 35
-Default destructor : 34
-Default destructor : 33
-Default destructor : 32
-Default destructor : 31
-Default destructor : 30
-Default destructor : 29
-Default destructor : 28
-Default destructor : 27
-Default destructor : 26
-Default destructor : 25
-Default destructor : 24
-Default destructor : 23
-Default destructor : 22
-Default destructor : 21
-Default destructor : 20
-Default destructor : 19
-Default destructor : 18
-Default destructor : 17
-Default destructor : 16
-Default destructor : 15
-Default destructor : 14
-Default destructor : 13
-Default destructor : 12
-Default destructor : 11
-Default destructor : 10
-Default destructor : 9
-Default destructor : 8
-Default destructor : 7
-Default destructor : 6
-Default destructor : 5
-Default destructor : 4
-Default destructor : 3
-Default destructor : 2
-Default destructor : 1

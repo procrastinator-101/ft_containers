@@ -12,26 +12,14 @@
 
 Author = younes
 
-NAME = vector
+NAME = sfinae
 
 CC = clang++
-CFLAGS = -Wall -Werror -Wextra -std=c++98 -fsanitize=address
+CFLAGS = -Wall -Werror -Wextra -std=c++11 #-fsanitize=address
 
-TEST_UTILITIES_PATH = testUtilities
+SRC = main.cpp
 
-TEST_UTILITIES_SRC = $(TEST_UTILITIES_PATH)/constructor.cpp \
-					 $(TEST_UTILITIES_PATH)/court.cpp \
-					 $(TEST_UTILITIES_PATH)/erase.cpp \
-					 $(TEST_UTILITIES_PATH)/fillVector.cpp \
-					 $(TEST_UTILITIES_PATH)/insert.cpp \
-					 $(TEST_UTILITIES_PATH)/testUtilities.cpp
-
-TEST_UTILITIES_HDR = $(TEST_UTILITIES_PATH)/court.hpp \
-					 $(TEST_UTILITIES_PATH)/testUtilities.hpp
-
-SRC = main.cpp $(TEST_UTILITIES_SRC)
-
-HDR = vector.hpp vectorIterator.hpp $(TEST_UTILITIES_HDR)
+HDR = ../../type_traits/type_traits.hpp
 
 OBJ = $(SRC:.cpp=.o)
 

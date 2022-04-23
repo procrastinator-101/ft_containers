@@ -6,7 +6,6 @@ int	getFact();
 
 int main()
 {
-	// std::cout << getFact();  // constexpr (no calculations on runtime)
 	std::cout << std::boolalpha;
 
 	std::cout << "is_integral:" << std::endl;
