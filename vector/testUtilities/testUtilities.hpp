@@ -10,8 +10,12 @@
 #include "display.hpp"
 #include "../vector.hpp"
 
+#include "../../algorithm/equal.hpp"
+#include "../../algorithm/lexicographical_compare.hpp"
+
 void	testErase();
 void	testInsert();
+void	testIterator();
 void	testConstructor();
 
 void	fillVector(ft::vector<int>& vec, size_t n);

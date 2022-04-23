@@ -4,5 +4,6 @@ void	testVector()
 {
 	// testConstructor();
 	// testInsert();
-	testErase();
+	// testErase();
+	testIterator();
 }

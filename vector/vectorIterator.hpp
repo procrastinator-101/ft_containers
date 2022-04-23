@@ -64,7 +64,7 @@ namespace ft
 		/// Conversion operators
 		/////////////////////////////////////////////////////////////////////////////////////////////////////
 		public:
-			operator vectorConstIterator()
+			operator vectorConstIterator() const
 			{
 				return vectorConstIterator(_ptr);
 			}
@@ -77,32 +77,32 @@ namespace ft
 		/// Relational operators
 		/////////////////////////////////////////////////////////////////////////////////////////////////////
 		public:
-			bool	operator==(const vectorIterator& rop)
+			bool	operator==(const vectorIterator& rop) const
 			{
 				return _ptr == rop._ptr;
 			}
 
-			bool	operator!=(const vectorIterator& rop)
+			bool	operator!=(const vectorIterator& rop) const
 			{
 				return _ptr != rop._ptr;
 			}
 
-			bool	operator<(const vectorIterator& rop)
+			bool	operator<(const vectorIterator& rop) const
 			{
 				return _ptr < rop._ptr;
 			}
 
-			bool	operator>(const vectorIterator& rop)
+			bool	operator>(const vectorIterator& rop) const
 			{
 				return _ptr > rop._ptr;
 			}
 
-			bool	operator<=(const vectorIterator& rop)
+			bool	operator<=(const vectorIterator& rop) const
 			{
 				return _ptr <= rop._ptr;
 			}
 
-			bool	operator>=(const vectorIterator& rop)
+			bool	operator>=(const vectorIterator& rop) const
 			{
 				return _ptr >= rop._ptr;
 			}
@@ -114,17 +114,17 @@ namespace ft
 		/// Arithmetic operators
 		/////////////////////////////////////////////////////////////////////////////////////////////////////
 		public:
-			vectorIterator	operator+(difference_type d)
+			vectorIterator	operator+(difference_type d) const
 			{
 				return vectorIterator(_ptr + d);
 			}
 
-			vectorIterator	operator-(difference_type d)
+			vectorIterator	operator-(difference_type d) const
 			{
 				return vectorIterator(_ptr - d);
 			}
 
-			difference_type	operator-(const vectorIterator& rop)
+			difference_type	operator-(const vectorIterator& rop) const
 			{
 				return _ptr - rop._ptr;
 			}
@@ -179,17 +179,17 @@ namespace ft
 		/// Derefrence operators
 		/////////////////////////////////////////////////////////////////////////////////////////////////////
 		public:
-			pointer	operator->()
+			pointer	operator->() const
 			{
 				return _ptr;
 			}
 
-			T	&operator*()
+			T	&operator*() const
 			{
 				return *_ptr;
 			}
 
-			T	&operator[](difference_type n)
+			T	&operator[](difference_type n) const
 			{
 				return _ptr[n];
 			}

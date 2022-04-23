@@ -24,6 +24,7 @@ TEST_UTILITIES_SRC = $(TEST_UTILITIES_PATH)/constructor.cpp \
 					 $(TEST_UTILITIES_PATH)/erase.cpp \
 					 $(TEST_UTILITIES_PATH)/fillVector.cpp \
 					 $(TEST_UTILITIES_PATH)/insert.cpp \
+					 $(TEST_UTILITIES_PATH)/testIterator.cpp \
 					 $(TEST_UTILITIES_PATH)/testUtilities.cpp
 
 TEST_UTILITIES_HDR = $(TEST_UTILITIES_PATH)/court.hpp \

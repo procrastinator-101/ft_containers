@@ -1,7 +1,5 @@
 #include "court.hpp"
 #include "testUtilities.hpp"
-#include <algorithm>
-#include <ios>
 
 static int n = 10;
 static int end = 6;
