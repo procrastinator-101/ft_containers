@@ -7,12 +7,14 @@
 #include <algorithm>
 #include <iostream>//
 
-#include "../algorithm/equal.hpp"
-#include "../algorithm/lexicographical_compare.hpp"
+// #include "../algorithm/equal.hpp"
+// #include "../algorithm/lexicographical_compare.hpp"
 
 #include "vectorIterator.hpp"
-#include "testUtilities/display.hpp"
+#include "testUtilities/display.hpp"//
 #include "../type_traits/type_traits.hpp"
+
+# include "../iterator/reverse_iterator.hpp"
 
 
 namespace ft
@@ -25,7 +27,6 @@ namespace ft
 		/// type definitions
 		/////////////////////////////////////////////////////////////////////////////////////////////////////
 		public:
-
 			typedef T value_type;
 			typedef Alloc allocator_type;
 			typedef typename allocator_type::reference reference;
@@ -33,9 +34,12 @@ namespace ft
 			typedef typename allocator_type::pointer pointer;
 			typedef typename allocator_type::const_pointer const_pointer;
 
-			typedef ft::vectorIterator<T> iterator;
-			typedef ft::vectorIterator<const T> const_iterator;
+			typedef vectorIterator<T> iterator;
+			typedef vectorIterator<const T> const_iterator;
+			typedef ft::reverse_iterator<iterator> reverse_iterator;
+			typedef ft::reverse_iterator<const_iterator> const_reverse_iterator;
 
+			typedef typename iterator_traits<iterator>::difference_type difference_type;
 			typedef size_t size_type;
 
 		/////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -267,6 +271,26 @@ namespace ft
 			const_iterator	end() const
 			{
 				return const_iterator(_data + _size);
+			}
+
+			reverse_iterator	rbegin()
+			{
+				return reverse_iterator(end());
+			}
+
+			const_reverse_iterator	rbegin() const
+			{
+				return const_reverse_iterator(end());
+			}
+
+			reverse_iterator	rend()
+			{
+				return reverse_iterator(begin());
+			}
+
+			const_reverse_iterator	rend() const
+			{
+				return const_reverse_iterator(begin());
 			}
 		/////////////////////////////////////////////////////////////////////////////////////////////////////
 		/// Iterators End

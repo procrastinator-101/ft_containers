@@ -1,28 +1,23 @@
-#ifndef VECTORITERATOR_HPP
-# define VECTORITERATOR_HPP
+#ifndef REVERSE_ITERATOR_HPP
+# define REVERSE_ITERATOR_HPP
 
-#include <iterator>
-
-# include "../iterator/iterator_traits.hpp"
-
+#include "iterator_traits.hpp"
 
 namespace ft
 {
-	template <class T, class Distance = std::ptrdiff_t, class Pointer = T*, class Reference = T& >
-	class vectorIterator
+	template <class Iterator>
+	class reverse_iterator
 	{
 		/////////////////////////////////////////////////////////////////////////////////////////////////////
 		/// type definitions
 		/////////////////////////////////////////////////////////////////////////////////////////////////////
-		private:
-			typedef vectorIterator<const T> vectorConstIterator;
-		
 		public:
-			typedef std::random_access_iterator_tag iterator_category;
-			typedef T value_type;
-			typedef Distance difference_type;
-			typedef Pointer pointer;
-			typedef Reference reference;
+			typedef Iterator iterator_type;
+			typedef typename iterator_traits<Iterator>::iterator_category iterator_category;
+			typedef typename iterator_traits<Iterator>::value_type value_type;
+			typedef typename iterator_traits<Iterator>::difference_type difference_type;
+			typedef typename iterator_traits<Iterator>::pointer pointer;
+			typedef typename iterator_traits<Iterator>::reference reference;
 		/////////////////////////////////////////////////////////////////////////////////////////////////////
 		/// type definitions End
 		/////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -32,180 +27,165 @@ namespace ft
 		/// Constructors, assignment operators, and destructors
 		/////////////////////////////////////////////////////////////////////////////////////////////////////
 		public:
-			vectorIterator() : _ptr(0)
+			reverse_iterator() : _base()
 			{
 			}
 
-			vectorIterator(pointer ptr) : _ptr(ptr)
+			explicit	reverse_iterator(iterator_type it) : _base(it)
 			{
 			}
 
-			vectorIterator(const vectorIterator& src) : _ptr(src._ptr)
-			{
-			}
-
-			vectorIterator	&operator=(const vectorIterator& rop)
-			{
-				if (this == &rop)
-					return *this;
-				_ptr = rop._ptr;
-				return *this;
-			}
-
-			~vectorIterator()
+			template <class Iter>
+			reverse_iterator(const reverse_iterator<Iter>& rev_it) : _base(rev_it._base)
 			{
 			}
 		/////////////////////////////////////////////////////////////////////////////////////////////////////
 		/// Constructors, assignment operators, and destructors End
 		/////////////////////////////////////////////////////////////////////////////////////////////////////
 
-
 		/////////////////////////////////////////////////////////////////////////////////////////////////////
-		/// Conversion operators
-		/////////////////////////////////////////////////////////////////////////////////////////////////////
-		public:
-			operator vectorConstIterator()
-			{
-				return vectorConstIterator(_ptr);
-			}
-		/////////////////////////////////////////////////////////////////////////////////////////////////////
-		/// Conversion operators End
-		/////////////////////////////////////////////////////////////////////////////////////////////////////
-
-
-		/////////////////////////////////////////////////////////////////////////////////////////////////////
-		/// Relational operators
+		/// base
 		/////////////////////////////////////////////////////////////////////////////////////////////////////
 		public:
-			bool	operator==(const vectorIterator& rop)
+			iterator_type	base()const
 			{
-				return _ptr == rop._ptr;
-			}
-
-			bool	operator!=(const vectorIterator& rop)
-			{
-				return _ptr != rop._ptr;
-			}
-
-			bool	operator<(const vectorIterator& rop)
-			{
-				return _ptr < rop._ptr;
-			}
-
-			bool	operator>(const vectorIterator& rop)
-			{
-				return _ptr > rop._ptr;
-			}
-
-			bool	operator<=(const vectorIterator& rop)
-			{
-				return _ptr <= rop._ptr;
-			}
-
-			bool	operator>=(const vectorIterator& rop)
-			{
-				return _ptr >= rop._ptr;
+				return _base;
 			}
 		/////////////////////////////////////////////////////////////////////////////////////////////////////
-		/// Relational operators End
+		/// base End
 		/////////////////////////////////////////////////////////////////////////////////////////////////////
 
 		/////////////////////////////////////////////////////////////////////////////////////////////////////
 		/// Arithmetic operators
 		/////////////////////////////////////////////////////////////////////////////////////////////////////
 		public:
-			vectorIterator	operator+(difference_type d)
+			reverse_iterator	operator+(difference_type n) const
 			{
-				return vectorIterator(_ptr + d);
+				return reverse_iterator(_base - n);
 			}
 
-			vectorIterator	operator-(difference_type d)
+			reverse_iterator	&operator++()
 			{
-				return vectorIterator(_ptr - d);
-			}
-
-			difference_type	operator-(const vectorIterator& rop)
-			{
-				return _ptr - rop._ptr;
-			}
-
-			vectorIterator	&operator+=(difference_type d)
-			{
-				_ptr += d;
+				--_base;
 				return *this;
 			}
 
-			vectorIterator	&operator-=(difference_type d)
+			reverse_iterator  operator++(int)
 			{
-				_ptr -= d;
-				return *this;
-			}
+				reverse_iterator	ret = *this;
 
-			vectorIterator	&operator++()
-			{
-				_ptr++;
-				return *this;
-			}
-
-			vectorIterator	operator++(int n)
-			{
-				vectorIterator	ret(*this);
-				
-				(void)n;
-				_ptr++;
+				++(*this);
 				return ret;
 			}
 
-			vectorIterator	&operator--()
+			reverse_iterator	&operator+=(difference_type n)
 			{
-				_ptr--;
+				_base -= n;
 				return *this;
 			}
 
-			vectorIterator	operator--(int n)
+			reverse_iterator	operator-(difference_type n) const
 			{
-				vectorIterator	ret(*this);
+				return reverse_iterator(_base + n);
+			}
 
-				(void)n;
-				_ptr--;
+			reverse_iterator	&operator--()
+			{
+				++_base;
+				return *this;
+			}
+
+			reverse_iterator	operator--(int)
+			{
+				reverse_iterator	ret = *this;
+
+				--(*this);
 				return ret;
+			}
+
+			reverse_iterator	&operator-=(difference_type n)
+			{
+				_base += n;
+				return *this;
 			}
 		/////////////////////////////////////////////////////////////////////////////////////////////////////
 		/// Arithmetic operators End
 		/////////////////////////////////////////////////////////////////////////////////////////////////////
 
-
 		/////////////////////////////////////////////////////////////////////////////////////////////////////
 		/// Derefrence operators
 		/////////////////////////////////////////////////////////////////////////////////////////////////////
 		public:
-			pointer	operator->()
+			reference	operator*() const
 			{
-				return _ptr;
+				return *(_base - 1);
 			}
 
-			T	&operator*()
+			pointer	operator->() const
 			{
-				return *_ptr;
+				return &(operator*());
 			}
 
-			T	&operator[](difference_type n)
+			reference	operator[] (difference_type n) const
 			{
-				return _ptr[n];
+				return *(_base - n - 1);
 			}
 		/////////////////////////////////////////////////////////////////////////////////////////////////////
 		/// Derefrence operators End
 		/////////////////////////////////////////////////////////////////////////////////////////////////////
 
+
 		/////////////////////////////////////////////////////////////////////////////////////////////////////
 		/// Data members
 		/////////////////////////////////////////////////////////////////////////////////////////////////////
 		private:
-			pointer	_ptr;
+			iterator_type	_base;
 		/////////////////////////////////////////////////////////////////////////////////////////////////////
 		/// Data members End
 		/////////////////////////////////////////////////////////////////////////////////////////////////////
 	};
+
+	/////////////////////////////////////////////////////////////////////////////////////////////////////
+	/// Relational operators
+	/////////////////////////////////////////////////////////////////////////////////////////////////////
+	template <class Iterator>
+	bool	operator==(const reverse_iterator<Iterator>& lhs, const reverse_iterator<Iterator>& rhs)
+	{
+		return lhs.base() == rhs.base();
+	}
+
+	template <class Iterator>
+	bool	operator!=(const reverse_iterator<Iterator>& lhs, const reverse_iterator<Iterator>& rhs)
+	{
+		return lhs.base() != rhs.base();
+	}
+
+	template <class Iterator>
+	bool	operator<(const reverse_iterator<Iterator>& lhs, const reverse_iterator<Iterator>& rhs)
+	{
+		return lhs.base() > rhs.base();
+	}
+
+	template <class Iterator>
+	bool	operator<=(const reverse_iterator<Iterator>& lhs, const reverse_iterator<Iterator>& rhs)
+	{
+		return lhs.base() >= rhs.base();
+	}
+
+	template <class Iterator>
+	bool	operator>(const reverse_iterator<Iterator>& lhs, const reverse_iterator<Iterator>& rhs)
+	{
+		return lhs.base() < rhs.base();
+	}
+
+	template <class Iterator>
+	bool	operator>=(const reverse_iterator<Iterator>& lhs, const reverse_iterator<Iterator>& rhs)
+	{
+		return lhs.base() <= rhs.base();
+	}
+	/////////////////////////////////////////////////////////////////////////////////////////////////////
+	/// Relational operators End
+	/////////////////////////////////////////////////////////////////////////////////////////////////////
 }
 
 #endif
