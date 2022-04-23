@@ -1,6 +1,7 @@
 #include <iomanip>
 #include <ios>
 #include <iostream>     // std::cout
+#include <iterator>
 #include <ostream>
 #include <sys/_types/_size_t.h>
 #include <typeinfo>     // typeid
@@ -30,6 +31,12 @@ std::ostream	&operator<<(std::ostream& ostr, const cl& obj)
 {
 	ostr << obj._val;
 	return ostr;
+}
+
+template<typename T>
+bool	operator==(ft::reverse_iterator<T>& a, std::reverse_iterator<T>& b)
+{
+	return a.base() == b.base();
 }
 
 int main()
@@ -73,5 +80,19 @@ int main()
 		std::cout << "rit[" << i << "] == stdrit[" << i << "] : " << (rit[i] == stdrit[i]) << std::endl;
 	}
 	
+	std::cout << std::setw(20) << "ritEnd - rit == stdritEnd - stdrit" << " : " << (ritEnd - rit == stdritEnd - stdrit) << std::endl;
+	std::cout << std::setw(20) << "rit - ritEnd == stdrit - stdritEnd" << " : " << (rit - ritEnd == stdrit - stdritEnd) << std::endl;
+
+	int n = 10;
+
+	ft::reverse_iterator<std::vector<cl>::iterator> iit = rit + n;
+	std::reverse_iterator<std::vector<cl>::iterator> stdiit = stdrit + n;
+	std::cout << std::setw(20) << "rit + n == stdrit + n" << " : " << (iit == stdiit) << std::endl;
+	ft::reverse_iterator<std::vector<cl>::iterator> iit2 = ritEnd + n;
+	std::reverse_iterator<std::vector<cl>::iterator> stdiit2 = stdritEnd + n;
+	std::cout << std::setw(20) << "ritEnd + n == stdritEnd + n" << " : " << (iit2 == stdiit2) << std::endl;
+
+	std::cout << std::setw(20) << "rit - ritEnd == stdrit - stdritEnd" << " : " << (rit - ritEnd == stdrit - stdritEnd) << std::endl;
+	std::cout << std::setw(20) << "ritEnd - rit == stdritEnd - stdrit" << " : " << (ritEnd - rit == stdritEnd - stdrit) << std::endl;
 	return 0;
 }
