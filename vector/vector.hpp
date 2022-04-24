@@ -209,10 +209,10 @@ namespace ft
 			}
 
 			//might throw
-			//needs SFINAE protection
 			template <class InputIterator>
-			vector(InputIterator first, InputIterator last, const allocator_type& alloc = allocator_type()) : _size(0), _capacity(0), _allocator(alloc)
+			vector(InputIterator first, typename ft::enable_if<!ft::is_integral<InputIterator>::value, InputIterator>::type last, const allocator_type& alloc = allocator_type()) : _size(0), _capacity(0), _allocator(alloc)
 			{
+				std::cout << "range constructor" << std::endl;
 				_allocate(1);
 				while (first != last)
 				{

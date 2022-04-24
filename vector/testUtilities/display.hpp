@@ -54,4 +54,8 @@ std::ostream	&operator<<(std::ostream& ostr, const std::vector<T>& v)
 	return ostr;
 }
 
+void		displayHeader(const std::string& str);
+void		displaySubHeader(const std::string& str);
+std::string	centerString(int width, const std::string& str);
+
 #endif

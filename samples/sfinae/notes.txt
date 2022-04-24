@@ -1,0 +1,25 @@
+SFINAE : Substitution Failure Is Not An Error
+	-	applies during overload resolution of function templates
+
+Type SFINAE:
+	*	attempting to create an array of 
+		-	void
+		-	reference
+		-	function
+		-	negative size
+		-	non-integral
+		-	size zero
+	*	attempting to use a type on the left of a scope resolution operator :: and it is not a class or enumeration.
+	*	attempting to use a member of a type, where:
+		-	the type does not contain the specified member
+		-	the specified member is not a type where a type is required
+		-	the specified member is not a template where a template is required
+		-	the specified member is not a non-type where a non-type is required
+	*	attempting to create a pointer to reference
+	*	attempting to create a reference to void
+	*	attempting to create pointer to member of T, where T is not a class type
+	*	attempting to perform an invalid conversion in
+		-	in a template argument expression
+		-	in an expression used in function declaration
+	*	attempting to create a function type with a parameter of type void
+	*	attempting to create a function type which returns an array type or a function type

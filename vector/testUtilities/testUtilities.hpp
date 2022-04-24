@@ -8,6 +8,7 @@
 
 #include "court.hpp"
 #include "display.hpp"
+#include "checker.hpp"
 #include "../vector.hpp"
 
 #include "../../algorithm/equal.hpp"
