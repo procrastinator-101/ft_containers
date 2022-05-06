@@ -33,14 +33,50 @@ done :
 
 
 
+insert(position, val)
 =======================================================================================================================
-ft::vector
-	-	insert : copy elision what's after the position and copy construct arr[position] by val
+-	reallocation : copy construct everything
+	-	exception: leave everything as it was. Destroy the new data
+-	no reallocation
+	-	at end : copy construct the val at the end
+	-	else :
+		-	construct the last element at end
+		-	construct the val somewhere(UNIX STYLE)
+		-	newEnd = end + 1
+		-	use copy assignment for [position + 1:newEnd] from [position:end]
+		-	copy assignment val (in case of unix style from the constructed copy of val) to data[position]
+		-	Destroy the copy in case of unix style
+=======================================================================================================================
 
-	-	insert n : copy elision what's after the position and copy construct arr[position : position + n] by val
+insert(position, n, val)
+=======================================================================================================================
+-	reallocation : copy construct everything
+	-	exception: leave everything as it was. Destroy the new data
+-	no reallocation
+	-	at end : copy construct the val n times at the end
+	-	else :
+		-	construct the last n element at end
+		-	construct the val somewhere(UNIX STYLE)
+		-	newEnd = end + n
+		-	use copy assignment for [position + n:newEnd] from [position:end]
+		-	copy assignment val (in case of unix style from the constructed copy of val) to data[position:end]
+		-	Destroy the copy in case of unix style
+=======================================================================================================================
 
-	-	
-
+insert(position, first, last)
+=======================================================================================================================
+-	put the range in a temporary vector
+-	reallocation : 
+	-	allocate size + temp.size()
+	+	copy construct everything
+	-	exception: leave the container in a valid state
+-	no reallocation
+	-	at end : copy construct temp at end
+	-	else :
+		-	construct the last temp.size() element at end
+		-	newEnd = end + temp.size()
+		-	use copy assignment for [position + temp.size():newEnd] from [position:end]
+		-	copy assignment from temp to [position + temp.size():newEnd]
 =======================================================================================================================
 std::vector
 insert : copy construct the last element at the end and then make arr[i] = arr[i - 1] until you reach 'position'

@@ -72,14 +72,14 @@ void	testParamConstructor(int n)
 	}
 	displaySubHeader("T = ft::court");
 	{
-		ft::court	val(std::string("|name ") + std::to_string(std::rand() % 26) + "|");
+		ft::court	val(std::string("|name ") + ft_itoa(std::rand() % 26) + "|");
 		std::vector<ft::court>	a(n, val);
 		ft::vector<ft::court>		b(n, val);
 
 		check(a, b);
 	}
 	{
-		ft::court	val(std::string("|name ") + std::to_string(std::rand() % 26) + "|");
+		ft::court	val(std::string("|name ") + ft_itoa(std::rand() % 26) + "|");
 		std::vector<ft::court>	a(n, val);
 		ft::vector<ft::court>		b(n, val);
 

@@ -6,7 +6,7 @@
 
 
 #define STRSIZE 6
-#define MAXCOUNT 1000
+#define MAXCOUNT 10000
 
 namespace ft
 {
@@ -22,7 +22,7 @@ namespace ft
 
 	court::~court()
 	{
-		std::cout << "Default destructor : " << count << std::endl;
+		std::cout << "Default destructor : " << count << " " << _name << std::endl;
 		count--;
 		_destroyStr();
 	}
@@ -30,7 +30,7 @@ namespace ft
 	court::court(const std::string& name) : _name(name), _str(0)
 	{
 		count++;
-		std::cout << "Parameterised constructor : " << count << std::endl;
+		std::cout << "Parameterised constructor : " << count << " " << _name << std::endl;
 		checkMaxCount();
 		_buildStr();
 	}

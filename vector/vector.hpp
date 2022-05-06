@@ -1,6 +1,7 @@
 #ifndef VECTOR_HPP
 # define VECTOR_HPP
 
+#include <cstddef>
 #include <cstring>
 #include <memory>
 #include <stdexcept>
@@ -58,7 +59,7 @@ namespace ft
 				doubleCap = _capacity * 2;
 				if (doubleCap > max_size() || doubleCap < n)
 					return n;
-				return doubleCap;
+				return std::max<size_type>(doubleCap, 1);
 			}
 
 			void	_copyElision(pointer src, size_type dstStart, size_type srcStart, size_type srcEnd)
@@ -67,14 +68,43 @@ namespace ft
 					::memmove(_data + dstStart, src + srcStart, (srcEnd - srcStart) * sizeof(value_type));
 			}
 
+			void	_copyDryRange(pointer dst, size_type dstStart, pointer src, size_type n)
+			{
+				size_type	i;
+
+				try
+				{
+					for (i = 0; i < n; i++)
+						_allocator.construct(dst + dstStart + i, src[i]);
+				}
+				catch (...)
+				{
+					_destroyDryRange(dst + dstStart, i);
+					throw ;
+				}
+			}
+
+			void	_destroyDryRange(pointer ptr, size_type n)
+			{
+				for (size_type i = 0; i < n; i++)
+					_allocator.destroy(ptr + i);
+			}
+
 			//might throw
 			void	_expandData(size_type newCapacity)
 			{
 				pointer	tmp;
 
 				tmp = _allocator.allocate(newCapacity);
+				try
+				{
+					_copyDryRange(tmp, 0, _data, _size);
+				}
+				catch (...)
+				{
+					_allocator.deallocate(tmp, newCapacity);
+				}
 				_normalSwap(_data, tmp);
-				_copyElision(tmp, 0, 0, _size);
 				_allocator.deallocate(tmp, _capacity);
 				_capacity = newCapacity;
 			}
@@ -138,6 +168,7 @@ namespace ft
 				_size = start;
 			}
 
+			//
 			void	_copyRange(size_type start, size_type end, pointer src)
 			{
 				size_type	i;
@@ -175,7 +206,6 @@ namespace ft
 			//might throw
 			explicit vector(const allocator_type& alloc = allocator_type()) : _size(0), _capacity(0), _allocator(alloc)
 			{
-				_allocate(1);
 			}
 
 			//might throw
@@ -212,7 +242,6 @@ namespace ft
 			template <class InputIterator>
 			vector(InputIterator first, typename ft::enable_if<!ft::is_integral<InputIterator>::value, InputIterator>::type last, const allocator_type& alloc = allocator_type()) : _size(0), _capacity(0), _allocator(alloc)
 			{
-				_allocate(1);//
 				while (first != last)
 				{
 					push_back(*first);
@@ -440,8 +469,7 @@ namespace ft
 					_allocator.deallocate(tmp, _capacity);
 					_capacity = newCapacity;
 				}
-				else
-					_allocator.construct(_data + _size, val);
+				_allocator.construct(_data + _size, val);
 				++_size;
 			}
 

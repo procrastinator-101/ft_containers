@@ -25,4 +25,6 @@ void	fillVector(ft::vector<ft::court>& vec, size_t n);
 void	fillVector(std::vector<int>& vec, size_t n);
 void	fillVector(std::vector<ft::court>& vec, size_t n);
 
+std::string	ft_itoa(int n);
+
 #endif
