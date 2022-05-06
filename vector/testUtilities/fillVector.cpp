@@ -1,6 +1,5 @@
 #include "court.hpp"
 #include "testUtilities.hpp"
-#include <sys/_types/_size_t.h>
 
 void	fillVector(std::vector<int>& vec, size_t n)
 {

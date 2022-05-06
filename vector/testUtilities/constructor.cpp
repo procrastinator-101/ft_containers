@@ -19,6 +19,9 @@ void	testRangeConstructor(int n)
 		fillVector(a, n);
 		ft::vector<ft::court> b(a.rbegin(), a.rend());
 
+		std::cout << a << std::endl;
+		std::cout << b << std::endl;
+
 		check(a, b);
 		ret = ft::equal(a.rbegin(), a.rend(), b.begin());
 		std::cout << std::setw(30) << "reverse iterator " << ": " << ret << std::endl;

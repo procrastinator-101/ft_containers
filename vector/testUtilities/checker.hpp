@@ -1,6 +1,7 @@
 #ifndef CHECKER_HPP
 # define CHECKER_HPP
 
+#include <ios>
 #include <vector>
 #include <ostream>
 #include <iomanip>
@@ -18,6 +19,22 @@ void	check(std::vector<T>& a, ft::vector<T>& b)
 {
 	bool	ret;
 
+	std::cout << std::right;
+	std::cout << std::setw(30) << "size " << ": " << (a.size() == b .size()) << std::endl;
+	std::cout << std::setw(30) << "capacity " << ": " << (a.capacity() == b.capacity()) << std::endl;
+
+	ret = ft::equal(a.begin(), a.end(), b.begin());
+	std::cout << std::setw(30) << "val 1 " << ": " << ret << std::endl;
+	ret = ft::equal(b.begin(), b.end(), a.begin());
+	std::cout << std::setw(30) << "val 2 " << ": " << ret << std::endl;
+}
+
+template<typename T, typename U>
+void	check(T& a, U& b)
+{
+	bool	ret;
+
+	std::cout << std::right;
 	std::cout << std::setw(30) << "size " << ": " << (a.size() == b .size()) << std::endl;
 	std::cout << std::setw(30) << "capacity " << ": " << (a.capacity() == b.capacity()) << std::endl;
 

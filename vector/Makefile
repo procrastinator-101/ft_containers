@@ -14,8 +14,8 @@ Author = younes
 
 NAME = vector
 
-CC = clang++
-CFLAGS = -Wall -Werror -Wextra -std=c++98 -fsanitize=address
+CC = g++
+CFLAGS = -Wall -Werror -Wextra -std=c++11 -fsanitize=address
 
 TEST_UTILITIES_PATH = testUtilities
 
