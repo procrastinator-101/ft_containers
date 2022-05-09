@@ -52,6 +52,15 @@ namespace ft
 		/// General private functions
 		/////////////////////////////////////////////////////////////////////////////////////////////////////
 		private:
+			template<class U>
+			void	_normalSwap(U& a, U& b)
+			{
+				U	tmp(a);
+
+				a = b;
+				b = tmp;
+			}
+
 			size_type	_getNewCapacity(size_type n)
 			{
 				size_type	doubleCap;
@@ -98,12 +107,6 @@ namespace ft
 				_capacity = 0;
 			}
 
-			void	_copyElision(pointer src, size_type dstStart, size_type srcStart, size_type srcEnd)
-			{
-				if (srcEnd > srcStart)
-					::memmove(_data + dstStart, src + srcStart, (srcEnd - srcStart) * sizeof(value_type));
-			}
-
 			//might throw
 			//in case of exception, nothing get constructed
 			void	_nconstructDry(pointer dst, size_type dstStart, pointer src, size_type n)
@@ -140,6 +143,12 @@ namespace ft
 				}
 			}
 
+			void	_ndestroyDry(pointer ptr, size_type n)
+			{
+				for (size_type i = 0; i < n; i++)
+					_allocator.destroy(ptr + i);
+			}
+
 			//might throw
 			//in case of exception, nothing get constructed
 			void	_nconstruct(size_type start, pointer src, size_type n)
@@ -158,13 +167,6 @@ namespace ft
 				}
 				_size += n;
 			}
-
-			void	_ndestroyDry(pointer ptr, size_type n)
-			{
-				for (size_type i = 0; i < n; i++)
-					_allocator.destroy(ptr + i);
-			}
-
 
 			//might throw
 			//in case of exception, nothing get constructed
@@ -211,56 +213,35 @@ namespace ft
 				_size = start;
 			}
 
-			//might throw
-			//leaves everything in a valid state
-			void	_copyFroward(pointer ptr, size_type start, size_type end, size_type step)
-			{
-				for (size_type i = end - 1; i >= start; i--)
-					ptr[i + step] = ptr[i];
-			}
-
-			//might throw
-			//leaves everything in a valid state
-			void	_copyBackward(pointer ptr, size_type start, size_type end, size_type step)
-			{
-				for (size_type i = start; i < end; i++)
-					ptr[i - step] = ptr[i];
-			}
-
-			//
+			//might throw : basic guarantee
 			void	_copyRange(size_type start, size_type end, pointer src)
 			{
-				size_type	i;
-
-				try
-				{
-					for (i = start; i < end; i++)
-						_data[i] = src[i];
-				}
-				catch (...)
-				{
-					_size = i;
-					throw ;
-				}
-				_size = end;
+				for (size_type i = start; i < end; i++)
+					_data[i] = src[i - start];
 			}
 
-			//might throw
-			//leaves everything in a valid state
+			//might throw : basic guarantee
 			void	_ncopy(size_type start, const value_type& val, size_type n)
 			{
 				for (size_type i = 0; i < n; i++)
 					_data[start + i] = val;
 			}
 
-			template<class U>
-			void	_normalSwap(U& a, U& b)
+			//--------------------------------------
+			//might throw : basic guarantee
+			void	_copyFroward(pointer ptr, size_type start, size_type end, size_type step)
 			{
-				U	tmp(a);
-
-				a = b;
-				b = tmp;
+				for (size_type i = end - 1; i >= start; i--)
+					ptr[i + step] = ptr[i];
 			}
+
+			//might throw : basic guarantee
+			void	_copyBackward(pointer ptr, size_type start, size_type end, size_type step)
+			{
+				for (size_type i = start; i < end; i++)
+					ptr[i - step] = ptr[i];
+			}
+			
 		/////////////////////////////////////////////////////////////////////////////////////////////////////
 		/// General private functions End
 		/////////////////////////////////////////////////////////////////////////////////////////////////////
