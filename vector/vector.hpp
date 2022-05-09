@@ -658,9 +658,8 @@ namespace ft
 			}
 
 			//might throw
-			//needs SFINAE protection agaist integral types
 			template <class InputIterator>
-			void	insert(iterator position, InputIterator first, InputIterator last)
+			void	insert(iterator position, InputIterator first, typename ft::enable_if<!is_integral<InputIterator>::value, InputIterator>::type last)
 			{
 				vector		src(first, last);
 				pointer		tmp;
