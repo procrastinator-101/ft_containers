@@ -68,7 +68,7 @@ namespace ft
 					::memmove(_data + dstStart, src + srcStart, (srcEnd - srcStart) * sizeof(value_type));
 			}
 
-			void	_copyDryRange(pointer dst, size_type dstStart, pointer src, size_type n)
+			void	_constructDryRange(pointer dst, size_type dstStart, pointer src, size_type n)
 			{
 				size_type	i;
 
@@ -76,6 +76,24 @@ namespace ft
 				{
 					for (i = 0; i < n; i++)
 						_allocator.construct(dst + dstStart + i, src[i]);
+				}
+				catch (...)
+				{
+					_destroyDryRange(dst + dstStart, i);
+					throw ;
+				}
+			}
+
+			//might throw
+			//in case of exception, nothing get constructed
+			void	_constructDryRange(pointer dst, size_type dstStart, pointer src, size_type n, const value_type& val)
+			{
+				size_type	i;
+
+				try
+				{
+					for (i = 0; i < n; i++)
+						_allocator.construct(dst + dstStart + i, val);
 				}
 				catch (...)
 				{
@@ -98,11 +116,12 @@ namespace ft
 				tmp = _allocator.allocate(newCapacity);
 				try
 				{
-					_copyDryRange(tmp, 0, _data, _size);
+					_constructDryRange(tmp, 0, _data, _size);
 				}
 				catch (...)
 				{
 					_allocator.deallocate(tmp, newCapacity);
+					throw ;
 				}
 				_normalSwap(_data, tmp);
 				_allocator.deallocate(tmp, _capacity);
@@ -339,20 +358,16 @@ namespace ft
 				return _allocator.max_size();
 			}
 
-			void resize (size_type n, value_type val = value_type())//might throw
+			//might throw
+			void resize (size_type n, value_type val = value_type())
 			{
 				if (n < _size)
-				{
 					_destroyRange(n, _size);
-					_size = n;
-				}
 				else if (n > _size)
 				{
 					if (_capacity <= n)
 						_expandData(_getNewCapacity(n));
-					for (size_type i = _size; i < n; i++)
-						_allocator.construct(&_data[i], val);
-					_size = n;
+					_constructRange(_size, n, val);
 				}
 			}
 
@@ -453,22 +468,7 @@ namespace ft
 				size_type	newCapacity;
 
 				if (_capacity == _size)
-				{
-					newCapacity = _getNewCapacity(_capacity * 2);
-					tmp = _allocator.allocate(newCapacity);
-					try
-					{
-						_allocator.construct(tmp + _size, val);
-					}
-					catch (...)
-					{
-						_allocator.deallocate(tmp, newCapacity);
-					}
-					_normalSwap(_data, tmp);
-					_copyElision(tmp, 0, 0, _size);
-					_allocator.deallocate(tmp, _capacity);
-					_capacity = newCapacity;
-				}
+					_expandData(_capacity * 2);
 				_allocator.construct(_data + _size, val);
 				++_size;
 			}
@@ -490,37 +490,58 @@ namespace ft
 				{
 					newCapacity = _getNewCapacity(_capacity);
 					tmp = _allocator.allocate(newCapacity);
-					_normalSwap(tmp, _data);
-					_normalSwap(newCapacity, _capacity);
-					_copyElision(tmp, 0, 0, start);
+					//copy first half
 					try
 					{
-						_allocator.construct(_data + start, val);
+						_constructDryRange(tmp, 0, _data, start);
 					}
 					catch (...)
 					{
-						_allocator.deallocate(_data, _capacity);
-						_data = tmp;
-						_capacity = newCapacity;
+						_allocator.deallocate(tmp, newCapacity);
 						throw ;
 					}
-					_copyElision(tmp, start + 1, start, _size);
+					//insert the element
+					try
+					{
+						_allocator.construct(tmp + start, val);
+					}
+					catch (...)
+					{
+						_allocator.deallocate(tmp, newCapacity);
+						throw ;
+					}
+					//copy the last half
+					try
+					{
+						_constructDryRange(tmp, start + 1, _data + start, _size - start);
+					}
+					catch (...)
+					{
+						_allocator.deallocate(tmp, newCapacity);
+						throw ;
+					}
+					_normalSwap(_data, tmp);
+					_normalSwap(_capacity, newCapacity);
 					_allocator.deallocate(tmp, newCapacity);
+					++_size;
 				}
 				else
 				{
-					_copyElision(_data, start + 1, start, _size);
-					try
+					//if the position is at the end or the vector is empty
+					if (start == _size || _size == 0)
 					{
 						_allocator.construct(_data + start, val);
+						_size++;
 					}
-					catch (...)
+					else
 					{
-						_copyElision(_data, start, start + 1, _size + 1);
-						throw ;
+						_allocator.construct(_data + _size, _data[_size - 1]);
+						++_size;
+						for (size_type i = _size - 2; i >= start + 1; i--)
+							_data[i] = _data[i - 1];
+						_data[start] = val;
 					}
 				}
-				++_size;
 				return iterator(_data + start);
 			}
 
@@ -538,37 +559,58 @@ namespace ft
 				{
 					newCapacity = _getNewCapacity(_size + n);
 					tmp = _allocator.allocate(newCapacity);
-					_normalSwap(tmp, _data);
-					_normalSwap(newCapacity, _capacity);
-					_copyElision(tmp, 0, 0, start);
+					//copy first half
 					try
 					{
-						_constructRange(start, start + n, val);
+						_constructDryRange(tmp, 0, _data, start);
 					}
 					catch (...)
 					{
-						_allocator.deallocate(_data, _capacity);
-						_data = tmp;
-						_capacity = newCapacity;
+						_allocator.deallocate(tmp, newCapacity);
 						throw ;
 					}
-					_copyElision(tmp, start + n, start, oldSize);
+					//insert the elements
+					try
+					{
+						_constructDryRange(tmp, start, n, val);
+					}
+					catch (...)
+					{
+						_allocator.deallocate(tmp, newCapacity);
+						throw ;
+					}
+					//copy the last half
+					try
+					{
+						_constructDryRange(tmp, start + n, _data + start, _size - start);
+					}
+					catch (...)
+					{
+						_allocator.deallocate(tmp, newCapacity);
+						throw ;
+					}
+					_normalSwap(_data, tmp);
+					_normalSwap(_capacity, newCapacity);
 					_allocator.deallocate(tmp, newCapacity);
+					_size += n;
 				}
 				else
 				{
-					_copyElision(_data, start + n, start, oldSize);
-					try
+					//if the position is at the end or the vector is empty
+					if (start == _size || _size == 0)
+						_constructRange(start, _size + n, val);
+					else
 					{
-						_constructRange(start, start + n, val);
-					}
-					catch (...)
-					{
-						_copyElision(_data, start, start + n, oldSize + n);
-						throw ;
+						if (start + n  < _size)
+						{
+							_constructDryRange()
+
+						}
+						for (size_type i = _size - 2; i >= start + 1; i--)
+							_data[i] = _data[i - 1];
+						_data[start] = val;
 					}
 				}
-				_size = oldSize + n;
 			}
 
 			//might throw
