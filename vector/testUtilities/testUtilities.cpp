@@ -2,8 +2,8 @@
 
 void	testVector()
 {
-	// testConstructor();
+	testConstructor();
 	testInsert();
-	// testErase();
-	// testIterator();
+	testErase();
+	testIterator();
 }

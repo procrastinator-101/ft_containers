@@ -62,52 +62,6 @@ namespace ft
 				return std::max<size_type>(doubleCap, 1);
 			}
 
-			void	_copyElision(pointer src, size_type dstStart, size_type srcStart, size_type srcEnd)
-			{
-				if (srcEnd > srcStart)
-					::memmove(_data + dstStart, src + srcStart, (srcEnd - srcStart) * sizeof(value_type));
-			}
-
-			void	_constructDryRange(pointer dst, size_type dstStart, pointer src, size_type n)
-			{
-				size_type	i;
-
-				try
-				{
-					for (i = 0; i < n; i++)
-						_allocator.construct(dst + dstStart + i, src[i]);
-				}
-				catch (...)
-				{
-					_destroyDryRange(dst + dstStart, i);
-					throw ;
-				}
-			}
-
-			//might throw
-			//in case of exception, nothing get constructed
-			void	_constructDryRange(pointer dst, size_type dstStart, pointer src, size_type n, const value_type& val)
-			{
-				size_type	i;
-
-				try
-				{
-					for (i = 0; i < n; i++)
-						_allocator.construct(dst + dstStart + i, val);
-				}
-				catch (...)
-				{
-					_destroyDryRange(dst + dstStart, i);
-					throw ;
-				}
-			}
-
-			void	_destroyDryRange(pointer ptr, size_type n)
-			{
-				for (size_type i = 0; i < n; i++)
-					_allocator.destroy(ptr + i);
-			}
-
 			//might throw
 			void	_expandData(size_type newCapacity)
 			{
@@ -116,7 +70,7 @@ namespace ft
 				tmp = _allocator.allocate(newCapacity);
 				try
 				{
-					_constructDryRange(tmp, 0, _data, _size);
+					_nconstructDry(tmp, 0, _data, _size);
 				}
 				catch (...)
 				{
@@ -137,10 +91,80 @@ namespace ft
 
 			void	_deallocate()
 			{
+				if (!_data)
+					return;
 				_allocator.deallocate(_data, _capacity);
 				_data = 0;
 				_capacity = 0;
 			}
+
+			void	_copyElision(pointer src, size_type dstStart, size_type srcStart, size_type srcEnd)
+			{
+				if (srcEnd > srcStart)
+					::memmove(_data + dstStart, src + srcStart, (srcEnd - srcStart) * sizeof(value_type));
+			}
+
+			//might throw
+			//in case of exception, nothing get constructed
+			void	_nconstructDry(pointer dst, size_type dstStart, pointer src, size_type n)
+			{
+				size_type	i;
+
+				try
+				{
+					for (i = 0; i < n; i++)
+						_allocator.construct(dst + dstStart + i, src[i]);
+				}
+				catch (...)
+				{
+					_ndestroyDry(dst + dstStart, i);
+					throw ;
+				}
+			}
+
+			//might throw
+			//in case of exception, nothing get constructed
+			void	_nconstructDry(pointer dst, size_type dstStart, const value_type& val, size_type n)
+			{
+				size_type	i;
+
+				try
+				{
+					for (i = 0; i < n; i++)
+						_allocator.construct(dst + dstStart + i, val);
+				}
+				catch (...)
+				{
+					_ndestroyDry(dst + dstStart, i);
+					throw ;
+				}
+			}
+
+			//might throw
+			//in case of exception, nothing get constructed
+			void	_nconstruct(size_type start, pointer src, size_type n)
+			{
+				size_type	i;
+
+				try
+				{
+					for (i = 0; i < n; i++)
+						_allocator.construct(_data + start + i, src[i]);
+				}
+				catch (...)
+				{
+					_destroyRange(start, start + i);
+					throw ;
+				}
+				_size += n;
+			}
+
+			void	_ndestroyDry(pointer ptr, size_type n)
+			{
+				for (size_type i = 0; i < n; i++)
+					_allocator.destroy(ptr + i);
+			}
+
 
 			//might throw
 			//in case of exception, nothing get constructed
@@ -170,7 +194,7 @@ namespace ft
 				try
 				{
 					for (i = start; i < end; i++)
-						_allocator.construct(_data + i, src[i]);
+						_allocator.construct(_data + i, src[i - start]);
 				}
 				catch (...)
 				{
@@ -185,6 +209,22 @@ namespace ft
 				for (size_type i = start; i < end; i++)
 					_allocator.destroy(_data + i);
 				_size = start;
+			}
+
+			//might throw
+			//leaves everything in a valid state
+			void	_copyFroward(pointer ptr, size_type start, size_type end, size_type step)
+			{
+				for (size_type i = end - 1; i >= start; i--)
+					ptr[i + step] = ptr[i];
+			}
+
+			//might throw
+			//leaves everything in a valid state
+			void	_copyBackward(pointer ptr, size_type start, size_type end, size_type step)
+			{
+				for (size_type i = start; i < end; i++)
+					ptr[i - step] = ptr[i];
 			}
 
 			//
@@ -205,6 +245,14 @@ namespace ft
 				_size = end;
 			}
 
+			//might throw
+			//leaves everything in a valid state
+			void	_ncopy(size_type start, const value_type& val, size_type n)
+			{
+				for (size_type i = 0; i < n; i++)
+					_data[start + i] = val;
+			}
+
 			template<class U>
 			void	_normalSwap(U& a, U& b)
 			{
@@ -223,7 +271,7 @@ namespace ft
 		/////////////////////////////////////////////////////////////////////////////////////////////////////
 		public:
 			//might throw
-			explicit vector(const allocator_type& alloc = allocator_type()) : _size(0), _capacity(0), _allocator(alloc)
+			explicit vector(const allocator_type& alloc = allocator_type()) : _data(0), _size(0), _capacity(0), _allocator(alloc)
 			{
 			}
 
@@ -281,7 +329,7 @@ namespace ft
 				}
 				_copyRange(0, std::min(_size, rop._size), rop._data);
 				if (_size < rop._size)
-					_constructRange(_size, rop._size, rop._data);
+					_constructRange(_size, rop._size, rop._data + _size);
 				else
 					_destroyRange(rop._size, _size);
 			}
@@ -289,7 +337,7 @@ namespace ft
 			~vector()
 			{
 				_destroyRange(0, _size);
-				_allocator.deallocate(_data, _capacity);
+				_deallocate();
 			}
 		/////////////////////////////////////////////////////////////////////////////////////////////////////
 		/// destructors and constructors End
@@ -464,9 +512,6 @@ namespace ft
 			//might throw
 			void	push_back(const value_type& val)
 			{
-				pointer		tmp;
-				size_type	newCapacity;
-
 				if (_capacity == _size)
 					_expandData(_capacity * 2);
 				_allocator.construct(_data + _size, val);
@@ -493,7 +538,7 @@ namespace ft
 					//copy first half
 					try
 					{
-						_constructDryRange(tmp, 0, _data, start);
+						_nconstructDry(tmp, 0, _data, start);
 					}
 					catch (...)
 					{
@@ -513,7 +558,7 @@ namespace ft
 					//copy the last half
 					try
 					{
-						_constructDryRange(tmp, start + 1, _data + start, _size - start);
+						_nconstructDry(tmp, start + 1, _data + start, _size - start);
 					}
 					catch (...)
 					{
@@ -550,19 +595,18 @@ namespace ft
 			{
 				pointer		tmp;
 				size_type	start;
-				size_type	oldSize;
 				size_type	newCapacity;
 
-				oldSize = _size;
 				start = position - begin();
-				if (_capacity < _size + n)
+				newCapacity = _size + n;
+				if (_capacity < newCapacity)
 				{
-					newCapacity = _getNewCapacity(_size + n);
+					newCapacity = _getNewCapacity(newCapacity);
 					tmp = _allocator.allocate(newCapacity);
 					//copy first half
 					try
 					{
-						_constructDryRange(tmp, 0, _data, start);
+						_nconstructDry(tmp, 0, _data, start);
 					}
 					catch (...)
 					{
@@ -572,7 +616,7 @@ namespace ft
 					//insert the elements
 					try
 					{
-						_constructDryRange(tmp, start, n, val);
+						_nconstructDry(tmp, start, val, n);
 					}
 					catch (...)
 					{
@@ -582,7 +626,7 @@ namespace ft
 					//copy the last half
 					try
 					{
-						_constructDryRange(tmp, start + n, _data + start, _size - start);
+						_nconstructDry(tmp, start + n, _data + start, _size - start);
 					}
 					catch (...)
 					{
@@ -601,14 +645,14 @@ namespace ft
 						_constructRange(start, _size + n, val);
 					else
 					{
-						if (start + n  < _size)
+						if (start + n < _size)
 						{
-							_constructDryRange()
-
+							_nconstruct(_size, _data + start + n, n);
+							_copyFroward(_data, start, start + n, n);
 						}
-						for (size_type i = _size - 2; i >= start + 1; i--)
-							_data[i] = _data[i - 1];
-						_data[start] = val;
+						else
+							_nconstruct(start + n, _data + start, n);
+						_ncopy(start, val, n);
 					}
 				}
 			}
@@ -618,26 +662,70 @@ namespace ft
 			template <class InputIterator>
 			void	insert(iterator position, InputIterator first, InputIterator last)
 			{
-				vector		tmp(first, last);
-				pointer		newData;
+				vector		src(first, last);
+				pointer		tmp;
 				size_type	start;
 				size_type	newCapacity;
 
-				newData = _data;
+				tmp = _data;
 				start = position - begin();
-				newCapacity = tmp._size + _size;
+				newCapacity = src._size + _size;
 				if (_capacity < newCapacity)
 				{
 					newCapacity = _getNewCapacity(newCapacity);
-					newData = _allocator.allocate(newCapacity);
-					_capacity = newCapacity;
-					_normalSwap(_data, newData);
-					_copyElision(newData, 0, 0, start);
+					tmp = _allocator.allocate(newCapacity);
+					//copy first half
+					try
+					{
+						_nconstructDry(tmp, 0, _data, start);
+					}
+					catch (...)
+					{
+						_allocator.deallocate(tmp, newCapacity);
+						throw ;
+					}
+					//insert the elements
+					try
+					{
+						_nconstructDry(tmp, start, src._data, src._size);
+					}
+					catch (...)
+					{
+						_allocator.deallocate(tmp, newCapacity);
+						throw ;
+					}
+					//copy the last half
+					try
+					{
+						_nconstructDry(tmp, start + src._size, _data + start, _size - start);
+					}
+					catch (...)
+					{
+						_allocator.deallocate(tmp, newCapacity);
+						throw ;
+					}
+					_normalSwap(_data, tmp);
+					_normalSwap(_capacity, newCapacity);
+					_allocator.deallocate(tmp, newCapacity);
+					_size += src._size;
 				}
-				_copyElision(newData, start + tmp._size, start, _size);
-				_copyElision(tmp._data, start, 0, tmp._size);
-				_size += tmp._size;
-				tmp._size = 0;
+				else
+				{
+					//if the position is at the end or the vector is empty
+					if (start == _size || _size == 0)
+						_constructRange(start, _size + src._size, src._data);
+					else
+					{
+						if (start + src._size < _size)
+						{
+							_nconstruct(_size, _data + start + src._size, src._size);
+							_copyFroward(_data, start, start + src._size, src._size);
+						}
+						else
+							_nconstruct(start + src._size, _data + start, src._size);
+						_copyRange(start, start + src._size, src._data);
+					}
+				}
 			}
 
 			iterator	erase(iterator position)
@@ -645,24 +733,22 @@ namespace ft
 				size_type	target;
 
 				target = position - begin();
-				_allocator.destroy(_data + target);
-				_copyElision(_data, target, target + 1, _size);
-				--_size;
+				_copyBackward(_data, target + 1, _size, 1);
+				pop_back();
 				return iterator(_data + target);
 			}
 
 			iterator	erase(iterator first, iterator last)
 			{
+				size_type	n;
 				size_type	end;
 				size_type	start;
-				size_type	oldSize;
 
-				oldSize = _size;
-				end = last - begin();
 				start = first - begin();
-				_destroyRange(start, end);
-				_copyElision(_data, start, end, oldSize);
-				_size = oldSize - (end - start);
+				end = last - begin();
+				n = end - start;
+				_copyBackward(_data, start + n, _size, n);
+				_destroyRange(_size - n, _size);
 				return iterator(_data + start);
 			}
 
