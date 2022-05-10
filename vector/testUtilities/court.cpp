@@ -11,18 +11,21 @@
 namespace ft
 {
 	int court::count = 0;
+	static int verbose = 0;
 
 	court::court() : _str(0)
 	{
 		count++;
-		std::cout << "Default constructor : " << count << std::endl;
+		if (verbose)
+			std::cout << "Default constructor : " << count << std::endl;
 		checkMaxCount();
 		_buildStr();
 	}
 
 	court::~court()
 	{
-		std::cout << "Default destructor : " << count << " " << _name << std::endl;
+		if (verbose)
+			std::cout << "Default destructor : " << count << " " << _name << std::endl;
 		count--;
 		_destroyStr();
 	}
@@ -30,7 +33,8 @@ namespace ft
 	court::court(const std::string& name) : _name(name), _str(0)
 	{
 		count++;
-		std::cout << "Parameterised constructor : " << count << " " << _name << std::endl;
+		if (verbose)
+			std::cout << "Parameterised constructor : " << count << " " << _name << std::endl;
 		checkMaxCount();
 		_buildStr();
 	}
@@ -38,14 +42,16 @@ namespace ft
 	court::court(const court& src) : _name(src._name), _str(0)
 	{
 		count++;
-		std::cout << "Copy constructor : " << count << " " << _name << std::endl;
+		if (verbose)
+			std::cout << "Copy constructor : " << count << " " << _name << std::endl;
 		checkMaxCount();
 		_buildStr();
 	}
 
 	court	&court::operator=(const court& rop)
 	{
-		std::cout << "Assignment operator" << std::endl;
+		if (verbose)
+			std::cout << "Assignment operator" << std::endl;
 		if (this == &rop)
 			return *this;
 		_name = rop._name;

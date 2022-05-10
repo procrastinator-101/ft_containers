@@ -18,6 +18,7 @@ void	testErase();
 void	testInsert();
 void	testIterator();
 void	testConstructor();
+void	testAssignmentOperator();
 
 void	fillVector(ft::vector<int>& vec, size_t n);
 void	fillVector(ft::vector<ft::court>& vec, size_t n);

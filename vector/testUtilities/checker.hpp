@@ -19,7 +19,7 @@ void	check(std::vector<T>& a, ft::vector<T>& b)
 {
 	bool	ret;
 
-	std::cout << std::right;
+	std::cout << std::boolalpha << std::right;
 	std::cout << std::setw(30) << "size " << ": " << (a.size() == b .size()) << std::endl;
 	std::cout << std::setw(30) << "capacity " << ": " << (a.capacity() == b.capacity()) << std::endl;
 
@@ -34,7 +34,7 @@ void	check(T& a, U& b)
 {
 	bool	ret;
 
-	std::cout << std::right;
+	std::cout << std::boolalpha << std::right;
 	std::cout << std::setw(30) << "size " << ": " << (a.size() == b .size()) << std::endl;
 	std::cout << std::setw(30) << "capacity " << ": " << (a.capacity() == b.capacity()) << std::endl;
 

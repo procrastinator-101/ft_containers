@@ -72,6 +72,28 @@ namespace ft
 			}
 
 			//might throw
+			void	_allocate(size_type n)
+			{
+				_data = _allocator.allocate(n);
+				_capacity = n;
+			}
+
+			void	_deallocate()
+			{
+				if (!_data)
+					return;
+				_allocator.deallocate(_data, _capacity);
+				_data = 0;
+				_capacity = 0;
+			}
+
+			void	_deallocateDry(pointer ptr, size_type capacity)
+			{
+				if (ptr)
+					_allocator.deallocate(ptr, capacity);
+			}
+
+			//might throw
 			void	_expandData(size_type newCapacity)
 			{
 				pointer	tmp;
@@ -87,24 +109,9 @@ namespace ft
 					throw ;
 				}
 				_normalSwap(_data, tmp);
-				_allocator.deallocate(tmp, _capacity);
+				_ndestroyDry(tmp, _size);
+				_deallocateDry(tmp, _capacity);
 				_capacity = newCapacity;
-			}
-
-			//might throw
-			void	_allocate(size_type n)
-			{
-				_data = _allocator.allocate(n);
-				_capacity = n;
-			}
-
-			void	_deallocate()
-			{
-				if (!_data)
-					return;
-				_allocator.deallocate(_data, _capacity);
-				_data = 0;
-				_capacity = 0;
 			}
 
 			//might throw
@@ -145,8 +152,14 @@ namespace ft
 
 			void	_ndestroyDry(pointer ptr, size_type n)
 			{
-				for (size_type i = 0; i < n; i++)
+				if (!n)
+					return ;
+				for (size_type i = n - 1; i >= 0; i--)
+				{
 					_allocator.destroy(ptr + i);
+					if (!i)
+						break ;
+				}
 			}
 
 			//might throw
@@ -208,9 +221,15 @@ namespace ft
 
 			void	_destroyRange(size_type start, size_type end)
 			{
-				for (size_type i = start; i < end; i++)
+				if (!end)
+					return ;
+				for (size_type i = end - 1; i >= start; i--)
+				{
 					_allocator.destroy(_data + i);
-				_size = start;
+					_size = i;
+					if (!i)
+						break ;
+				}
 			}
 
 			//might throw : basic guarantee
@@ -227,12 +246,17 @@ namespace ft
 					_data[start + i] = val;
 			}
 
-			//--------------------------------------
 			//might throw : basic guarantee
 			void	_copyFroward(pointer ptr, size_type start, size_type end, size_type step)
 			{
+				if (!end)
+					return ;
 				for (size_type i = end - 1; i >= start; i--)
+				{
 					ptr[i + step] = ptr[i];
+					if (!i)
+						break ;
+				}
 			}
 
 			//might throw : basic guarantee
@@ -251,12 +275,11 @@ namespace ft
 		/// destructors, constructors, and assignment operators
 		/////////////////////////////////////////////////////////////////////////////////////////////////////
 		public:
-			//might throw
 			explicit vector(const allocator_type& alloc = allocator_type()) : _data(0), _size(0), _capacity(0), _allocator(alloc)
 			{
 			}
 
-			//might throw
+			//might throw : strong guarantee
 			explicit vector(size_type n, const value_type& val = value_type(), const allocator_type& alloc = allocator_type()) : _size(0), _capacity(0), _allocator(alloc)
 			{
 				_allocate(n);
@@ -271,7 +294,18 @@ namespace ft
 				}
 			}
 
-			//might throw
+			//might throw : strong guarantee
+			template <class InputIterator>
+			vector(InputIterator first, typename ft::enable_if<!ft::is_integral<InputIterator>::value, InputIterator>::type last, const allocator_type& alloc = allocator_type()) : _data(0), _size(0), _capacity(0), _allocator(alloc)
+			{
+				while (first != last)
+				{
+					push_back(*first);
+					++first;
+				}
+			}
+
+			//might throw : strong guarantee
 			vector(const vector& src) : _size(src._size), _capacity(src._capacity), _allocator(src._allocator)
 			{
 				_allocate(src._capacity);
@@ -286,15 +320,10 @@ namespace ft
 				}
 			}
 
-			//might throw
-			template <class InputIterator>
-			vector(InputIterator first, typename ft::enable_if<!ft::is_integral<InputIterator>::value, InputIterator>::type last, const allocator_type& alloc = allocator_type()) : _size(0), _capacity(0), _allocator(alloc)
+			~vector()
 			{
-				while (first != last)
-				{
-					push_back(*first);
-					++first;
-				}
+				_destroyRange(0, _size);
+				_deallocate();
 			}
 
 			//might throw
@@ -313,12 +342,7 @@ namespace ft
 					_constructRange(_size, rop._size, rop._data + _size);
 				else
 					_destroyRange(rop._size, _size);
-			}
-
-			~vector()
-			{
-				_destroyRange(0, _size);
-				_deallocate();
+				return *this;
 			}
 		/////////////////////////////////////////////////////////////////////////////////////////////////////
 		/// destructors and constructors End
@@ -494,7 +518,7 @@ namespace ft
 			void	push_back(const value_type& val)
 			{
 				if (_capacity == _size)
-					_expandData(_capacity * 2);
+					_expandData(_getNewCapacity(_capacity * 2));
 				_allocator.construct(_data + _size, val);
 				++_size;
 			}
@@ -514,7 +538,7 @@ namespace ft
 				start = position - begin();
 				if (_capacity == _size)
 				{
-					newCapacity = _getNewCapacity(_capacity);
+					newCapacity = _getNewCapacity(_capacity * 2);
 					tmp = _allocator.allocate(newCapacity);
 					//copy first half
 					try
@@ -533,6 +557,7 @@ namespace ft
 					}
 					catch (...)
 					{
+						_ndestroyDry(tmp, start);
 						_allocator.deallocate(tmp, newCapacity);
 						throw ;
 					}
@@ -543,12 +568,13 @@ namespace ft
 					}
 					catch (...)
 					{
+						_ndestroyDry(tmp, start + 1);
 						_allocator.deallocate(tmp, newCapacity);
 						throw ;
 					}
 					_normalSwap(_data, tmp);
 					_normalSwap(_capacity, newCapacity);
-					_allocator.deallocate(tmp, newCapacity);
+					_deallocateDry(tmp, newCapacity);
 					++_size;
 				}
 				else
@@ -563,8 +589,8 @@ namespace ft
 					{
 						_allocator.construct(_data + _size, _data[_size - 1]);
 						++_size;
-						for (size_type i = _size - 2; i >= start + 1; i--)
-							_data[i] = _data[i - 1];
+						_copyFroward(_data, start, _size - 2, 1);
+						std::cout << "cop End" << std::endl;
 						_data[start] = val;
 					}
 				}
@@ -601,6 +627,7 @@ namespace ft
 					}
 					catch (...)
 					{
+						_ndestroyDry(tmp, start);
 						_allocator.deallocate(tmp, newCapacity);
 						throw ;
 					}
@@ -611,12 +638,13 @@ namespace ft
 					}
 					catch (...)
 					{
+						_ndestroyDry(tmp, start + n);
 						_allocator.deallocate(tmp, newCapacity);
 						throw ;
 					}
 					_normalSwap(_data, tmp);
 					_normalSwap(_capacity, newCapacity);
-					_allocator.deallocate(tmp, newCapacity);
+					_deallocateDry(tmp, newCapacity);
 					_size += n;
 				}
 				else
@@ -671,6 +699,7 @@ namespace ft
 					}
 					catch (...)
 					{
+						_ndestroyDry(tmp, start);
 						_allocator.deallocate(tmp, newCapacity);
 						throw ;
 					}
@@ -681,12 +710,13 @@ namespace ft
 					}
 					catch (...)
 					{
+						_ndestroyDry(tmp, start + src._size);
 						_allocator.deallocate(tmp, newCapacity);
 						throw ;
 					}
 					_normalSwap(_data, tmp);
 					_normalSwap(_capacity, newCapacity);
-					_allocator.deallocate(tmp, newCapacity);
+					_deallocateDry(tmp, newCapacity);
 					_size += src._size;
 				}
 				else

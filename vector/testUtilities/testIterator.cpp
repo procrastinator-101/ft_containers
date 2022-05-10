@@ -2,66 +2,66 @@
 #include "display.hpp"
 #include "testUtilities.hpp"
 
-void	testReverseIter()
+template<typename T>
+void	testReverseIter(int n)
 {
-	std::cout << "//////////////////////// ReverseIter //////////////////////////" << std::endl;
-	// bool ret;
-	int n = 15;
+	displayHeader("testReverseIter");
 
-	std::vector<int>	nums;
+	std::vector<T>	nums;
 	fillVector(nums, n);
 
-	ft::vector<int>		nbs(nums.begin(), nums.end());
+	ft::vector<T>		nbs(nums.begin(), nums.end());
 
 	std::cout << nbs << std::endl;
 	std::cout << nums << std::endl;
 
 	std::cout << "///////////////////////////////////////////////////////////////" << std::endl;
 	{
-		ft::vector<int>::reverse_iterator it = nbs.rbegin();
-		ft::vector<int>::reverse_iterator itend = nbs.rend();
+		typename ft::vector<T>::reverse_iterator it = nbs.rbegin();
+		typename ft::vector<T>::reverse_iterator itend = nbs.rend();
 		show(it, itend);
 	}
 	std::cout << "///////////////////////////////////////////////////////////////" << std::endl;
 	{
-		std::vector<int>::reverse_iterator it = nums.rbegin();
-		std::vector<int>::reverse_iterator itend = nums.rend();
+		typename std::vector<T>::reverse_iterator it = nums.rbegin();
+		typename std::vector<T>::reverse_iterator itend = nums.rend();
 		show(it, itend);
 	}
-	std::cout << "////////////////////// ReverseIter End ////////////////////////" << std::endl;
+	displayHeader("testReverseIter End");
 }
 
-void	testIter()
+template<typename T>
+void	testIter(int n)
 {
-	std::cout << "/////////////////////////// Iter //////////////////////////////" << std::endl;
-	// bool ret;
-	int n = 15;
+	displayHeader("testReverseIter");
 
-	std::vector<int>	nums;
+	std::vector<T>	nums;
 	fillVector(nums, n);
 
-	ft::vector<int>		nbs(nums.begin(), nums.end());
+	ft::vector<T>		nbs(nums.begin(), nums.end());
 
 	std::cout << nbs << std::endl;
 	std::cout << nums << std::endl;
 
 	std::cout << "///////////////////////////////////////////////////////////////" << std::endl;
 	{
-		ft::vector<int>::iterator it = nbs.begin();
-		ft::vector<int>::iterator itend = nbs.end();
+		typename ft::vector<T>::iterator it = nbs.begin();
+		typename ft::vector<T>::iterator itend = nbs.end();
 		show(it, itend);
 	}
 	std::cout << "///////////////////////////////////////////////////////////////" << std::endl;
 	{
-		std::vector<int>::iterator it = nums.begin();
-		std::vector<int>::iterator itend = nums.end();
+		typename std::vector<T>::iterator it = nums.begin();
+		typename std::vector<T>::iterator itend = nums.end();
 		show(it, itend);
 	}
-	std::cout << "///////////////////////// Iter End ////////////////////////////" << std::endl;
+	displayHeader("testReverseIter End");
 }
 
 void	testIterator()
 {
-	testIter();
-	testReverseIter();
+	testIter<int>(15);
+	testReverseIter<int>(15);
+	testIter<ft::court>(15);
+	testReverseIter<ft::court>(15);
 }
