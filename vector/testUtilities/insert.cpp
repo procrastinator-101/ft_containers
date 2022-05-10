@@ -5,6 +5,7 @@
 
 
 static int n = 33; //std::rand() % 10;
+// static int	position = 1;
 static int	position = std::rand() % n;
 static int sequenceSize = 10;
 
@@ -103,16 +104,16 @@ void	testInsertIntn()
 	check(a, b);
 
 	std::cout << "///////////////////////////////////////////////////////////////" << std::endl;
-	b.insert(b.begin(), ns[0], values[0]);
 	a.insert(a.begin(), ns[0], values[0]);
+	b.insert(b.begin(), ns[0], values[0]);
 	check(a, b);
 	std::cout << "///////////////////////////////////////////////////////////////" << std::endl;
-	b.insert(b.begin() + position, ns[1], values[1]);
 	a.insert(a.begin() + position, ns[1], values[1]);
+	b.insert(b.begin() + position, ns[1], values[1]);
 	check(a, b);
 	std::cout << "///////////////////////////////////////////////////////////////" << std::endl;
+	a.insert(a.end(), ns[2], values[2]);
 	b.insert(b.end(), ns[2], values[2]);
-	a.insert(a.end(), ns[2], values[1]);
 	check(a, b);
 	displayHeader("testInsertIntn End");
 }
@@ -165,7 +166,8 @@ void	testInsertCourt()
 
 	fillVector(a, n);
 
-	std::vector<ft::court>	b(a.begin(), a.end());
+	std::cout << "......................................................." << std::endl;
+	ft::vector<ft::court>	b(a.begin(), a.end());
 
 	std::cout << b << std::endl;
 	std::cout << a << std::endl;
@@ -175,22 +177,25 @@ void	testInsertCourt()
 	check(a, b);
 
 	std::cout << "///////////////////////////////////////////////////////////////" << std::endl;
-	insertExcept(b, b.begin(), ft::court("first"));
 	insertExcept(a, a.begin(), ft::court("first"));
+	std::cout << "......................................................." << std::endl;
+	insertExcept(b, b.begin(), ft::court("first"));
 	check(a, b);
 	std::cout << b << std::endl;
 	std::cout << a << std::endl;
 	std::cout << "///////////////////////////////////////////////////////////////" << std::endl;
 
-	insertExcept(b, b.begin() + position, ft::court("middle"));
 	insertExcept(a, a.begin() + position, ft::court("middle"));
+	std::cout << "......................................................." << std::endl;
+	insertExcept(b, b.begin() + position, ft::court("middle"));
 	check(a, b);
 	std::cout << b << std::endl;
 	std::cout << a << std::endl;
 	std::cout << "///////////////////////////////////////////////////////////////" << std::endl;
 	
-	insertExcept(b, b.end(), ft::court("end"));
 	insertExcept(a, a.end(), ft::court("end"));
+	std::cout << "......................................................." << std::endl;
+	insertExcept(b, b.end(), ft::court("end"));
 	check(a, b);
 	std::cout << b << std::endl;
 	std::cout << a << std::endl;
@@ -206,7 +211,8 @@ void	testInsertCourtn()
 	std::vector<ft::court>	a;
 	fillVector(a, n);
 
-	std::vector<ft::court>		b(a.begin(), a.end());
+	std::cout << "......................................................." << std::endl;
+	ft::vector<ft::court>		b(a.begin(), a.end());
 
 	std::cout << b << std::endl;
 	std::cout << a << std::endl;
@@ -216,23 +222,28 @@ void	testInsertCourtn()
 	check(a, b);
 
 	std::cout << "///////////////////////////////////////////////////////////////" << std::endl;
-	std::cout << "n = " << ns[0] << std::endl;
-	b.insert(b.begin(), ns[0], values[0]);
+	std::cout << "n = " << ns[0] << " position = " << 0 << " size = " << a.size() << std::endl;
 	a.insert(a.begin(), ns[0], values[0]);
+	std::cout << "......................................................." << std::endl;
+	b.insert(b.begin(), ns[0], values[0]);
 	check(a, b);
 	std::cout << b << std::endl;
 	std::cout << a << std::endl;
 	std::cout << "///////////////////////////////////////////////////////////////" << std::endl;
-	std::cout << "n = " << ns[1] << std::endl;
-	b.insert(b.begin() + position, ns[1], values[1]);
+	ns[1] = 4;//10
+	position = a.end() - 6 - a.begin();
+	std::cout << "n = " << ns[1] << " position = " << position << " size = " << a.size() << std::endl;
 	a.insert(a.begin() + position, ns[1], values[1]);
+	std::cout << "......................................................." << std::endl;
+	b.insert(b.begin() + position, ns[1], values[1]);
 	check(a, b);
 	std::cout << b << std::endl;
 	std::cout << a << std::endl;
 	std::cout << "///////////////////////////////////////////////////////////////" << std::endl;
-	std::cout << "n = " << ns[2] << std::endl;
+	std::cout << "n = " << ns[2] << " position = " << a.end() - a.begin() << " size = " << a.size() << std::endl;
+	a.insert(a.end(), ns[2], values[2]);
+	std::cout << "......................................................." << std::endl;
 	b.insert(b.end(), ns[2], values[2]);
-	a.insert(a.end(), ns[2], values[1]);
 	check(a, b);
 	std::cout << b << std::endl;
 	std::cout << a << std::endl;
@@ -250,7 +261,7 @@ void	testInsertCourtIter()
 	std::vector<ft::court>	a;
 	fillVector(a, n);
 
-	std::vector<ft::court>		b(a.begin(), a.end());
+	ft::vector<ft::court>		b(a.begin(), a.end());
 
 	std::cout << b << std::endl;
 	std::cout << a << std::endl;
@@ -292,10 +303,10 @@ void	testInsertCourtIter()
 
 void	testInsert()
 {
-	testInsertInt();
-	testInsertCourt();
+	// testInsertInt();
+	// testInsertCourt();
 	testInsertIntn();
 	testInsertCourtn();
-	testInsertIntIter();
-	testInsertCourtIter();
+	// testInsertIntIter();
+	// testInsertCourtIter();
 }

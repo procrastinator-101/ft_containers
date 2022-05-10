@@ -11,7 +11,7 @@
 namespace ft
 {
 	int court::count = 0;
-	static int verbose = 0;
+	static int verbose = 1;
 
 	court::court() : _str(0)
 	{

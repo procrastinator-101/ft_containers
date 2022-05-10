@@ -183,6 +183,25 @@ namespace ft
 
 			//might throw
 			//in case of exception, nothing get constructed
+			void	_nconstruct(size_type start, const value_type& val, size_type n)
+			{
+				size_type	i;
+
+				try
+				{
+					for (i = 0; i < n; i++)
+						_allocator.construct(_data + start + i, val);
+				}
+				catch (...)
+				{
+					_destroyRange(start, start + i);
+					throw ;
+				}
+				_size += n;
+			}
+
+			//might throw
+			//in case of exception, nothing get constructed
 			void	_constructRange(size_type start, size_type end, const value_type& val)
 			{
 				size_type	i;
@@ -536,9 +555,10 @@ namespace ft
 				size_type	newCapacity;
 
 				start = position - begin();
-				if (_capacity == _size)
+				newCapacity = _size + 1;
+				if (_capacity < newCapacity)
 				{
-					newCapacity = _getNewCapacity(_capacity * 2);
+					newCapacity = _getNewCapacity(newCapacity);
 					tmp = _allocator.allocate(newCapacity);
 					//copy first half
 					try
@@ -574,6 +594,7 @@ namespace ft
 					}
 					_normalSwap(_data, tmp);
 					_normalSwap(_capacity, newCapacity);
+					_ndestroyDry(tmp, _size);
 					_deallocateDry(tmp, newCapacity);
 					++_size;
 				}
@@ -590,7 +611,6 @@ namespace ft
 						_allocator.construct(_data + _size, _data[_size - 1]);
 						++_size;
 						_copyFroward(_data, start, _size - 2, 1);
-						std::cout << "cop End" << std::endl;
 						_data[start] = val;
 					}
 				}
@@ -602,8 +622,11 @@ namespace ft
 			{
 				pointer		tmp;
 				size_type	start;
+				size_type	oldSize;
 				size_type	newCapacity;
 
+				if (!n)
+					return ;
 				start = position - begin();
 				newCapacity = _size + n;
 				if (_capacity < newCapacity)
@@ -644,6 +667,7 @@ namespace ft
 					}
 					_normalSwap(_data, tmp);
 					_normalSwap(_capacity, newCapacity);
+					_ndestroyDry(tmp, _size);
 					_deallocateDry(tmp, newCapacity);
 					_size += n;
 				}
@@ -654,14 +678,25 @@ namespace ft
 						_constructRange(start, _size + n, val);
 					else
 					{
+						oldSize = _size;
 						if (start + n < _size)
 						{
-							_nconstruct(_size, _data + start + n, n);
-							_copyFroward(_data, start, start + n, n);
+							_constructRange(oldSize, oldSize + n, _data + oldSize - n);
+							std::cout << "cons" << std::endl;
+							_copyFroward(_data, start, oldSize - n, n);
+							std::cout << "forward" << std::endl;
+							_ncopy(start, val, n);
+							std::cout << "copy" << std::endl;
 						}
 						else
-							_nconstruct(start + n, _data + start, n);
-						_ncopy(start, val, n);
+						{
+							_constructRange(oldSize, start + n, val);
+							std::cout << "-cons" << std::endl;
+							_constructRange(start + n, oldSize + n, _data + start);
+							std::cout << "-cons2" << std::endl;
+							_ncopy(start, val, oldSize - start);
+							std::cout << "copy" << std::endl;
+						}
 					}
 				}
 			}
@@ -675,6 +710,8 @@ namespace ft
 				size_type	start;
 				size_type	newCapacity;
 
+				if (!src._size)
+					return ;
 				tmp = _data;
 				start = position - begin();
 				newCapacity = src._size + _size;
@@ -716,6 +753,7 @@ namespace ft
 					}
 					_normalSwap(_data, tmp);
 					_normalSwap(_capacity, newCapacity);
+					_ndestroyDry(tmp, _size);
 					_deallocateDry(tmp, newCapacity);
 					_size += src._size;
 				}
