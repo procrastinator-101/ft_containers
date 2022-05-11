@@ -4,11 +4,12 @@
 #include <vector>
 
 
-static int n = 33; //std::rand() % 10;
-// static int	position = 1;
+static int n = 33;
+// static int n = std::rand() % 100;
 static int fill = 1;
-static int	position = std::rand() % n;
-static int sequenceSize = 10;
+static int	position = 2;
+// static int	position = std::rand() % n;
+static int sequenceSize = n * 2;
 
 template<typename T, typename U>
 static void	insertExcept(T& v, typename T::iterator position, const U& val)
@@ -312,8 +313,8 @@ void	testInsert()
 {
 	testInsertInt();
 	testInsertCourt();
-	// testInsertIntn();
-	// testInsertCourtn();
-	// testInsertIntIter();
-	// testInsertCourtIter();
+	testInsertIntn();
+	testInsertCourtn();
+	testInsertIntIter();
+	testInsertCourtIter();
 }
