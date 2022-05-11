@@ -1,0 +1,109 @@
+#ifndef AVL_HPP
+# define AVL_HPP
+
+namespace ft
+{
+	template<typename value_type, typename key_compare, typename value_compare>
+	class Avl
+	{
+		/////////////////////////////////////////////////////////////////////////////////////////////////////
+		/// Node class Defintion
+		/////////////////////////////////////////////////////////////////////////////////////////////////////
+		private:
+			class Node
+			{
+				private:
+
+					int     _value;
+					int     _leftHeight;
+					int     _rightHeight;
+
+					Node   *_left;
+					Node   *_right;
+					Node   *_parent;
+
+
+					void	isolate();
+					void	swap(Node *node);
+					void	replace(Node *node);
+
+					void    balance();
+
+					void    llRotate();
+					void    lrRotate();
+					void    rlRotate();
+					void    rrRotate();
+
+					void    updateCounts();
+
+					int     getBalanceFactor() const;
+					Node   *getInOrderSuccessor() const;
+					Node   *getInOrderPredeccessor() const;
+
+
+				public:
+
+					static Node    *root;
+
+
+					Node();
+					~Node();
+
+					Node(int value);
+					Node(int value, Node *left, Node *right, Node *parent);
+
+					Node(const Node& src);
+					Node	&operator=(const Node& rhs);
+
+					void	erase(int value);
+					void	insert(Node& node);
+
+					int		getValue() const;
+					int		getLeftHeight() const;
+					int		getRightHeight() const;
+
+					Node	*getLeft() const;
+					Node	*getRight() const;
+					Node	*getParent() const;
+
+					void	setValue(int value);
+					void	setLeftHeight(int leftHeight);
+					void	setRightHeight(int rightHeight);
+
+					void	setLeft(Node *left);
+					void	setRight(Node *right);
+					void	setParent(Node *parent);
+			};
+		/////////////////////////////////////////////////////////////////////////////////////////////////////
+		/// Node class Defintion End
+		/////////////////////////////////////////////////////////////////////////////////////////////////////
+
+		/////////////////////////////////////////////////////////////////////////////////////////////////////
+		/// type definitions
+		/////////////////////////////////////////////////////////////////////////////////////////////////////
+		private:
+			typedef Node* pointer;
+			typedef const Node* const_pointer;
+			typedef Node& reference;
+			typedef const Node& const_reference;
+
+			typedef size_t size_type;
+		/////////////////////////////////////////////////////////////////////////////////////////////////////
+		/// type definitions End
+		/////////////////////////////////////////////////////////////////////////////////////////////////////
+
+
+		/////////////////////////////////////////////////////////////////////////////////////////////////////
+		/// private data members
+		/////////////////////////////////////////////////////////////////////////////////////////////////////
+		private:
+			pointer	root;
+		/////////////////////////////////////////////////////////////////////////////////////////////////////
+		/// private data members End
+		/////////////////////////////////////////////////////////////////////////////////////////////////////
+
+		
+	};
+}
+
+#endif
