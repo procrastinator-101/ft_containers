@@ -284,7 +284,217 @@ namespace ft
 				for (size_type i = start; i < end; i++)
 					ptr[i - step] = ptr[i];
 			}
-			
+
+			//might throw : strong guarantee
+			void	_insertRealloc(size_type position, const value_type& val)
+			{
+				pointer		tmp;
+				size_type	newCapacity;
+
+				newCapacity = _getNewCapacity(_size + 1);
+				tmp = _allocator.allocate(newCapacity);
+				//copy first half
+				try
+				{
+					_nconstructDry(tmp, 0, _data, position);
+				}
+				catch (...)
+				{
+					_allocator.deallocate(tmp, newCapacity);
+					throw ;
+				}
+				//insert the element
+				try
+				{
+					_allocator.construct(tmp + position, val);
+				}
+				catch (...)
+				{
+					_ndestroyDry(tmp, position);
+					_allocator.deallocate(tmp, newCapacity);
+					throw ;
+				}
+				//copy the last half
+				try
+				{
+					_nconstructDry(tmp, position + 1, _data + position, _size - position);
+				}
+				catch (...)
+				{
+					_ndestroyDry(tmp, position + 1);
+					_allocator.deallocate(tmp, newCapacity);
+					throw ;
+				}
+				_normalSwap(_data, tmp);
+				_normalSwap(_capacity, newCapacity);
+				_ndestroyDry(tmp, _size);
+				_deallocateDry(tmp, newCapacity);
+				++_size;
+			}
+
+			//might throw
+			void	_insertNoRealloc(size_type position, const value_type& val)
+			{
+				//if the position is at the end or the vector is empty
+				if (position == _size || _size == 0)
+				{
+					_allocator.construct(_data + position, val);
+					_size++;
+				}
+				else
+				{
+					_allocator.construct(_data + _size, _data[_size - 1]);
+					++_size;
+					_copyFroward(_data, position, _size - 2, 1);
+					_data[position] = val;
+				}
+			}
+
+			//might throw : strong guarantee
+			void	_insertRealloc(size_type position, size_type n, const value_type& val)
+			{
+				pointer		tmp;
+				size_type	newCapacity;
+
+				newCapacity = _getNewCapacity(_size + n);
+				tmp = _allocator.allocate(newCapacity);
+				//copy first half
+				try
+				{
+					_nconstructDry(tmp, 0, _data, position);
+				}
+				catch (...)
+				{
+					_allocator.deallocate(tmp, newCapacity);
+					throw ;
+				}
+				//insert the elements
+				try
+				{
+					_nconstructDry(tmp, position, val, n);
+				}
+				catch (...)
+				{
+					_ndestroyDry(tmp, position);
+					_allocator.deallocate(tmp, newCapacity);
+					throw ;
+				}
+				//copy the last half
+				try
+				{
+					_nconstructDry(tmp, position + n, _data + position, _size - position);
+				}
+				catch (...)
+				{
+					_ndestroyDry(tmp, position + n);
+					_allocator.deallocate(tmp, newCapacity);
+					throw ;
+				}
+				_normalSwap(_data, tmp);
+				_normalSwap(_capacity, newCapacity);
+				_ndestroyDry(tmp, _size);
+				_deallocateDry(tmp, newCapacity);
+				_size += n;
+			}
+
+			//might throw
+			void	_insertNoRealloc(size_type position, size_type n, const value_type& val)
+			{
+				size_type	oldSize;
+
+				//if the position is at the end or the vector is empty
+				if (position == _size || _size == 0)
+					_constructRange(position, _size + n, val);
+				else
+				{
+					oldSize = _size;
+					if (position + n < _size)
+					{
+						_constructRange(oldSize, oldSize + n, _data + oldSize - n);
+						_copyFroward(_data, position, oldSize - n, n);
+						_ncopy(position, val, n);
+					}
+					else
+					{
+						_constructRange(oldSize, position + n, val);
+						_constructRange(position + n, oldSize + n, _data + position);
+						_ncopy(position, val, oldSize - position);
+					}
+				}
+			}
+
+			//might throw : strong guarantee
+			void	_insertRealloc(size_type position, const vector& src)
+			{
+				pointer		tmp;
+				size_type	newCapacity;
+
+				newCapacity = _getNewCapacity(_size + src._size);
+				tmp = _allocator.allocate(newCapacity);
+				//copy first half
+				try
+				{
+					_nconstructDry(tmp, 0, _data, position);
+				}
+				catch (...)
+				{
+					_allocator.deallocate(tmp, newCapacity);
+					throw ;
+				}
+				//insert the elements
+				try
+				{
+					_nconstructDry(tmp, position, src._data, src._size);
+				}
+				catch (...)
+				{
+					_ndestroyDry(tmp, position);
+					_allocator.deallocate(tmp, newCapacity);
+					throw ;
+				}
+				//copy the last half
+				try
+				{
+					_nconstructDry(tmp, position + src._size, _data + position, _size - position);
+				}
+				catch (...)
+				{
+					_ndestroyDry(tmp, position + src._size);
+					_allocator.deallocate(tmp, newCapacity);
+					throw ;
+				}
+				_normalSwap(_data, tmp);
+				_normalSwap(_capacity, newCapacity);
+				_ndestroyDry(tmp, _size);
+				_deallocateDry(tmp, newCapacity);
+				_size += src._size;
+			}
+
+			//might throw
+			void	_insertNoRealloc(size_type position, const vector& src)
+			{
+				size_type	oldSize;
+
+				//if the position is at the end or the vector is empty
+				if (position == _size || _size == 0)
+					_constructRange(position, _size + src._size, src._data);
+				else
+				{
+					oldSize = _size;
+					if (position + src._size < _size)
+					{
+						_constructRange(oldSize, oldSize + src._size, _data + oldSize - src._size);
+						_copyFroward(_data, position, oldSize - src._size, src._size);
+						_copyRange(position, position + src._size, src._data);
+					}
+					else
+					{
+						_constructRange(oldSize, position + src._size, src._data + oldSize - position);
+						_constructRange(position + src._size, oldSize + src._size, _data + position);
+						_copyRange(position, oldSize, src._data);
+					}
+				}
+			}
 		/////////////////////////////////////////////////////////////////////////////////////////////////////
 		/// General private functions End
 		/////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -437,7 +647,7 @@ namespace ft
 					_destroyRange(n, _size);
 				else if (n > _size)
 				{
-					if (_capacity <= n)
+					if (_capacity < n)
 						_expandData(_getNewCapacity(n));
 					_constructRange(_size, n, val);
 				}
@@ -453,7 +663,8 @@ namespace ft
 				return !_size;
 			}
 
-			void reserve(size_type n)//might throw
+			//might throw
+			void reserve(size_type n)
 			{
 				if (n > max_size())
 					throw length_error();
@@ -534,6 +745,18 @@ namespace ft
 			}
 
 			//might throw
+			template <class InputIterator>
+			void assign (InputIterator first, typename ft::enable_if<!ft::is_integral<InputIterator>::value, InputIterator>::type last)
+			{
+				_destroyRange(0, _size);
+				while (first != last)
+				{
+					push_back(*first);
+					++first;
+				}
+			}
+
+			//might throw
 			void	push_back(const value_type& val)
 			{
 				if (_capacity == _size)
@@ -550,155 +773,28 @@ namespace ft
 			//might throw
 			iterator	insert(iterator position, const value_type& val)
 			{
-				pointer		tmp;
-				size_type	start;
-				size_type	newCapacity;
+				size_type	target;
 
-				start = position - begin();
-				newCapacity = _size + 1;
-				if (_capacity < newCapacity)
-				{
-					newCapacity = _getNewCapacity(newCapacity);
-					tmp = _allocator.allocate(newCapacity);
-					//copy first half
-					try
-					{
-						_nconstructDry(tmp, 0, _data, start);
-					}
-					catch (...)
-					{
-						_allocator.deallocate(tmp, newCapacity);
-						throw ;
-					}
-					//insert the element
-					try
-					{
-						_allocator.construct(tmp + start, val);
-					}
-					catch (...)
-					{
-						_ndestroyDry(tmp, start);
-						_allocator.deallocate(tmp, newCapacity);
-						throw ;
-					}
-					//copy the last half
-					try
-					{
-						_nconstructDry(tmp, start + 1, _data + start, _size - start);
-					}
-					catch (...)
-					{
-						_ndestroyDry(tmp, start + 1);
-						_allocator.deallocate(tmp, newCapacity);
-						throw ;
-					}
-					_normalSwap(_data, tmp);
-					_normalSwap(_capacity, newCapacity);
-					_ndestroyDry(tmp, _size);
-					_deallocateDry(tmp, newCapacity);
-					++_size;
-				}
+				target = position - begin();
+				if (_capacity < _size + 1)
+					_insertRealloc(target, val);
 				else
-				{
-					//if the position is at the end or the vector is empty
-					if (start == _size || _size == 0)
-					{
-						_allocator.construct(_data + start, val);
-						_size++;
-					}
-					else
-					{
-						_allocator.construct(_data + _size, _data[_size - 1]);
-						++_size;
-						_copyFroward(_data, start, _size - 2, 1);
-						_data[start] = val;
-					}
-				}
-				return iterator(_data + start);
+					_insertNoRealloc(target, val);
+				return iterator(_data + target);
 			}
 
 			//might throw
 			void	insert(iterator position, size_type n, const value_type& val)
 			{
-				pointer		tmp;
-				size_type	start;
-				size_type	oldSize;
-				size_type	newCapacity;
+				size_type	target;
 
 				if (!n)
 					return ;
-				start = position - begin();
-				newCapacity = _size + n;
-				if (_capacity < newCapacity)
-				{
-					newCapacity = _getNewCapacity(newCapacity);
-					tmp = _allocator.allocate(newCapacity);
-					//copy first half
-					try
-					{
-						_nconstructDry(tmp, 0, _data, start);
-					}
-					catch (...)
-					{
-						_allocator.deallocate(tmp, newCapacity);
-						throw ;
-					}
-					//insert the elements
-					try
-					{
-						_nconstructDry(tmp, start, val, n);
-					}
-					catch (...)
-					{
-						_ndestroyDry(tmp, start);
-						_allocator.deallocate(tmp, newCapacity);
-						throw ;
-					}
-					//copy the last half
-					try
-					{
-						_nconstructDry(tmp, start + n, _data + start, _size - start);
-					}
-					catch (...)
-					{
-						_ndestroyDry(tmp, start + n);
-						_allocator.deallocate(tmp, newCapacity);
-						throw ;
-					}
-					_normalSwap(_data, tmp);
-					_normalSwap(_capacity, newCapacity);
-					_ndestroyDry(tmp, _size);
-					_deallocateDry(tmp, newCapacity);
-					_size += n;
-				}
+				target = position - begin();
+				if (_capacity < _size + n)
+					_insertRealloc(target, n, val);
 				else
-				{
-					//if the position is at the end or the vector is empty
-					if (start == _size || _size == 0)
-						_constructRange(start, _size + n, val);
-					else
-					{
-						oldSize = _size;
-						if (start + n < _size)
-						{
-							_constructRange(oldSize, oldSize + n, _data + oldSize - n);
-							std::cout << "cons" << std::endl;
-							_copyFroward(_data, start, oldSize - n, n);
-							std::cout << "forward" << std::endl;
-							_ncopy(start, val, n);
-							std::cout << "copy" << std::endl;
-						}
-						else
-						{
-							_constructRange(oldSize, start + n, val);
-							std::cout << "-cons" << std::endl;
-							_constructRange(start + n, oldSize + n, _data + start);
-							std::cout << "-cons2" << std::endl;
-							_ncopy(start, val, oldSize - start);
-							std::cout << "copy" << std::endl;
-						}
-					}
-				}
+					_insertNoRealloc(target, n, val);
 			}
 
 			//might throw
@@ -706,74 +802,15 @@ namespace ft
 			void	insert(iterator position, InputIterator first, typename ft::enable_if<!is_integral<InputIterator>::value, InputIterator>::type last)
 			{
 				vector		src(first, last);
-				pointer		tmp;
-				size_type	start;
-				size_type	newCapacity;
-
-				if (!src._size)
+				size_type	target;
+				
+				if (src.empty())
 					return ;
-				tmp = _data;
-				start = position - begin();
-				newCapacity = src._size + _size;
-				if (_capacity < newCapacity)
-				{
-					newCapacity = _getNewCapacity(newCapacity);
-					tmp = _allocator.allocate(newCapacity);
-					//copy first half
-					try
-					{
-						_nconstructDry(tmp, 0, _data, start);
-					}
-					catch (...)
-					{
-						_allocator.deallocate(tmp, newCapacity);
-						throw ;
-					}
-					//insert the elements
-					try
-					{
-						_nconstructDry(tmp, start, src._data, src._size);
-					}
-					catch (...)
-					{
-						_ndestroyDry(tmp, start);
-						_allocator.deallocate(tmp, newCapacity);
-						throw ;
-					}
-					//copy the last half
-					try
-					{
-						_nconstructDry(tmp, start + src._size, _data + start, _size - start);
-					}
-					catch (...)
-					{
-						_ndestroyDry(tmp, start + src._size);
-						_allocator.deallocate(tmp, newCapacity);
-						throw ;
-					}
-					_normalSwap(_data, tmp);
-					_normalSwap(_capacity, newCapacity);
-					_ndestroyDry(tmp, _size);
-					_deallocateDry(tmp, newCapacity);
-					_size += src._size;
-				}
+				target = position - begin();
+				if (_capacity < _size + src._size)
+					_insertRealloc(target, src);
 				else
-				{
-					//if the position is at the end or the vector is empty
-					if (start == _size || _size == 0)
-						_constructRange(start, _size + src._size, src._data);
-					else
-					{
-						if (start + src._size < _size)
-						{
-							_nconstruct(_size, _data + start + src._size, src._size);
-							_copyFroward(_data, start, start + src._size, src._size);
-						}
-						else
-							_nconstruct(start + src._size, _data + start, src._size);
-						_copyRange(start, start + src._size, src._data);
-					}
-				}
+					_insertNoRealloc(target, src);
 			}
 
 			iterator	erase(iterator position)

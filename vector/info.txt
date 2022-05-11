@@ -82,3 +82,15 @@ std::vector
 insert : copy construct the last element at the end and then make arr[i] = arr[i - 1] until you reach 'position'
 		 and then assign val to it.
 =======================================================================================================================
+
+tests
+	*	insert:
+		-	vector
+			-	empty
+		-	position
+			-	begin
+			-	middle
+			-	end
+		-	n
+			-	more than size
+			-	less than size

@@ -6,6 +6,7 @@
 
 static int n = 33; //std::rand() % 10;
 // static int	position = 1;
+static int fill = 1;
 static int	position = std::rand() % n;
 static int sequenceSize = 10;
 
@@ -58,7 +59,8 @@ void	testInsertInt()
 {
 	displayHeader("testInsertInt");
 	std::vector<int>	a;
-	fillVector(a, n);
+	if (fill)
+		fillVector(a, n);
 
 	ft::vector<int>		b(a.begin(), a.end());
 
@@ -92,7 +94,8 @@ void	testInsertIntn()
 	int values[3] = {11, 55, 99};
 
 	std::vector<int>	a;
-	fillVector(a, n);
+	if (fill)
+		fillVector(a, n);
 
 	ft::vector<int>		b(a.begin(), a.end());
 
@@ -126,7 +129,8 @@ void	testInsertIntIter()
 
 
 	std::vector<int>	a;
-	fillVector(a, n);
+	if (fill)
+		fillVector(a, n);
 
 	ft::vector<int>		b(a.begin(), a.end());
 
@@ -164,7 +168,8 @@ void	testInsertCourt()
 	displayHeader("testInsertCourt");
 	std::vector<ft::court>	a;
 
-	fillVector(a, n);
+	if (fill)
+		fillVector(a, n);
 
 	std::cout << "......................................................." << std::endl;
 	ft::vector<ft::court>	b(a.begin(), a.end());
@@ -209,7 +214,8 @@ void	testInsertCourtn()
 	ft::court values[3] = {ft::court("first"), ft::court("middle"), ft::court("last")};
 
 	std::vector<ft::court>	a;
-	fillVector(a, n);
+	if (fill)
+		fillVector(a, n);
 
 	std::cout << "......................................................." << std::endl;
 	ft::vector<ft::court>		b(a.begin(), a.end());
@@ -259,7 +265,8 @@ void	testInsertCourtIter()
 
 
 	std::vector<ft::court>	a;
-	fillVector(a, n);
+	if (fill)
+		fillVector(a, n);
 
 	ft::vector<ft::court>		b(a.begin(), a.end());
 
@@ -303,10 +310,10 @@ void	testInsertCourtIter()
 
 void	testInsert()
 {
-	// testInsertInt();
-	// testInsertCourt();
-	testInsertIntn();
-	testInsertCourtn();
+	testInsertInt();
+	testInsertCourt();
+	// testInsertIntn();
+	// testInsertCourtn();
 	// testInsertIntIter();
 	// testInsertCourtIter();
 }
