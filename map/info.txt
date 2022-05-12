@@ -1,0 +1,4 @@
+map:
+	-	nested avl declaration
+	-	use of node_allocator instead of alloc
+	-	verbose how map works before that
