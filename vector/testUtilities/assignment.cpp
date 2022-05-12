@@ -1,14 +1,17 @@
 #include "court.hpp"
 #include "testUtilities.hpp"
 
-static int n = 10;//a, b initial size
-static int size = 20;
+static int n = std::rand() % 100;;//a, b initial size
+static int size = std::rand() % 100;
+// static int size = n + 10;
+// static int size = 2;
 
 void	testAssignmentOperator()
 {
 	displayHeader("testAssignmentOperator");
 	bool	ret;
 
+	std::cout << "n = " << n << " size = " << size << std::endl;
 	displaySubHeader("T = int");
 	{
 		std::vector<int>	a;

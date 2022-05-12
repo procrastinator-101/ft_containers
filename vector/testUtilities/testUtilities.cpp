@@ -2,9 +2,11 @@
 
 void	testVector()
 {
-	// testConstructor();
-	// testAssignmentOperator();
-	// testIterator();
+	int n = std::rand() % 100;
+	testConstructor();
+	testAssignmentOperator();
+	testIterator();
 	testInsert();
+	testCapacity(n);
 	// testErase();
 }

@@ -144,7 +144,7 @@ void	testSfinae()
 
 void	testConstructor()
 {
-	int n = 10;
+	int n = std::rand() % 100;;
 	testDefaultConstructor();
 	testParamConstructor(n);
 	testRangeConstructor(n);

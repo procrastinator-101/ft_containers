@@ -60,8 +60,9 @@ void	testIter(int n)
 
 void	testIterator()
 {
-	testIter<int>(15);
-	testReverseIter<int>(15);
-	testIter<ft::court>(15);
-	testReverseIter<ft::court>(15);
+	int n = std::rand() % 100;
+	testIter<int>(n);
+	testReverseIter<int>(n);
+	testIter<ft::court>(n);
+	testReverseIter<ft::court>(n);
 }

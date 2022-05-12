@@ -20,6 +20,8 @@ void	testIterator();
 void	testConstructor();
 void	testAssignmentOperator();
 
+void	testCapacity(int n);
+
 void	fillVector(ft::vector<int>& vec, size_t n);
 void	fillVector(ft::vector<ft::court>& vec, size_t n);
 

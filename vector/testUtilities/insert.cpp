@@ -4,12 +4,13 @@
 #include <vector>
 
 
-static int n = 33;
-// static int n = std::rand() % 100;
+// static int n = 33;
+static int n = std::rand() % 100;
 static int fill = 1;
-static int	position = 2;
-// static int	position = std::rand() % n;
-static int sequenceSize = n * 2;
+// static int	position = 1;
+static int	position = std::rand() % n;
+// static int sequenceSize = n * 2;
+static int sequenceSize =  std::rand() % 1000;
 
 template<typename T, typename U>
 static void	insertExcept(T& v, typename T::iterator position, const U& val)
@@ -237,8 +238,8 @@ void	testInsertCourtn()
 	std::cout << b << std::endl;
 	std::cout << a << std::endl;
 	std::cout << "///////////////////////////////////////////////////////////////" << std::endl;
-	ns[1] = 4;//10
-	position = a.end() - 6 - a.begin();
+	// ns[1] = 3;
+	// position = a.size() - 6;
 	std::cout << "n = " << ns[1] << " position = " << position << " size = " << a.size() << std::endl;
 	a.insert(a.begin() + position, ns[1], values[1]);
 	std::cout << "......................................................." << std::endl;
@@ -284,6 +285,7 @@ void	testInsertCourtIter()
 	range[1] = range[0] + rand() % (sequence.size() - range[0]);
 	std::cout << range[0] << " " << range[1] << std::endl;
 	a.insert(a.begin(), sequence.begin() + range[0], sequence.begin() + range[1]);
+	std::cout << "......................................................." << std::endl;
 	b.insert(b.begin(), sequence.begin() + range[0], sequence.begin() + range[1]);
 	check(a, b);
 	std::cout << b << std::endl;
@@ -293,6 +295,7 @@ void	testInsertCourtIter()
 	range[1] = range[0] + rand() % (sequence.size() - range[0]);
 	std::cout << range[0] << " " << range[1] << std::endl;
 	a.insert(a.begin() + position, sequence.begin() + range[0], sequence.begin() + range[1]);
+	std::cout << "......................................................." << std::endl;
 	b.insert(b.begin() + position, sequence.begin() + range[0], sequence.begin() + range[1]);
 	check(a, b);
 	std::cout << b << std::endl;
@@ -302,6 +305,7 @@ void	testInsertCourtIter()
 	range[1] = range[0] + rand() % (sequence.size() - range[0]);
 	std::cout << range[0] << " " << range[1] << std::endl;
 	a.insert(a.end(), sequence.begin() + range[0], sequence.begin() + range[1]);
+	std::cout << "......................................................." << std::endl;
 	b.insert(b.end(), sequence.begin() + range[0], sequence.begin() + range[1]);
 	check(a, b);
 	std::cout << b << std::endl;
