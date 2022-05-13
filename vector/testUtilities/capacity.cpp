@@ -4,8 +4,6 @@
 #include <cstdlib>
 #include <vector>
 
-#define MAX_N 100
-
 static void	testReserve(int n)
 {
 	displayHeader("testReserve");

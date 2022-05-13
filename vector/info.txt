@@ -94,3 +94,9 @@ tests
 		-	n
 			-	more than size
 			-	less than size
+
+
+to test:
+	push_back
+	erase
+	everything with exceptions 

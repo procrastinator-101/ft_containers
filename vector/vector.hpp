@@ -738,7 +738,7 @@ namespace ft
 				_destroyRange(0, _size);
 				if (n > _capacity)
 				{
-					_allocator.deallocate(_data, _capacity);
+					_deallocate();
 					_allocate(_getNewCapacity(n));
 				}
 				_constructRange(0, n, val);
@@ -833,7 +833,7 @@ namespace ft
 				start = first - begin();
 				end = last - begin();
 				n = end - start;
-				_copyBackward(_data, start + n, _size, n);
+				_copyBackward(_data, end, _size, n);
 				_destroyRange(_size - n, _size);
 				return iterator(_data + start);
 			}

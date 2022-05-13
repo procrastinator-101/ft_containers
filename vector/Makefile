@@ -27,6 +27,7 @@ TEST_UTILITIES_SRC = $(TEST_UTILITIES_PATH)/assignment.cpp \
 					 $(TEST_UTILITIES_PATH)/erase.cpp \
 					 $(TEST_UTILITIES_PATH)/fillVector.cpp \
 					 $(TEST_UTILITIES_PATH)/insert.cpp \
+					 $(TEST_UTILITIES_PATH)/testAssign.cpp \
 					 $(TEST_UTILITIES_PATH)/testIterator.cpp \
 					 $(TEST_UTILITIES_PATH)/testUtilities.cpp
 

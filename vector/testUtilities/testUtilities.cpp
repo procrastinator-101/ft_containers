@@ -8,5 +8,6 @@ void	testVector()
 	testIterator();
 	testInsert();
 	testCapacity(n);
-	// testErase();
+	testAssign(n);
+	testErase(n);
 }

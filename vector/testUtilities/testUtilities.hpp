@@ -14,8 +14,11 @@
 #include "../../algorithm/equal.hpp"
 #include "../../algorithm/lexicographical_compare.hpp"
 
-void	testErase();
+#define MAX_N 100
+
 void	testInsert();
+void	testErase(int n);
+void	testAssign(int n);
 void	testIterator();
 void	testConstructor();
 void	testAssignmentOperator();
