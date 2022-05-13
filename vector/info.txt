@@ -98,5 +98,4 @@ tests
 
 to test:
 	push_back
-	erase
 	everything with exceptions 

@@ -36,7 +36,7 @@ namespace ft
 			}
 
 			template <class Iter>
-			reverse_iterator(const reverse_iterator<Iter>& rev_it) : _base(rev_it._base)
+			reverse_iterator(const reverse_iterator<Iter>& rev_it) : _base(rev_it.base())
 			{
 			}
 		/////////////////////////////////////////////////////////////////////////////////////////////////////

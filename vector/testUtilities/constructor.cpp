@@ -1,6 +1,7 @@
 #include "court.hpp"
 #include "display.hpp"
 #include "testUtilities.hpp"
+#include <memory>
 
 void	testRangeConstructor(int n)
 {
@@ -140,6 +141,14 @@ void	testSfinae()
 	const int a = 2, b = 6;
 	ft::vector<int>v(a, b);
 	displayHeader("testSfinae End");
+	// std::allocator<char> all;
+	// char *ptr;
+	// char arr[3];
+	// ft::vector<char>v2(1e7, 'c', all);
+	// std::vector<char>v3(1e7, 'c', all);
+	// v2.assign(1e7, 'h');
+	// v3.assign(1e7, 'h');
+
 }
 
 void	testConstructor()

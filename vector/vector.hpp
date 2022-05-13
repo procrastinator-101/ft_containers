@@ -533,7 +533,7 @@ namespace ft
 					++first;
 				}
 			}
-
+			
 			//might throw : strong guarantee
 			vector(const vector& src) : _size(src._size), _capacity(src._capacity), _allocator(src._allocator)
 			{
@@ -746,7 +746,7 @@ namespace ft
 
 			//might throw
 			template <class InputIterator>
-			void assign (InputIterator first, typename ft::enable_if<!ft::is_integral<InputIterator>::value, InputIterator>::type last)
+			void assign(InputIterator first, typename ft::enable_if<!ft::is_integral<InputIterator>::value, InputIterator>::type last)
 			{
 				_destroyRange(0, _size);
 				while (first != last)
@@ -804,7 +804,6 @@ namespace ft
 				vector		src(first, last);
 				size_type	target;
 				
-				std::cout << "-------------- src created -----------------------" << std::endl;
 				if (src.empty())
 					return ;
 				target = position - begin();
