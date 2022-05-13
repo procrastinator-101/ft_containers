@@ -11,7 +11,8 @@ namespace ft
 		/////////////////////////////////////////////////////////////////////////////////////////////////////
 		/// Node class Forward declaration
 		/////////////////////////////////////////////////////////////////////////////////////////////////////
-		class Node;
+		public:
+			class Node;
 		/////////////////////////////////////////////////////////////////////////////////////////////////////
 		/// Node class Forward declaration End
 		/////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -41,32 +42,33 @@ namespace ft
 		/////////////////////////////////////////////////////////////////////////////////////////////////////
 		/// destructors, constructors, and assignment operators
 		/////////////////////////////////////////////////////////////////////////////////////////////////////
-		Avl() : _root(0)
-		{
-		}
-
-		Avl(pointer root) : _root(root)
-		{
-		}
-
-		Avl(const Avl& src) : _root(0)
-		{
-			pointer	tmp;
-			pointer node;
-
-			try
+		public:
+			Avl() : _root(0)
 			{
-				for (node = src._root; node; node = node->getInOrderSuccessor())
-				{
-					
-					node->insert(_root, node);
-				}
 			}
-			catch
-			{
 
+			Avl(pointer root) : _root(root)
+			{
 			}
-		}
+
+			Avl(const Avl& src) : _root(0), _allocator(src._allocator), _nodeAllocator(src._nodeAllocator)
+			{
+				// pointer	tmp;
+				// pointer node;
+
+				// try
+				// {
+				// 	for (node = src._root; node; node = node->getInOrderSuccessor())
+				// 	{
+						
+				// 		node->insert(_root, node);
+				// 	}
+				// }
+				// catch
+				// {
+
+				// }
+			}
 		/////////////////////////////////////////////////////////////////////////////////////////////////////
 		/// destructors, constructors, and assignment operators End
 		/////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -87,18 +89,54 @@ namespace ft
 		/////////////////////////////////////////////////////////////////////////////////////////////////////
 		/// Node class Defintion
 		/////////////////////////////////////////////////////////////////////////////////////////////////////
-		private:
+		// private:
+		public:
 			class Node
 			{
 				private:
+					/////////////////////////////////////////////////////////////////////////////////////////////////////
+					/// Traits class Defintion
+					/////////////////////////////////////////////////////////////////////////////////////////////////////
+					class Traits
+					{
+						private:
+							pointer		_left;
+							pointer		_right;
+							pointer		_parent;
+
+							size_type	_height;
+						
+						public:
+							Traits() : _left(0), _right(0), _parent(0), _height(0)
+							{
+							}
+
+							Traits(pointer left, pointer right, pointer parent, size_type height) : _left(left), _right(right), _parent(parent), _height(height)
+							{
+							}
+
+							Traits(const Traits& src) : _left(src._left), _right(src._right), _parent(src._parent), _height(src._height)
+							{
+							}
+
+							Traits	&operator=(const Traits& rop)
+							{
+								if (this == &rop)
+									return *this;
+								_left = rop._left;
+								_right = rop._right;
+								_parent = rop._parent;
+								_height = rop._height;
+								return *this;
+							}
+					};
+					/////////////////////////////////////////////////////////////////////////////////////////////////////
+					/// Traits class Defintion End
+					/////////////////////////////////////////////////////////////////////////////////////////////////////
+				private:
 
 					value_type	_value;
-					size_type	_leftHeight;
-					size_type	_rightHeight;
-
-					pointer		_left;
-					pointer		_right;
-					pointer		_parent;
+					Traits		_traits;
 
 
 					void	isolate(pointer &root);
@@ -159,7 +197,7 @@ namespace ft
 	/// destructors, constructors, and assignment operators
 	/////////////////////////////////////////////////////////////////////////////////////////////////////
 	template<typename value_type, typename value_compare, typename Alloc>
-	Avl<value_type, value_compare, Alloc>::Node::Node() : _value(value_type()), _leftHeight(0), _rightHeight(0), _left(0), _right(0), _parent(0)
+	Avl<value_type, value_compare, Alloc>::Node::Node() :  _value(), _traits()
 	{
 	}
 
@@ -169,17 +207,17 @@ namespace ft
 	}
 
 	template<typename value_type, typename value_compare, typename Alloc>
-	Avl<value_type, value_compare, Alloc>::Node::Node(value_type value, pointer left, pointer right, pointer parent) : _value(value), _leftHeight(0), _rightHeight(0), _left(left), _right(right), _parent(parent)
+	Avl<value_type, value_compare, Alloc>::Node::Node(value_type value, pointer left, pointer right, pointer parent) : _value(value), _traits(left, right, parent)
 	{
 	}
 
 	template<typename value_type, typename value_compare, typename Alloc>
-	Avl<value_type, value_compare, Alloc>::Node::Node(const Node& src) : _value(src._value), _leftHeight(src._leftHeight), _rightHeight(src._rightHeight), _left(src._left), _right(src._right), _parent(src._parent)
+	Avl<value_type, value_compare, Alloc>::Node::Node(const Node& src) : _value(src._value), _traits(src._traits)
 	{
 	}
 
 	template<typename value_type, typename value_compare, typename Alloc>
-	Avl<value_type, value_compare, Alloc>::Node::Node(value_type value) : _value(value), _leftHeight(0), _rightHeight(0), _left(0), _right(0), _parent(0)
+	Avl<value_type, value_compare, Alloc>::Node::Node(value_type value) : _value(value), _traits()
 	{
 	}
 
@@ -187,12 +225,7 @@ namespace ft
 	typename Avl<value_type, value_compare, Alloc>::reference	Avl<value_type, value_compare, Alloc>::Node::operator=(const Node& rhs)
 	{
 		this->_value = rhs._value;
-		this->_leftHeight = rhs._leftHeight;
-		this->_rightHeight = rhs._rightHeight;
-
-		this->_left = rhs._left;
-		this->_right = rhs._right;
-		this->_parent = rhs._parent;
+		this->_traits = rhs._traits;
 		return *this;
 	}
 	/////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -210,22 +243,22 @@ namespace ft
 			return;
 		else if (this->_value < node._value)
 		{
-			if (this->_right)
-				this->_right->insert(node);
+			if (this->_traits._right)
+				this->_traits._right->insert(node);
 			else
 			{
-				this->_right = &node;
-				node._parent = this;
+				this->_traits._right = &node;
+				node._traits._parent = this;
 			}
 		}
 		else
 		{
-			if (this->_left)
-				this->_left->insert(node);
+			if (this->_traits._left)
+				this->_traits._left->insert(node);
 			else
 			{
-				this->_left = &node;
-				node._parent = this;
+				this->_traits._left = &node;
+				node._traits._parent = this;
 			}
 		}
 		this->updateCounts();
@@ -236,13 +269,13 @@ namespace ft
 	template<typename value_type, typename value_compare, typename Alloc>
 	void	Avl<value_type, value_compare, Alloc>::Node::erase(pointer &root, value_type value)
 	{
-		Node	*parent;
-		Node	*candidate;
+		pointer	parent;
+		pointer	candidate;
 
 		if (this->_value == value)
 		{
 			//the to-delete node has a both childs
-			if (this->_left && this->_right)
+			if (this->_traits._left && this->_traits._right)
 			{
 				std::cout << "looking for candidate" << std::endl;
 				candidate = this->getInOrderSuccessor();
@@ -250,32 +283,32 @@ namespace ft
 				this->swap(root, candidate);
 				candidate->updateCounts();
 			}
-			parent = this->_parent;
+			parent = this->_traits._parent;
 			//the to-delete node has no children
-			if (!this->_left && !this->_right)
+			if (!this->_traits._left && !this->_traits._right)
 				this->isolate(root);
 			//the to-delete node has a left child only
-			else if (this->_left)
-				this->replace(root, this->_left);
+			else if (this->_traits._left)
+				this->replace(root, this->_traits._left);
 			//the to-delete node has a right child only
-			else if (this->_right)
-				this->replace(this->_right);
+			else if (this->_traits._right)
+				this->replace(this->_traits._right);
 			while (parent)
 			{
 				parent->updateCounts();
 				parent->balance(root);
-				parent = parent->_parent;
+				parent = parent->_traits._parent;
 			}
 		}
 		else if (this->_value < value)
 		{
-			if (this->_right)
-				this->_right->erase(root, value);
+			if (this->_traits.right)
+				this->_traits._right->erase(root, value);
 		}
 		else
 		{
-			if (this->_left)
-				this->_left->erase(root, value);
+			if (this->_traits._left)
+				this->_traits._left->erase(root, value);
 		}
 	}
 
@@ -318,17 +351,17 @@ namespace ft
 	void	Avl<value_type, value_compare, Alloc>::Node::swap(pointer &root, pointer node)
 	{
 		bool	isleft;
-		Node	*left;
-		Node	*right;
-		Node	*parent;
+		pointer	left;
+		pointer	right;
+		pointer	parent;
 
-		left = node->_left;
-		right = node->_right;
-		parent = node->_parent;
+		left = node->_traits._left;
+		right = node->_traits._right;
+		parent = node->_traits._parent;
 		if (parent)
 		{
 			isleft = 0;
-			if (node->_parent->_left == node)
+			if (node->_traits._parent->_traits._left == node)
 				isleft = 1;
 		}
 		this->replace(node);
@@ -336,56 +369,56 @@ namespace ft
 		{
 			if (isleft)
 			{
-				node->_left = this;
-				node->_right = this->_right;
-				if (node->_right)
-					node->_right->_parent = node;
+				node->_traits._left = this;
+				node->_traits._right = this->_traits._right;
+				if (node->_traits._right)
+					node->_traits._right->_traits._parent = node;
 			}
 			else
 			{
-				node->_left = this->_left;
-				if (node->_left)
-					node->_left->_parent = node;
-				node->_right = this;
+				node->_traits._left = this->_traits._left;
+				if (node->_traits._left)
+					node->_traits._left->_traits._parent = node;
+				node->_traits._right = this;
 			}
-			this->_parent = node;
-			this->_left = left;
+			this->_traits._parent = node;
+			this->_traits._left = left;
 			if (left)
-				left->_parent = this;
-			this->_right = right;
+				left->_traits._parent = this;
+			this->_traits._right = right;
 			if (right)
-				right->_parent = this;
+				right->_traits._parent = this;
 		}
 		else
 		{
-			this->_parent = parent;
+			this->_traits._parent = parent;
 			if (parent)
 			{
-				if (parent->_left == node)
-					this->_parent->_left = this;
+				if (parent->_traits._left == node)
+					this->_traits._parent->_traits._left = this;
 				else
-					this->_parent->_right = this;
+					this->_traits._parent->_traits._right = this;
 			}
 			else
 				root = this;
 			
 			//children swap
 				//give the children of 'this' to the node
-			node->_left = this->_left;
-			node->_right = this->_right;
+			node->_traits._left = this->_traits._left;
+			node->_traits._right = this->_traits._right;
 				//make the new children of node recognise node as their parent
-			if (node->_left)
-				node->_left->_parent = node;
-			if (node->_right)
-				node->_right->_parent = node;
+			if (node->_traits._left)
+				node->_traits._left->_traits._parent = node;
+			if (node->_traits._right)
+				node->_traits._right->_traits._parent = node;
 				//get the children of node from the custodian and give them to 'this'
-			this->_left = left;
-			this->_right = right;
+			this->_traits._left = left;
+			this->_traits._right = right;
 				//make the new children of 'this' recognise node as their parent
-			if (this->_left)
-				this->_left->_parent = this;
-			if (this->_right)
-				this->_right->_parent = this;
+			if (this->_traits._left)
+				this->_traits._left->_traits._parent = this;
+			if (this->_traits._right)
+				this->_traits._right->_traits._parent = this;
 		}
 	}
 
@@ -393,13 +426,13 @@ namespace ft
 	template<typename value_type, typename value_compare, typename Alloc>
 	void	Avl<value_type, value_compare, Alloc>::Node::replace(pointer &root, pointer node)
 	{
-		node->_parent = this->_parent;
-		if (this->_parent)
+		node->_traits._parent = this->_traits._parent;
+		if (this->_traits._parent)
 		{
-			if (this->_parent->_left == this)
-					this->_parent->_left = node;
+			if (this->_traits._parent->_traits._left == this)
+					this->_traits._parent->_traits._left = node;
 			else
-				this->_parent->_right = node;
+				this->_traits._parent->_traits._right = node;
 		}
 		else
 			root = node;
@@ -409,12 +442,12 @@ namespace ft
 	template<typename value_type, typename value_compare, typename Alloc>
 	void	Avl<value_type, value_compare, Alloc>::Node::isolate(pointer &root)
 	{
-		if (this->_parent)
+		if (this->_traits._parent)
 		{
-			if (this->_parent->_left == this)
-				this->_parent->_left = 0;
+			if (this->_traits._parent->_traits._left == this)
+				this->_traits._parent->_traits._left = 0;
 			else
-				this->_parent->_right = 0;
+				this->_traits._parent->_traits._right = 0;
 		}
 		else
 			root = 0;
@@ -432,22 +465,22 @@ namespace ft
 	{
 		Node   *subRoot;
 
-		subRoot = this->_left;
+		subRoot = this->_traits._left;
 
 		//replace the current node with the subRoot
 		this->replace(root, subRoot);
 		
 		//make the current node the right child of the subRoot
 			//let the right child of the subRoot embrace its left child
-		this->_left = subRoot->_right;
-		if (this->_left)
-			this->_left->_parent = this;
+		this->_traits._left = subRoot->_traits._right;
+		if (this->_traits._left)
+			this->_traits._left->_traits._parent = this;
 			//let the subroot welcome its right child
-		this->_parent = subRoot;
-		subRoot->_right = this;
+		this->_traits._parent = subRoot;
+		subRoot->_traits._right = this;
 
 		//update the height of subRoot and its right child
-		subRoot->_right->updateCounts();
+		subRoot->_traits._right->updateCounts();
 		subRoot->updateCounts();
 	}
 
@@ -456,22 +489,22 @@ namespace ft
 	{
 		Node   *subRoot;
 
-		subRoot = this->_right;
+		subRoot = this->_traits._right;
 
 		//replace the current node with the subRoot
 		this->replace(root, subRoot);
 		
 		//make the current node the left child of the subRoot
 			//let the left child of the subRoot embrace its right child
-		this->_right = subRoot->_left;
-		if (this->_right)
-			this->_right->_parent = this;
+		this->_traits._right = subRoot->_traits._left;
+		if (this->_traits._right)
+			this->_traits._right->_traits._parent = this;
 			//let the subroot welcome its left child
-		this->_parent = subRoot;
-		subRoot->_left = this;
+		this->_traits._parent = subRoot;
+		subRoot->_traits._left = this;
 		
 		//update the height of subRoot and its left child
-		subRoot->_left->updateCounts();
+		subRoot->_traits._left->updateCounts();
 		subRoot->updateCounts();
 	}
 
@@ -480,32 +513,32 @@ namespace ft
 	{
 		Node   *subRoot;
 
-		subRoot = this->_left->_right;
+		subRoot = this->_traits._left->_traits._right;
 
 		//replace the current node with the subRoot
 		this->replace(root, subRoot);
 		
 		//adjsut the left child of the subRoot
 			//let the left child of the subroot embrace its new right child
-		this->_left->_right = subRoot->_left;
-		if (subRoot->_left)
-			subRoot->_left->_parent = this->_left;
+		this->_traits._left->_traits._right = subRoot->_traits._left;
+		if (subRoot->_traits._left)
+			subRoot->_traits._left->_traits._parent = this->_traits._left;
 			//let the subroot welcome its left child
-		subRoot->_left = this->_left;
-		this->_left->_parent = subRoot;
+		subRoot->_traits._left = this->_traits._left;
+		this->_traits._left->_traits._parent = subRoot;
 
 		//adjust the right child of the subRoot
 			//let the right child of the subroot embrace its new left child
-		this->_left = subRoot->_right;
-		if (this->_left)
-			this->_left->_parent = this;
+		this->_traits._left = subRoot->_traits._right;
+		if (this->_traits._left)
+			this->_traits._left->_traits._parent = this;
 			//let the subroot welcome its right child
-		subRoot->_right = this;
-		this->_parent = subRoot;
+		subRoot->_traits._right = this;
+		this->_traits._parent = subRoot;
 
 		//update the height of subRoot and its childs
-		subRoot->_left->updateCounts();
-		subRoot->_right->updateCounts();
+		subRoot->_traits._left->updateCounts();
+		subRoot->_traits._right->updateCounts();
 		subRoot->updateCounts();
 	}
 
@@ -514,32 +547,32 @@ namespace ft
 	{
 		Node   *subRoot;
 
-		subRoot = this->_right->_left;
+		subRoot = this->_traits._right->_traits._left;
 
 		//replace the current node with the subRoot
 		this->replace(root, subRoot);
 		
 		//adjsut the right child of the subRoot
 			//let the right child of the subroot embrace its new left child
-		this->_right->_left = subRoot->_right;
-		if (subRoot->_right)
-			subRoot->_right->_parent = this->_right;
+		this->_traits._right->_traits._left = subRoot->_traits._right;
+		if (subRoot->_traits._right)
+			subRoot->_traits._right->_traits._parent = this->_traits._right;
 			//let the subroot welcome its right child
-		subRoot->_right = this->_right;
-		this->_right->_parent = subRoot;
+		subRoot->_traits._right = this->_traits._right;
+		this->_traits._right->_traits._parent = subRoot;
 
 		//adjsut the left child of the subRoot
 			//let the left child of the subroot embrace its new right child
-		this->_right = subRoot->_left;
-		if (this->_right)
-			this->_right->_parent = this;
+		this->_traits._right = subRoot->_traits._left;
+		if (this->_traits._right)
+			this->_traits._right->_traits._parent = this;
 			//let the subroot welcome its left child
-		subRoot->_left = this;
-		this->_parent = subRoot;
+		subRoot->_traits._left = this;
+		this->_traits._parent = subRoot;
 
 		//update the height of subRoot and its childs
-		subRoot->_left->updateCounts();
-		subRoot->_right->updateCounts();
+		subRoot->_traits._left->updateCounts();
+		subRoot->_traits._right->updateCounts();
 		subRoot->updateCounts();
 	}
 	/////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -554,37 +587,37 @@ namespace ft
 	template<typename value_type, typename value_compare, typename Alloc>
 	void	Avl<value_type, value_compare, Alloc>::Node::updateCounts()
 	{
-		if (this->_left)
-			this->_leftHeight = std::max(this->_left->_leftHeight, this->_left->_rightHeight) + 1;
+		if (this->_traits._left)
+			this->_traits._leftHeight = std::max(this->_traits._left->_traits._leftHeight, this->_traits._left->_traits._rightHeight) + 1;
 		else
-			this->_leftHeight = 0;
-		if (this->_right)
-			this->_rightHeight = std::max(this->_right->_leftHeight, this->_right->_rightHeight) + 1;
+			this->_traits._leftHeight = 0;
+		if (this->_traits._right)
+			this->_traits._rightHeight = std::max(this->_traits._right->_traits._leftHeight, this->_traits._right->_traits._rightHeight) + 1;
 		else
-			this->_rightHeight = 0;
+			this->_traits._rightHeight = 0;
 	}
 
 	template<typename value_type, typename value_compare, typename Alloc>
 	typename Avl<value_type, value_compare, Alloc>::pointer	Avl<value_type, value_compare, Alloc>::Node::getInOrderSuccessor() const
 	{
-		Node	*ret;
+		pointer	ret;
 
 		//the smallest key that is larger than x
 
 		ret = 0;
 		//left most child of its right suNode
-		if (this->_right)
+		if (this->_traits._right)
 		{
-			ret = this->_right;
-			while (ret->_left)
-				ret = ret->_left;
+			ret = this->_traits._right;
+			while (ret->_traits._left)
+				ret = ret->_traits._left;
 		}
 		//first parent with a key larger than that of the current node
 		else
 		{
-			ret = this->_parent;
+			ret = this->_traits._parent;
 			while (ret && ret->_value < this->_value)
-				ret = ret->_parent;
+				ret = ret->_traits._parent;
 		}
 		return ret;
 	}
@@ -592,24 +625,24 @@ namespace ft
 	template<typename value_type, typename value_compare, typename Alloc>
 	typename Avl<value_type, value_compare, Alloc>::pointer	Avl<value_type, value_compare, Alloc>::Node::getInOrderPredeccessor() const
 	{
-		Node	*ret;
+		pointer	ret;
 
 		//the largest key that is smaller than x
 
 		ret = 0;
 		//right most child of its left suNode
-		if (this->_left)
+		if (this->_traits._left)
 		{
-			ret = this->_left;
-			while (ret->_right)
-				ret = ret->_right;
+			ret = this->_traits._left;
+			while (ret->_traits._right)
+				ret = ret->_traits._right;
 		}
 		//first parent with a key samller than that of the current node
 		else
 		{
-			ret = this->_parent;
+			ret = this->_traits._parent;
 			while (ret && ret->_value > this->_value)
-				ret = ret->_parent;
+				ret = ret->_traits._parent;
 		}
 		return ret;
 	}
@@ -617,9 +650,9 @@ namespace ft
 	template<typename value_type, typename value_compare, typename Alloc>
 	int	Avl<value_type, value_compare, Alloc>::Node::getBalanceFactor() const
 	{
-		if (_leftHeight > _rightHeight)
-			return _leftHeight - _rightHeight;
-		return _rightHeight - _leftHeight;;
+		if (_traits._leftHeight > _traits._rightHeight)
+			return _traits._leftHeight - _traits._rightHeight;
+		return _traits._rightHeight - _traits._leftHeight;;
 	}
 	/////////////////////////////////////////////////////////////////////////////////////////////////////
 	/// Status quo helper functions End
@@ -638,31 +671,31 @@ namespace ft
 	template<typename value_type, typename value_compare, typename Alloc>
 	typename Avl<value_type, value_compare, Alloc>::size_type	Avl<value_type, value_compare, Alloc>::Node::getLeftHeight() const
 	{
-		return this->_leftHeight;
+		return this->_traits._leftHeight;
 	}
 
 	template<typename value_type, typename value_compare, typename Alloc>
 	typename Avl<value_type, value_compare, Alloc>::size_type	Avl<value_type, value_compare, Alloc>::Node::getRightHeight() const
 	{
-		return this->_rightHeight;
+		return this->_traits._rightHeight;
 	}
 
 	template<typename value_type, typename value_compare, typename Alloc>
 	typename Avl<value_type, value_compare, Alloc>::pointer	Avl<value_type, value_compare, Alloc>::Node::getLeft() const
 	{
-		return this->_left;
+		return this->_traits._left;
 	}
 
 	template<typename value_type, typename value_compare, typename Alloc>
 	typename Avl<value_type, value_compare, Alloc>::pointer	Avl<value_type, value_compare, Alloc>::Node::getRight() const
 	{
-		return this->_right;
+		return this->_traits._right;
 	}
 
 	template<typename value_type, typename value_compare, typename Alloc>
 	typename Avl<value_type, value_compare, Alloc>::pointer	Avl<value_type, value_compare, Alloc>::Node::getParent() const
 	{
-		return this->_parent;
+		return this->_traits._parent;
 	}
 	/////////////////////////////////////////////////////////////////////////////////////////////////////
 	/// Getters End
@@ -705,7 +738,7 @@ namespace ft
 	template<typename value_type, typename value_compare, typename Alloc>
 	void	Avl<value_type, value_compare, Alloc>::Node::setParent(pointer parent)
 	{
-		this->_parent = parent;
+		this->_traits._parent = parent;
 	}
 	/////////////////////////////////////////////////////////////////////////////////////////////////////
 	/// Setters End
