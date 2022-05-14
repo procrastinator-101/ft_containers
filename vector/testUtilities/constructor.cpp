@@ -141,9 +141,10 @@ void	testSfinae()
 	const int a = 2, b = 6;
 	ft::vector<int>v(a, b);
 	displayHeader("testSfinae End");
-	// std::allocator<char> all;
-	// char *ptr;
-	// char arr[3];
+	std::allocator<char> all;
+	char *ptr;
+	char arr[3];
+	std::vector<int>ham(15.4f, 'g');
 	// ft::vector<char>v2(1e7, 'c', all);
 	// std::vector<char>v3(1e7, 'c', all);
 	// v2.assign(1e7, 'h');

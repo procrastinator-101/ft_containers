@@ -17,11 +17,11 @@ int main(int argc, char **argv)
 
 	std::cout << (*bTree::root) << std::endl;
 
-	int nb;
+	// int nb;
 
-	std::cin >> nb;
-	bTree::root->erase(nb);
+	// std::cin >> nb;
+	// bTree::root->erase(nb);
 
-	std::cout << (*bTree::root) << std::endl;
+	// std::cout << (*bTree::root) << std::endl;
 	return 0;
 }

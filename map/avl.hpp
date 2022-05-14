@@ -8,10 +8,11 @@ namespace ft
 {
 	template<typename T, typename Compare, typename Alloc>
 	class Avl;
-	
-	template<typename value_type, typename value_compare, typename Alloc>
-	std::ostream &operator<<(std::ostream& ostr, typename Avl<value_type, value_compare, Alloc>::node_pointer root);
-	
+
+	template<typename T, typename Compare, typename Alloc>
+	std::ostream &operator<<(std::ostream& ostr, const Avl<T, Compare, Alloc>& tree);
+
+
 	template<typename T, typename Compare, typename Alloc>
 	class Avl
 	{
@@ -210,7 +211,6 @@ namespace ft
 			{
 				node_pointer	node;
 
-				std::cout << _root << std::endl;
 				node = _nodeAllocator.allocate(1);
 				_traits_allocator.construct(&(node->_traits), Traits());
 				try
@@ -231,8 +231,10 @@ namespace ft
 			void	show() const
 			{
 				if (_root)
-					std::cout << _root << std::endl;
+					std::cout << (*this) << std::endl;
 			}
+
+			friend std::ostream &operator<< <>(std::ostream& ostr, const Avl& tree);
 		/////////////////////////////////////////////////////////////////////////////////////////////////////
 		/// destructors, constructors, and assignment operators End
 		/////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -259,28 +261,28 @@ namespace ft
 	{
 	}
 
-	template<typename value_type, typename value_compare, typename Alloc>
-	Avl<value_type, value_compare, Alloc>::Node::~Node()
+	template<typename T, typename Compare, typename Alloc>
+	Avl<T, Compare, Alloc>::Node::~Node()
 	{
 	}
 
-	template<typename value_type, typename value_compare, typename Alloc>
-	Avl<value_type, value_compare, Alloc>::Node::Node(value_type value, node_pointer left, node_pointer right, node_pointer parent) : _value(value), _traits(left, right, parent)
+	template<typename T, typename Compare, typename Alloc>
+	Avl<T, Compare, Alloc>::Node::Node(value_type value, node_pointer left, node_pointer right, node_pointer parent) : _value(value), _traits(left, right, parent)
 	{
 	}
 
-	template<typename value_type, typename value_compare, typename Alloc>
-	Avl<value_type, value_compare, Alloc>::Node::Node(const Node& src) : _value(src._value), _traits(src._traits)
+	template<typename T, typename Compare, typename Alloc>
+	Avl<T, Compare, Alloc>::Node::Node(const Node& src) : _value(src._value), _traits(src._traits)
 	{
 	}
 
-	template<typename value_type, typename value_compare, typename Alloc>
-	Avl<value_type, value_compare, Alloc>::Node::Node(value_type value) : _value(value), _traits()
+	template<typename T, typename Compare, typename Alloc>
+	Avl<T, Compare, Alloc>::Node::Node(value_type value) : _value(value), _traits()
 	{
 	}
 
-	template<typename value_type, typename value_compare, typename Alloc>
-	typename Avl<value_type, value_compare, Alloc>::Node::node_reference	Avl<value_type, value_compare, Alloc>::Node::operator=(const Node& rhs)
+	template<typename T, typename Compare, typename Alloc>
+	typename Avl<T, Compare, Alloc>::Node::node_reference	Avl<T, Compare, Alloc>::Node::operator=(const Node& rhs)
 	{
 		this->_value = rhs._value;
 		this->_traits = rhs._traits;
@@ -294,8 +296,8 @@ namespace ft
 	/////////////////////////////////////////////////////////////////////////////////////////////////////
 	/// Tree manipulation functions
 	/////////////////////////////////////////////////////////////////////////////////////////////////////
-	template<typename value_type, typename value_compare, typename Alloc>
-	void	Avl<value_type, value_compare, Alloc>::Node::insert(node_pointer &root, node_pointer node)
+	template<typename T, typename Compare, typename Alloc>
+	void	Avl<T, Compare, Alloc>::Node::insert(node_pointer &root, node_pointer node)
 	{
 		if (this->_value == node->_value)
 			return;
@@ -324,8 +326,8 @@ namespace ft
 	}
 
 	//delete a node from the tree
-	template<typename value_type, typename value_compare, typename Alloc>
-	void	Avl<value_type, value_compare, Alloc>::Node::erase(node_pointer &root, value_type value)
+	template<typename T, typename Compare, typename Alloc>
+	void	Avl<T, Compare, Alloc>::Node::erase(node_pointer &root, value_type value)
 	{
 		node_pointer	parent;
 		node_pointer	candidate;
@@ -370,8 +372,8 @@ namespace ft
 		}
 	}
 
-	template<typename value_type, typename value_compare, typename Alloc>
-	void	Avl<value_type, value_compare, Alloc>::Node::balance(node_pointer &root)
+	template<typename T, typename Compare, typename Alloc>
+	void	Avl<T, Compare, Alloc>::Node::balance(node_pointer &root)
 	{
 		int balanceFactor;
 		int subBalanceFactor;
@@ -405,8 +407,8 @@ namespace ft
 	/// Nodes manipulation functions
 	/////////////////////////////////////////////////////////////////////////////////////////////////////
 	//node swaps position with 'this'
-	template<typename value_type, typename value_compare, typename Alloc>
-	void	Avl<value_type, value_compare, Alloc>::Node::swap(node_pointer &root, node_pointer node)
+	template<typename T, typename Compare, typename Alloc>
+	void	Avl<T, Compare, Alloc>::Node::swap(node_pointer &root, node_pointer node)
 	{
 		bool	isleft;
 		node_pointer	left;
@@ -481,8 +483,8 @@ namespace ft
 	}
 
 	//node steals the parent of 'this'
-	template<typename value_type, typename value_compare, typename Alloc>
-	void	Avl<value_type, value_compare, Alloc>::Node::replace(node_pointer &root, node_pointer node)
+	template<typename T, typename Compare, typename Alloc>
+	void	Avl<T, Compare, Alloc>::Node::replace(node_pointer &root, node_pointer node)
 	{
 		node->_traits._parent = this->_traits._parent;
 		if (this->_traits._parent)
@@ -497,8 +499,8 @@ namespace ft
 	}
 
 	//isolates a node from the rest of the tree (its parent does not recongnise him 'poor child')
-	template<typename value_type, typename value_compare, typename Alloc>
-	void	Avl<value_type, value_compare, Alloc>::Node::isolate(node_pointer &root)
+	template<typename T, typename Compare, typename Alloc>
+	void	Avl<T, Compare, Alloc>::Node::isolate(node_pointer &root)
 	{
 		if (this->_traits._parent)
 		{
@@ -518,8 +520,8 @@ namespace ft
 	/////////////////////////////////////////////////////////////////////////////////////////////////////
 	/// Rotations
 	/////////////////////////////////////////////////////////////////////////////////////////////////////
-	template<typename value_type, typename value_compare, typename Alloc>
-	void    Avl<value_type, value_compare, Alloc>::Node::llRotate(node_pointer &root)
+	template<typename T, typename Compare, typename Alloc>
+	void    Avl<T, Compare, Alloc>::Node::llRotate(node_pointer &root)
 	{
 		Node   *subRoot;
 
@@ -542,8 +544,8 @@ namespace ft
 		subRoot->updateHeight();
 	}
 
-	template<typename value_type, typename value_compare, typename Alloc>
-	void    Avl<value_type, value_compare, Alloc>::Node::rrRotate(node_pointer &root)
+	template<typename T, typename Compare, typename Alloc>
+	void    Avl<T, Compare, Alloc>::Node::rrRotate(node_pointer &root)
 	{
 		Node   *subRoot;
 
@@ -566,8 +568,8 @@ namespace ft
 		subRoot->updateHeight();
 	}
 
-	template<typename value_type, typename value_compare, typename Alloc>
-	void    Avl<value_type, value_compare, Alloc>::Node::lrRotate(node_pointer &root)
+	template<typename T, typename Compare, typename Alloc>
+	void    Avl<T, Compare, Alloc>::Node::lrRotate(node_pointer &root)
 	{
 		Node   *subRoot;
 
@@ -600,8 +602,8 @@ namespace ft
 		subRoot->updateHeight();
 	}
 
-	template<typename value_type, typename value_compare, typename Alloc>
-	void    Avl<value_type, value_compare, Alloc>::Node::rlRotate(node_pointer &root)
+	template<typename T, typename Compare, typename Alloc>
+	void    Avl<T, Compare, Alloc>::Node::rlRotate(node_pointer &root)
 	{
 		Node   *subRoot;
 
@@ -642,8 +644,8 @@ namespace ft
 	/// Status quo helper functions (do not change the tree nodes disposition)
 	/////////////////////////////////////////////////////////////////////////////////////////////////////
 
-	template<typename value_type, typename value_compare, typename Alloc>
-	void	Avl<value_type, value_compare, Alloc>::Node::updateHeight()
+	template<typename T, typename Compare, typename Alloc>
+	void	Avl<T, Compare, Alloc>::Node::updateHeight()
 	{
 		size_type	leftHeight;
 		size_type	rightHeight;
@@ -656,11 +658,11 @@ namespace ft
 			rightHeight =_traits._right->_traits._height;
 		else
 			rightHeight = 0;
-		_traits._height = std::max(leftHeight, rightHeight);
+		_traits._height = std::max(leftHeight, rightHeight) + 1;
 	}
 
-	template<typename value_type, typename value_compare, typename Alloc>
-	typename Avl<value_type, value_compare, Alloc>::Node::node_pointer	Avl<value_type, value_compare, Alloc>::Node::getInOrderSuccessor() const
+	template<typename T, typename Compare, typename Alloc>
+	typename Avl<T, Compare, Alloc>::Node::node_pointer	Avl<T, Compare, Alloc>::Node::getInOrderSuccessor() const
 	{
 		node_pointer	ret;
 
@@ -684,8 +686,8 @@ namespace ft
 		return ret;
 	}
 
-	template<typename value_type, typename value_compare, typename Alloc>
-	typename Avl<value_type, value_compare, Alloc>::Node::node_pointer	Avl<value_type, value_compare, Alloc>::Node::getInOrderPredeccessor() const
+	template<typename T, typename Compare, typename Alloc>
+	typename Avl<T, Compare, Alloc>::Node::node_pointer	Avl<T, Compare, Alloc>::Node::getInOrderPredeccessor() const
 	{
 		node_pointer	ret;
 
@@ -709,18 +711,18 @@ namespace ft
 		return ret;
 	}
 
-	template<typename value_type, typename value_compare, typename Alloc>
-	int	Avl<value_type, value_compare, Alloc>::Node::getBalanceFactor() const
+	template<typename T, typename Compare, typename Alloc>
+	int	Avl<T, Compare, Alloc>::Node::getBalanceFactor() const
 	{
 		size_type	leftHeight;
 		size_type	rightHeight;
 
 		if (_traits._left)
-			leftHeight =_traits._left->_traits._height;
+			leftHeight =_traits._left->_traits._height + 1;
 		else
 			leftHeight = 0;
 		if (_traits._right)
-			rightHeight =_traits._right->_traits._height;
+			rightHeight =_traits._right->_traits._height + 1;
 		else
 			rightHeight = 0;
 		return leftHeight - rightHeight;
@@ -733,32 +735,32 @@ namespace ft
 	/////////////////////////////////////////////////////////////////////////////////////////////////////
 	/// Getters End
 	/////////////////////////////////////////////////////////////////////////////////////////////////////
-	template<typename value_type, typename value_compare, typename Alloc>
-	typename Avl<value_type, value_compare, Alloc>::Node::value_type	Avl<value_type, value_compare, Alloc>::Node::getValue() const
+	template<typename T, typename Compare, typename Alloc>
+	typename Avl<T, Compare, Alloc>::Node::value_type	Avl<T, Compare, Alloc>::Node::getValue() const
 	{
 		return this->_value;
 	}
 
-	template<typename value_type, typename value_compare, typename Alloc>
-	typename Avl<value_type, value_compare, Alloc>::Node::size_type	Avl<value_type, value_compare, Alloc>::Node::getHeight() const
+	template<typename T, typename Compare, typename Alloc>
+	typename Avl<T, Compare, Alloc>::Node::size_type	Avl<T, Compare, Alloc>::Node::getHeight() const
 	{
 		return _traits._height;
 	}
 
-	template<typename value_type, typename value_compare, typename Alloc>
-	typename Avl<value_type, value_compare, Alloc>::Node::node_pointer	Avl<value_type, value_compare, Alloc>::Node::getLeft() const
+	template<typename T, typename Compare, typename Alloc>
+	typename Avl<T, Compare, Alloc>::Node::node_pointer	Avl<T, Compare, Alloc>::Node::getLeft() const
 	{
 		return this->_traits._left;
 	}
 
-	template<typename value_type, typename value_compare, typename Alloc>
-	typename Avl<value_type, value_compare, Alloc>::Node::node_pointer	Avl<value_type, value_compare, Alloc>::Node::getRight() const
+	template<typename T, typename Compare, typename Alloc>
+	typename Avl<T, Compare, Alloc>::Node::node_pointer	Avl<T, Compare, Alloc>::Node::getRight() const
 	{
 		return this->_traits._right;
 	}
 
-	template<typename value_type, typename value_compare, typename Alloc>
-	typename Avl<value_type, value_compare, Alloc>::Node::node_pointer	Avl<value_type, value_compare, Alloc>::Node::getParent() const
+	template<typename T, typename Compare, typename Alloc>
+	typename Avl<T, Compare, Alloc>::Node::node_pointer	Avl<T, Compare, Alloc>::Node::getParent() const
 	{
 		return this->_traits._parent;
 	}
@@ -770,53 +772,37 @@ namespace ft
 	/////////////////////////////////////////////////////////////////////////////////////////////////////
 	/// Setters
 	/////////////////////////////////////////////////////////////////////////////////////////////////////
-	template<typename value_type, typename value_compare, typename Alloc>
-	void	Avl<value_type, value_compare, Alloc>::Node::setValue(value_type value)
+	template<typename T, typename Compare, typename Alloc>
+	void	Avl<T, Compare, Alloc>::Node::setValue(value_type value)
 	{
 		this->_value = value;
 	}
 
-	template<typename value_type, typename value_compare, typename Alloc>
-	void	Avl<value_type, value_compare, Alloc>::Node::setHeight(size_type height)
+	template<typename T, typename Compare, typename Alloc>
+	void	Avl<T, Compare, Alloc>::Node::setHeight(size_type height)
 	{
 		_traits._height = height;
 	}
 
-	template<typename value_type, typename value_compare, typename Alloc>
-	void	Avl<value_type, value_compare, Alloc>::Node::setLeft(node_pointer left)
+	template<typename T, typename Compare, typename Alloc>
+	void	Avl<T, Compare, Alloc>::Node::setLeft(node_pointer left)
 	{
 		this->_left = left;
 	}
 
-	template<typename value_type, typename value_compare, typename Alloc>
-	void	Avl<value_type, value_compare, Alloc>::Node::setRight(node_pointer right)
+	template<typename T, typename Compare, typename Alloc>
+	void	Avl<T, Compare, Alloc>::Node::setRight(node_pointer right)
 	{
 		this->_right = right;
 	}
 
-	template<typename value_type, typename value_compare, typename Alloc>
-	void	Avl<value_type, value_compare, Alloc>::Node::setParent(node_pointer parent)
+	template<typename T, typename Compare, typename Alloc>
+	void	Avl<T, Compare, Alloc>::Node::setParent(node_pointer parent)
 	{
 		this->_traits._parent = parent;
 	}
 	/////////////////////////////////////////////////////////////////////////////////////////////////////
 	/// Setters End
-	/////////////////////////////////////////////////////////////////////////////////////////////////////
-
-
-	/////////////////////////////////////////////////////////////////////////////////////////////////////
-	/// Ostream operator << overload
-	/////////////////////////////////////////////////////////////////////////////////////////////////////
-	template<typename value_type, typename value_compare, typename Alloc>
-	std::ostream &operator<<(std::ostream& ostr, typename Avl<value_type, value_compare, Alloc>::node_pointer root)
-	{
-		ostr << "======================================================================================================================" << std::endl;
-		printTree(ostr, &root, nullptr, false);
-		ostr << "======================================================================================================================" << std::endl;
-		return ostr;
-	}
-	/////////////////////////////////////////////////////////////////////////////////////////////////////
-	/// Ostream operator << overload End
 	/////////////////////////////////////////////////////////////////////////////////////////////////////
 
 
@@ -837,8 +823,8 @@ namespace ft
 
 	void showTrunks(std::ostream& ostr, Trunk *p);
 	
-	template<typename value_type, typename value_compare, typename Alloc>
-	void printTree(std::ostream& ostr, typename Avl<value_type, value_compare, Alloc>::node_pointer root, Trunk *prev, bool isLeft)
+	template<typename T, typename Compare, typename Alloc>
+	void printTree(std::ostream& ostr, typename Avl<T, Compare, Alloc>::const_node_pointer root, Trunk *prev, bool isLeft)
 	{
 		if (root == nullptr) {
 			return;
@@ -847,7 +833,7 @@ namespace ft
 		std::string prev_str = "    ";
 		Trunk *trunk = new Trunk(prev, prev_str);
 	
-		printTree(ostr, root->getRight(), trunk, true);
+		printTree<T, Compare, Alloc>(ostr, root->getRight(), trunk, true);
 	
 		if (!prev) {
 			trunk->str = "———";
@@ -871,10 +857,25 @@ namespace ft
 		}
 		trunk->str = "   |";
 	
-		printTree(ostr, root->getLeft(), trunk, false);
+		printTree<T, Compare, Alloc>(ostr, root->getLeft(), trunk, false);
 	}
 	/////////////////////////////////////////////////////////////////////////////////////////////////////
 	/// External End
+	/////////////////////////////////////////////////////////////////////////////////////////////////////
+
+	/////////////////////////////////////////////////////////////////////////////////////////////////////
+	/// Ostream operator << overload
+	/////////////////////////////////////////////////////////////////////////////////////////////////////
+	template<typename T, typename Compare, typename Alloc>
+	std::ostream &operator<<(std::ostream& ostr, const Avl<T, Compare, Alloc>& tree)
+	{
+		ostr << "======================================================================================================================" << std::endl;
+		printTree<T, Compare, Alloc>(ostr, tree._root, nullptr, false);
+		ostr << "======================================================================================================================" << std::endl;
+		return ostr;
+	}
+	/////////////////////////////////////////////////////////////////////////////////////////////////////
+	/// Ostream operator << overload End
 	/////////////////////////////////////////////////////////////////////////////////////////////////////
 }
 
