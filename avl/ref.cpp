@@ -234,7 +234,7 @@ int main(int argc, char **argv)
 	if (argc < 2)
 		return 0;
 	Node *root = NULL;
-	for (int i = 2; i < argc; i++)
+	for (int i = 1; i < argc; i++)
 	{
 		root = insertNode(root, std::atoi(argv[i]));
 	}

@@ -9,13 +9,14 @@ int main(int argc, char **argv)
 	if (argc < 2)
 		return 0;
 	bTree::root = new bTree(std::atoi(argv[1]));
-	for (int i = 2; i < argc; i++)
+	for (int i = 1; i < argc; i++)
 	{
 		node = new bTree(std::atoi(argv[i]));
 		bTree::root->insert(*node);
 	}
 
-	std::cout << (*bTree::root) << std::endl;
+	// std::cout << (*bTree::root) << std::endl;
+	printTree(std::cout, bTree::root, nullptr, false);
 
 	// int nb;
 

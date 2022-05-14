@@ -2,7 +2,6 @@
 # define AVL_HPP
 
 #include <cstdlib>
-#include <stack>
 #include <iostream>
 
 namespace ft
@@ -53,22 +52,22 @@ namespace ft
 					class Traits
 					{
 						public:
-							node_pointer	left;
-							node_pointer	right;
-							node_pointer	parent;
+							node_pointer	_left;
+							node_pointer	_right;
+							node_pointer	_parent;
 
-							size_type		height;
+							size_type		_height;
 						
 						public:
-							Traits() : left(0), right(0), parent(0), height(0)
+							Traits() : _left(0), _right(0), _parent(0), _height(0)
 							{
 							}
 
-							Traits(node_pointer left, node_pointer right, node_pointer parent, size_type height) : left(left), right(right), parent(parent), height(height)
+							Traits(node_pointer left, node_pointer right, node_pointer parent, size_type height) : _left(left), _right(right), _parent(parent), _height(height)
 							{
 							}
 
-							Traits(const Traits& src) : left(src.left), right(src.right), parent(src.parent), height(src.height)
+							Traits(const Traits& src) : _left(src._left), _right(src._right), _parent(src._parent), _height(src._height)
 							{
 							}
 
@@ -76,10 +75,10 @@ namespace ft
 							{
 								if (this == &rop)
 									return *this;
-								left = rop.left;
-								right = rop.right;
-								parent = rop.parent;
-								height = rop.height;
+								_left = rop._left;
+								_right = rop._right;
+								_parent = rop._parent;
+								_height = rop._height;
 								return *this;
 							}
 					};
@@ -208,23 +207,7 @@ namespace ft
 				}
 			}
 
-			void	show() const
-			{
-				if (_root)
-					std::cout << (*this) << std::endl;
-			}
-
-			friend std::ostream &operator<< <>(std::ostream& ostr, const Avl& tree);
-		/////////////////////////////////////////////////////////////////////////////////////////////////////
-		/// destructors, constructors, and assignment operators End
-		/////////////////////////////////////////////////////////////////////////////////////////////////////
-
-
-		/////////////////////////////////////////////////////////////////////////////////////////////////////
-		/// Modifiers
-		/////////////////////////////////////////////////////////////////////////////////////////////////////
-		public:
-			node_pointer	createNode(const value_type& val)
+			void	insert(const value_type& val)
 			{
 				node_pointer	node;
 
@@ -239,137 +222,21 @@ namespace ft
 					_traits_allocator.destroy(&(node->_traits));
 					_nodeAllocator.deallocate(node, 1);
 				}
-				return node;
-			}
-
-			void	destroyNode(node_pointer node)
-			{
-				_allocator.destroy(&(node->_value));
-				_traits_allocator.destroy(&(node->_traits));
-				_nodeAllocator.deallocate(node, 1);
-			}
-
-			void	insert(const value_type& val)
-			{
-				node_pointer	node;
-
-				node = createNode(val);
-				if (!_root)
-					_root = node;
+				if (_root)
+					_root->insert(_root, node);
 				else
-				{
-					node_pointer	current;
-					std::stack<node_pointer>	path;
-
-					while (1)
-					{
-						path.push(current);
-						//if the node value is less than the current node' value : insert on the left
-						if (Compare(node->_value, current->_value))
-						{
-							if (current->_traits.left)
-							{
-								current = current->_traits.left;
-								continue ;
-							}
-							else
-							{
-								current->_traits.left = node;
-								node._parent = current;
-								break ;
-							}
-						}
-						else if (Compare(current->_value, node->_value))
-						{
-							if (current->_traits.right)
-							{
-								current = current->_traits.right;
-								continue ;
-							}
-							else
-							{
-								current->_traits.right = node;
-								node._parent = current;
-								break ;
-							}
-						}
-						else
-						{
-							current->_value = node->_value;
-							destroyNode(node);
-						}
-					}
-					while (!path.empty())
-					{
-						current = path.top();
-						current->updateCounts();
-						current->balance();
-						path.pop();
-					}
-				}
+					_root = node;
 			}
 
-			void	erase(value_type value)
+			void	show() const
 			{
-				node_pointer	parent;
-				node_pointer	current;
-				node_pointer	candidate;
-
-				while (1)
-				{
-					//if the value is less than the current node' value : erase on the left
-					if (Compare(value, current->_value))
-					{
-						if (current->_traits.left)
-						{
-							current = current->_traits.left;
-							continue ;
-						}
-						break ;
-					}
-					else if (Compare(current->_value, value))
-					{
-						if (current->_traits.right)
-						{
-							current = current->_traits.right;
-							continue ;
-						}
-						break ;
-					}
-					else
-					{
-						//the to-delete node has a both childs
-						if (current->_traits.left && current->_traits.right)
-						{
-							std::cout << "looking for candidate" << std::endl;
-							candidate = current->getInOrderSuccessor();
-							std::cout << "candidate found : " << candidate->_value << std::endl;
-							swap(current, candidate);
-							candidate->updateHeight();
-						}
-						parent = current->_traits.parent;
-						//the to-delete node has no children
-						if (!current->_traits.left && !current->_traits.right)
-							isolate(current);
-						//the to-delete node has a left child only
-						else if (current->_traits.left)
-							replace(current, current->_traits.left);
-						//the to-delete node has a right child only
-						else if (current->_traits.right)
-							replace(current, current->_traits.right);
-						while (parent)
-						{
-							parent->updateHeight();
-							parent->balance(current);
-							parent = parent->_traits.parent;
-						}
-						destroyNode(current);
-						break ;
-					}
-				}
+				if (_root)
+					std::cout << (*this) << std::endl;
 			}
+
+			friend std::ostream &operator<< <>(std::ostream& ostr, const Avl& tree);
 		/////////////////////////////////////////////////////////////////////////////////////////////////////
-		/// Modifiers End
+		/// destructors, constructors, and assignment operators End
 		/////////////////////////////////////////////////////////////////////////////////////////////////////
 
 
@@ -435,23 +302,23 @@ namespace ft
 		//if the node->value is greater than the 'this' value
 		if (Compare(node->_value, _value))
 		{
-			if (_traits.left)
-				_traits.left->insert(root, node);
+			if (_traits._left)
+				_traits._left->insert(root, node);
 			else
 			{
-				_traits.left = node;
-				node->_traits.parent = this;
+				_traits._left = node;
+				node->_traits._parent = this;
 			}
 		}
 		//if the node->value is less than the 'this' value
 		else if (Compare(_value, node->_value))
 		{
-			if (_traits.right)
-				_traits.right->insert(root, node);
+			if (_traits._right)
+				_traits._right->insert(root, node);
 			else
 			{
-				_traits.right = node;
-				node->_traits.parent = this;
+				_traits._right = node;
+				node->_traits._parent = this;
 			}
 		}
 		//if the node->value is equal to the 'this' value : leak possible here !!!!!!!!!!!!!!!!!!!!!
@@ -471,7 +338,7 @@ namespace ft
 		if (_value == value)
 		{
 			//the to-delete node has a both childs
-			if (_traits.left && _traits.right)
+			if (_traits._left && _traits._right)
 			{
 				std::cout << "looking for candidate" << std::endl;
 				candidate = getInOrderSuccessor();
@@ -479,32 +346,32 @@ namespace ft
 				swap(root, candidate);
 				candidate->updateHeight();
 			}
-			parent = _traits.parent;
+			parent = _traits._parent;
 			//the to-delete node has no children
-			if (!_traits.left && !_traits.right)
+			if (!_traits._left && !_traits._right)
 				isolate(root);
 			//the to-delete node has a left child only
-			else if (_traits.left)
-				replace(root, _traits.left);
+			else if (_traits._left)
+				replace(root, _traits._left);
 			//the to-delete node has a right child only
-			else if (_traits.right)
-				replace(_traits.right);
+			else if (_traits._right)
+				replace(_traits._right);
 			while (parent)
 			{
 				parent->updateHeight();
 				parent->balance(root);
-				parent = parent->_traits.parent;
+				parent = parent->_traits._parent;
 			}
 		}
 		else if (_value < value)
 		{
 			if (_traits.right)
-				_traits.right->erase(root, value);
+				_traits._right->erase(root, value);
 		}
 		else
 		{
-			if (_traits.left)
-				_traits.left->erase(root, value);
+			if (_traits._left)
+				_traits._left->erase(root, value);
 		}
 	}
 
@@ -519,7 +386,7 @@ namespace ft
 			return ;
 		if (balanceFactor < 0)
 		{
-			subBalanceFactor = _traits.right->getBalanceFactor();
+			subBalanceFactor = _traits._right->getBalanceFactor();
 			if (subBalanceFactor < 0)
 				rrRotate(root);
 			else if (subBalanceFactor > 0)
@@ -527,7 +394,7 @@ namespace ft
 		}
 		else
 		{
-			subBalanceFactor = _traits.left->getBalanceFactor();
+			subBalanceFactor = _traits._left->getBalanceFactor();
 			if (subBalanceFactor < 0)
 				lrRotate(root);
 			else if (subBalanceFactor > 0)
@@ -551,13 +418,13 @@ namespace ft
 		node_pointer	right;
 		node_pointer	parent;
 
-		left = node->_traits.left;
-		right = node->_traits.right;
-		parent = node->_traits.parent;
+		left = node->_traits._left;
+		right = node->_traits._right;
+		parent = node->_traits._parent;
 		if (parent)
 		{
 			isleft = 0;
-			if (node->_traits.parent->_traits._left == node)
+			if (node->_traits._parent->_traits._left == node)
 				isleft = 1;
 		}
 		replace(node);
@@ -565,56 +432,56 @@ namespace ft
 		{
 			if (isleft)
 			{
-				node->_traits.left = this;
-				node->_traits.right = _traits.right;
-				if (node->_traits.right)
-					node->_traits.right->_traits._parent = node;
+				node->_traits._left = this;
+				node->_traits._right = _traits._right;
+				if (node->_traits._right)
+					node->_traits._right->_traits._parent = node;
 			}
 			else
 			{
-				node->_traits.left = _traits.left;
-				if (node->_traits.left)
-					node->_traits.left->_traits._parent = node;
-				node->_traits.right = this;
+				node->_traits._left = _traits._left;
+				if (node->_traits._left)
+					node->_traits._left->_traits._parent = node;
+				node->_traits._right = this;
 			}
-			_traits.parent = node;
-			_traits.left = left;
+			_traits._parent = node;
+			_traits._left = left;
 			if (left)
-				left->_traits.parent = this;
-			_traits.right = right;
+				left->_traits._parent = this;
+			_traits._right = right;
 			if (right)
-				right->_traits.parent = this;
+				right->_traits._parent = this;
 		}
 		else
 		{
-			_traits.parent = parent;
+			_traits._parent = parent;
 			if (parent)
 			{
-				if (parent->_traits.left == node)
-					_traits.parent->_traits._left = this;
+				if (parent->_traits._left == node)
+					_traits._parent->_traits._left = this;
 				else
-					_traits.parent->_traits._right = this;
+					_traits._parent->_traits._right = this;
 			}
 			else
 				root = this;
 			
 			//children swap
 				//give the children of 'this' to the node
-			node->_traits.left = _traits.left;
-			node->_traits.right = _traits.right;
+			node->_traits._left = _traits._left;
+			node->_traits._right = _traits._right;
 				//make the new children of node recognise node as their parent
-			if (node->_traits.left)
-				node->_traits.left->_traits._parent = node;
-			if (node->_traits.right)
-				node->_traits.right->_traits._parent = node;
+			if (node->_traits._left)
+				node->_traits._left->_traits._parent = node;
+			if (node->_traits._right)
+				node->_traits._right->_traits._parent = node;
 				//get the children of node from the custodian and give them to 'this'
-			_traits.left = left;
-			_traits.right = right;
+			_traits._left = left;
+			_traits._right = right;
 				//make the new children of 'this' recognise node as their parent
-			if (_traits.left)
-				_traits.left->_traits._parent = this;
-			if (_traits.right)
-				_traits.right->_traits._parent = this;
+			if (_traits._left)
+				_traits._left->_traits._parent = this;
+			if (_traits._right)
+				_traits._right->_traits._parent = this;
 		}
 	}
 
@@ -622,13 +489,13 @@ namespace ft
 	template<typename T, typename Compare, typename Alloc>
 	void	Avl<T, Compare, Alloc>::Node::replace(node_pointer &root, node_pointer node)
 	{
-		node->_traits.parent = _traits.parent;
-		if (_traits.parent)
+		node->_traits._parent = _traits._parent;
+		if (_traits._parent)
 		{
-			if (_traits.parent->_traits._left == this)
-					_traits.parent->_traits._left = node;
+			if (_traits._parent->_traits._left == this)
+					_traits._parent->_traits._left = node;
 			else
-				_traits.parent->_traits._right = node;
+				_traits._parent->_traits._right = node;
 		}
 		else
 			root = node;
@@ -638,12 +505,12 @@ namespace ft
 	template<typename T, typename Compare, typename Alloc>
 	void	Avl<T, Compare, Alloc>::Node::isolate(node_pointer &root)
 	{
-		if (_traits.parent)
+		if (_traits._parent)
 		{
-			if (_traits.parent->_traits._left == this)
-				_traits.parent->_traits._left = 0;
+			if (_traits._parent->_traits._left == this)
+				_traits._parent->_traits._left = 0;
 			else
-				_traits.parent->_traits._right = 0;
+				_traits._parent->_traits._right = 0;
 		}
 		else
 			root = 0;
@@ -661,22 +528,22 @@ namespace ft
 	{
 		Node   *subRoot;
 
-		subRoot = _traits.left;
+		subRoot = _traits._left;
 
 		//replace the current node with the subRoot
 		replace(root, subRoot);
 		
 		//make the current node the right child of the subRoot
 			//let the right child of the subRoot embrace its left child
-		_traits.left = subRoot->_traits.right;
-		if (_traits.left)
-			_traits.left->_traits._parent = this;
+		_traits._left = subRoot->_traits._right;
+		if (_traits._left)
+			_traits._left->_traits._parent = this;
 			//let the subroot welcome its right child
-		_traits.parent = subRoot;
-		subRoot->_traits.right = this;
+		_traits._parent = subRoot;
+		subRoot->_traits._right = this;
 
 		//update the height of subRoot and its right child
-		subRoot->_traits.right->updateHeight();
+		subRoot->_traits._right->updateHeight();
 		subRoot->updateHeight();
 	}
 
@@ -685,22 +552,22 @@ namespace ft
 	{
 		Node   *subRoot;
 
-		subRoot = _traits.right;
+		subRoot = _traits._right;
 
 		//replace the current node with the subRoot
 		replace(root, subRoot);
 		
 		//make the current node the left child of the subRoot
 			//let the left child of the subRoot embrace its right child
-		_traits.right = subRoot->_traits.left;
-		if (_traits.right)
-			_traits.right->_traits._parent = this;
+		_traits._right = subRoot->_traits._left;
+		if (_traits._right)
+			_traits._right->_traits._parent = this;
 			//let the subroot welcome its left child
-		_traits.parent = subRoot;
-		subRoot->_traits.left = this;
+		_traits._parent = subRoot;
+		subRoot->_traits._left = this;
 		
 		//update the height of subRoot and its left child
-		subRoot->_traits.left->updateHeight();
+		subRoot->_traits._left->updateHeight();
 		subRoot->updateHeight();
 	}
 
@@ -709,32 +576,32 @@ namespace ft
 	{
 		Node   *subRoot;
 
-		subRoot = _traits.left->_traits._right;
+		subRoot = _traits._left->_traits._right;
 
 		//replace the current node with the subRoot
 		replace(root, subRoot);
 		
 		//adjsut the left child of the subRoot
 			//let the left child of the subroot embrace its new right child
-		_traits.left->_traits._right = subRoot->_traits.left;
-		if (subRoot->_traits.left)
-			subRoot->_traits.left->_traits._parent = _traits.left;
+		_traits._left->_traits._right = subRoot->_traits._left;
+		if (subRoot->_traits._left)
+			subRoot->_traits._left->_traits._parent = _traits._left;
 			//let the subroot welcome its left child
-		subRoot->_traits.left = _traits.left;
-		_traits.left->_traits._parent = subRoot;
+		subRoot->_traits._left = _traits._left;
+		_traits._left->_traits._parent = subRoot;
 
 		//adjust the right child of the subRoot
 			//let the right child of the subroot embrace its new left child
-		_traits.left = subRoot->_traits.right;
-		if (_traits.left)
-			_traits.left->_traits._parent = this;
+		_traits._left = subRoot->_traits._right;
+		if (_traits._left)
+			_traits._left->_traits._parent = this;
 			//let the subroot welcome its right child
-		subRoot->_traits.right = this;
-		_traits.parent = subRoot;
+		subRoot->_traits._right = this;
+		_traits._parent = subRoot;
 
 		//update the height of subRoot and its childs
-		subRoot->_traits.left->updateHeight();
-		subRoot->_traits.right->updateHeight();
+		subRoot->_traits._left->updateHeight();
+		subRoot->_traits._right->updateHeight();
 		subRoot->updateHeight();
 	}
 
@@ -743,32 +610,32 @@ namespace ft
 	{
 		Node   *subRoot;
 
-		subRoot = _traits.right->_traits._left;
+		subRoot = _traits._right->_traits._left;
 
 		//replace the current node with the subRoot
 		replace(root, subRoot);
 		
 		//adjsut the right child of the subRoot
 			//let the right child of the subroot embrace its new left child
-		_traits.right->_traits._left = subRoot->_traits.right;
-		if (subRoot->_traits.right)
-			subRoot->_traits.right->_traits._parent = _traits.right;
+		_traits._right->_traits._left = subRoot->_traits._right;
+		if (subRoot->_traits._right)
+			subRoot->_traits._right->_traits._parent = _traits._right;
 			//let the subroot welcome its right child
-		subRoot->_traits.right = _traits.right;
-		_traits.right->_traits._parent = subRoot;
+		subRoot->_traits._right = _traits._right;
+		_traits._right->_traits._parent = subRoot;
 
 		//adjsut the left child of the subRoot
 			//let the left child of the subroot embrace its new right child
-		_traits.right = subRoot->_traits.left;
-		if (_traits.right)
-			_traits.right->_traits._parent = this;
+		_traits._right = subRoot->_traits._left;
+		if (_traits._right)
+			_traits._right->_traits._parent = this;
 			//let the subroot welcome its left child
-		subRoot->_traits.left = this;
-		_traits.parent = subRoot;
+		subRoot->_traits._left = this;
+		_traits._parent = subRoot;
 
 		//update the height of subRoot and its childs
-		subRoot->_traits.left->updateHeight();
-		subRoot->_traits.right->updateHeight();
+		subRoot->_traits._left->updateHeight();
+		subRoot->_traits._right->updateHeight();
 		subRoot->updateHeight();
 	}
 	/////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -786,15 +653,15 @@ namespace ft
 		size_type	leftHeight;
 		size_type	rightHeight;
 
-		if (_traits.left)
-			leftHeight =_traits.left->_traits._height;
+		if (_traits._left)
+			leftHeight =_traits._left->_traits._height;
 		else
 			leftHeight = 0;
-		if (_traits.right)
-			rightHeight =_traits.right->_traits._height;
+		if (_traits._right)
+			rightHeight =_traits._right->_traits._height;
 		else
 			rightHeight = 0;
-		_traits.height = std::max(leftHeight, rightHeight) + 1;
+		_traits._height = std::max(leftHeight, rightHeight) + 1;
 	}
 
 	template<typename T, typename Compare, typename Alloc>
@@ -806,18 +673,18 @@ namespace ft
 
 		ret = 0;
 		//left most child of its right suNode
-		if (_traits.right)
+		if (_traits._right)
 		{
-			ret = _traits.right;
-			while (ret->_traits.left)
-				ret = ret->_traits.left;
+			ret = _traits._right;
+			while (ret->_traits._left)
+				ret = ret->_traits._left;
 		}
 		//first parent with a key larger than that of the current node
 		else
 		{
-			ret = _traits.parent;
+			ret = _traits._parent;
 			while (ret && ret->_value < _value)
-				ret = ret->_traits.parent;
+				ret = ret->_traits._parent;
 		}
 		return ret;
 	}
@@ -831,18 +698,18 @@ namespace ft
 
 		ret = 0;
 		//right most child of its left suNode
-		if (_traits.left)
+		if (_traits._left)
 		{
-			ret = _traits.left;
-			while (ret->_traits.right)
-				ret = ret->_traits.right;
+			ret = _traits._left;
+			while (ret->_traits._right)
+				ret = ret->_traits._right;
 		}
 		//first parent with a key samller than that of the current node
 		else
 		{
-			ret = _traits.parent;
+			ret = _traits._parent;
 			while (ret && ret->_value > _value)
-				ret = ret->_traits.parent;
+				ret = ret->_traits._parent;
 		}
 		return ret;
 	}
@@ -853,12 +720,12 @@ namespace ft
 		size_type	leftHeight;
 		size_type	rightHeight;
 
-		if (_traits.left)
-			leftHeight =_traits.left->_traits._height + 1;
+		if (_traits._left)
+			leftHeight =_traits._left->_traits._height + 1;
 		else
 			leftHeight = 0;
-		if (_traits.right)
-			rightHeight =_traits.right->_traits._height + 1;
+		if (_traits._right)
+			rightHeight =_traits._right->_traits._height + 1;
 		else
 			rightHeight = 0;
 		return leftHeight - rightHeight;
@@ -880,25 +747,25 @@ namespace ft
 	template<typename T, typename Compare, typename Alloc>
 	typename Avl<T, Compare, Alloc>::Node::size_type	Avl<T, Compare, Alloc>::Node::getHeight() const
 	{
-		return _traits.height;
+		return _traits._height;
 	}
 
 	template<typename T, typename Compare, typename Alloc>
 	typename Avl<T, Compare, Alloc>::Node::node_pointer	Avl<T, Compare, Alloc>::Node::getLeft() const
 	{
-		return _traits.left;
+		return _traits._left;
 	}
 
 	template<typename T, typename Compare, typename Alloc>
 	typename Avl<T, Compare, Alloc>::Node::node_pointer	Avl<T, Compare, Alloc>::Node::getRight() const
 	{
-		return _traits.right;
+		return _traits._right;
 	}
 
 	template<typename T, typename Compare, typename Alloc>
 	typename Avl<T, Compare, Alloc>::Node::node_pointer	Avl<T, Compare, Alloc>::Node::getParent() const
 	{
-		return _traits.parent;
+		return _traits._parent;
 	}
 	/////////////////////////////////////////////////////////////////////////////////////////////////////
 	/// Getters End
@@ -917,25 +784,25 @@ namespace ft
 	template<typename T, typename Compare, typename Alloc>
 	void	Avl<T, Compare, Alloc>::Node::setHeight(size_type height)
 	{
-		_traits.height = height;
+		_traits._height = height;
 	}
 
 	template<typename T, typename Compare, typename Alloc>
 	void	Avl<T, Compare, Alloc>::Node::setLeft(node_pointer left)
 	{
-		_traits.left = left;
+		_traits._left = left;
 	}
 
 	template<typename T, typename Compare, typename Alloc>
 	void	Avl<T, Compare, Alloc>::Node::setRight(node_pointer right)
 	{
-		_traits.right = right;
+		_traits._right = right;
 	}
 
 	template<typename T, typename Compare, typename Alloc>
 	void	Avl<T, Compare, Alloc>::Node::setParent(node_pointer parent)
 	{
-		_traits.parent = parent;
+		_traits._parent = parent;
 	}
 	/////////////////////////////////////////////////////////////////////////////////////////////////////
 	/// Setters End
