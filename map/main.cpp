@@ -1,7 +1,10 @@
-#include <map>
+// #include <map>
 #include <memory>
+#include <iostream>
+#include <type_traits>
 
 #include "avl.hpp"
+
 
 int	main()
 {
@@ -9,10 +12,9 @@ int	main()
 
 	ft::Avl<int, std::less<int>, std::allocator<int> > a;
 
-	ft::Avl<int, std::less<int>, std::allocator<int> >::Node	node1(5);
-	ft::Avl<int, std::less<int>, std::allocator<int> >::Node	node2(6);
+	a.insert(15);
+	a.insert(40);
 
-	auto ptr1 = &node1;
+	std::is_integral<int>::type l;
 
-	a._root->insert(ptr1, node2);
 }
