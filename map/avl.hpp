@@ -252,18 +252,16 @@ namespace ft
 			void	insert(const value_type& val)
 			{
 				node_pointer	node;
+				node_pointer	current;
 
 				node = createNode(val);
 				if (!_root)
 					_root = node;
 				else
 				{
-					node_pointer	current;
-					std::stack<node_pointer>	path;
-
+					current = _root;
 					while (1)
 					{
-						path.push(current);
 						//if the node value is less than the current node' value : insert on the left
 						if (Compare(node->_value, current->_value))
 						{
@@ -299,12 +297,11 @@ namespace ft
 							destroyNode(node);
 						}
 					}
-					while (!path.empty())
+					while (current)
 					{
-						current = path.top();
-						current->updateCounts();
-						current->balance();
-						path.pop();
+						current->updateHeight();
+						current->balance(current);
+						current = current->_traits.parent;
 					}
 				}
 			}
@@ -315,6 +312,7 @@ namespace ft
 				node_pointer	current;
 				node_pointer	candidate;
 
+				current = _root;
 				while (1)
 				{
 					//if the value is less than the current node' value : erase on the left
@@ -367,6 +365,226 @@ namespace ft
 						break ;
 					}
 				}
+			}
+
+			void	balance(node_pointer node)
+			{
+				int balanceFactor;
+				int subBalanceFactor;
+
+				balanceFactor = node->getBalanceFactor();
+				if (abs(balanceFactor) < 2)
+					return ;
+				if (balanceFactor < 0)
+				{
+					subBalanceFactor = node->_right->getBalanceFactor();
+					if (subBalanceFactor < 0)
+						node->rrRotate();
+					else if (subBalanceFactor > 0)
+						node->rlRotate();
+				}
+				else
+				{
+					subBalanceFactor = node->_left->getBalanceFactor();
+					if (subBalanceFactor < 0)
+						node->lrRotate();
+					else if (subBalanceFactor > 0)
+						node->llRotate();
+				}
+			}
+
+			//solates node from the rest of the tree (its parent does not recongnise him anymore 'poor child')
+			void	isolate(node_pointer node)
+			{
+				if (node->_traits.parent)
+				{
+					if (node->_traits.parent->_traits._left == node)
+						node->_traits.parent->_traits._left = 0;
+					else
+						node->_traits.parent->_traits._right = 0;
+				}
+				else
+					_root = 0;
+			}
+
+			//b steals the parent of a
+			void	replace(node_pointer a, node_pointer b)
+			{
+				if (a == b)
+					return ;
+				b->_traits.parent = a->_traits.parent;
+				if (a->_traits.parent)
+				{
+					if (a->_traits.parent->_traits._left == a)
+						a->_traits.parent->_traits._left = b;
+					else
+						a->_traits.parent->_traits._right = b;
+				}
+				else
+					_root = b;
+			}
+
+			//child swaps position with its parent
+			void	_swapRelatedNodes(node_pointer child, node_pointer parent)
+			{
+				Traits	tmp;
+
+				tmp = parent->_traits;
+				//the child abdicates its parent parents
+				replace(parent, child);
+				//parent takes over the child's children
+				parent->_traits.left = child->_traits.left;
+				if (parent->_traits.left)
+					parent->_traits.left->_traits.parent = parent;
+				parent->_traits.right = child->_traits.right;
+				if (parent->_traits.right)
+					parent->_traits.right->_traits.parent = parent;
+				//child takes over the parent's children
+					//child was the left child of parent
+				if (tmp.left == child)
+				{
+					child->_traits.left = parent;
+					child->_traits.right = tmp.right;
+					if (child->_traits.right)
+						child->_traits.right->_traits.parent = child;
+				}
+					//child was the right child of parent
+				else
+				{
+					child->_traits.right = parent;
+					child->_traits.left = tmp.left;
+					if (child->_traits.left)
+						child->_traits.left->_traits.parent = child;
+				}
+				parent->_traits.parent = child;
+			}
+
+			//a swaps position with b : a has no direct relationship with b
+			void	_swapUnrelatedNodes(node_pointer a, node_pointer b)
+			{
+				Traits	tmp;
+
+				tmp = b->_traits;
+				//b adicates a's parent
+				replace(a, b);
+				//children swap
+					//give the children of 'a' to the b
+				b->_traits.left = a->_traits.left;
+				b->_traits.right = a->_traits.right;
+					//make the new children of b recognise b as their parent
+				if (b->_traits.left)
+					b->_traits.left->_traits._parent = b;
+				if (b->_traits.right)
+					b->_traits.right->_traits._parent = b;
+					//get the children of b from the custodian and give them to 'a'
+				a->_traits.left = tmp.left;
+				a->_traits.right = tmp.right;
+					//make the new children of 'a' recognise b as their parent
+				if (a->_traits.left)
+					a->_traits.left->_traits._parent = a;
+				if (a->_traits.right)
+					a->_traits.right->_traits._parent = a;
+				//the exparent of b adopts a
+				a->_traits.parent = tmp.parent;
+				if (tmp.parent)
+				{
+					if (tmp.parent->_traits.left == b)
+						a->_traits.parent->_traits._left = a;
+					else
+						a->_traits.parent->_traits._right = a;
+				}
+				else
+					_root = a;
+			}
+
+			//a swaps position with b
+			void	swap(node_pointer a, node_pointer b)
+			{
+				if (a->_traits.parent == b)
+					_swapRelatedNodes(a, b);
+				else if (b->_traits.parent == a)
+					_swapRelatedNodes(b, a);
+				else
+					_swapUnrelatedNodes(a, b);
+			}
+
+			void	llRotate(node_pointer root)
+			{
+				node_pointer	newRoot;
+
+				newRoot = root->_traits.left;
+
+				//replace the current root with the newRoot
+				replace(root, newRoot);
+				
+				//make the current root the right child of the newRoot
+					//let the right child of the newRoot (current root) embrace its left child
+				root->_traits.left = newRoot->_traits.right;
+				if (root->_traits.left)
+					root->_traits.left->_traits._parent = root;
+					//let the newroot welcome its right child
+				root->_traits.parent = newRoot;
+				newRoot->_traits.right = root;
+
+				//update the height of newRoot and its right child
+				newRoot->_traits.right->updateHeight();
+				newRoot->updateHeight();
+			}
+
+			void	rrRotate(node_pointer root)
+			{
+				node_pointer	newRoot;
+
+				newRoot = root->_traits.right;
+
+				//replace the current root with the newRoot
+				replace(root, newRoot);
+				
+				//make the current root the left child of the newRoot
+					//let the left child of the newRoot embrace its right child
+				root->_traits.right = newRoot->_traits.left;
+				if (root->_traits.right)
+					root->_traits.right->_traits._parent = root;
+					//let the newroot welcome its left child
+				root->_traits.parent = newRoot;
+				newRoot->_traits.left = root;
+				
+				//update the height of newRoot and its left child
+				newRoot->_traits.left->updateHeight();
+				newRoot->updateHeight();
+			}
+
+			void	lrRotate(node_pointer &root)
+			{
+				Node   *subRoot;
+
+				subRoot = _traits.left->_traits._right;
+
+				//replace the current node with the subRoot
+				replace(root, subRoot);
+				
+				//adjsut the left child of the subRoot
+					//let the left child of the subroot embrace its new right child
+				_traits.left->_traits._right = subRoot->_traits.left;
+				if (subRoot->_traits.left)
+					subRoot->_traits.left->_traits._parent = _traits.left;
+					//let the subroot welcome its left child
+				subRoot->_traits.left = _traits.left;
+				_traits.left->_traits._parent = subRoot;
+
+				//adjust the right child of the subRoot
+					//let the right child of the subroot embrace its new left child
+				_traits.left = subRoot->_traits.right;
+				if (_traits.left)
+					_traits.left->_traits._parent = this;
+					//let the subroot welcome its right child
+				subRoot->_traits.right = this;
+				_traits.parent = subRoot;
+
+				//update the height of subRoot and its childs
+				subRoot->_traits.left->updateHeight();
+				subRoot->_traits.right->updateHeight();
+				subRoot->updateHeight();
 			}
 		/////////////////////////////////////////////////////////////////////////////////////////////////////
 		/// Modifiers End
