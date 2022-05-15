@@ -21,7 +21,7 @@ namespace ft
 		/// Node class Defintion
 		/////////////////////////////////////////////////////////////////////////////////////////////////////
 		// private:
-		public:
+		private:
 			class Node
 			{
 				/////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -92,22 +92,6 @@ namespace ft
 					Traits		_traits;
 
 
-					void	isolate(node_pointer &root);
-					void	swap(node_pointer &root, node_pointer node);
-					void	replace(node_pointer &root, node_pointer node);
-
-					void    balance(node_pointer &root);
-
-					void    llRotate(node_pointer &root);
-					void    lrRotate(node_pointer &root);
-					void    rlRotate(node_pointer &root);
-					void    rrRotate(node_pointer &root);
-
-					void    updateHeight();
-
-					int     getBalanceFactor() const;
-
-
 				public:
 
 					Node();
@@ -119,8 +103,8 @@ namespace ft
 					Node(const Node& src);
 					node_reference	operator=(const Node& rhs);
 
-					void	erase(node_pointer &root, value_type value);
-					void	insert(node_pointer &root, node_pointer node);
+					void    updateHeight();
+					int     getBalanceFactor() const;
 
 					node_pointer	getInOrderSuccessor() const;
 					node_pointer	getInOrderPredeccessor() const;
@@ -379,17 +363,17 @@ namespace ft
 				{
 					subBalanceFactor = node->_right->getBalanceFactor();
 					if (subBalanceFactor < 0)
-						node->rrRotate();
+						rrRotate(node);
 					else if (subBalanceFactor > 0)
-						node->rlRotate();
+						rlRotate(node);
 				}
 				else
 				{
 					subBalanceFactor = node->_left->getBalanceFactor();
 					if (subBalanceFactor < 0)
-						node->lrRotate();
+						lrRotate(node);
 					else if (subBalanceFactor > 0)
-						node->llRotate();
+						llRotate(node);
 				}
 			}
 
@@ -554,37 +538,70 @@ namespace ft
 				newRoot->updateHeight();
 			}
 
-			void	lrRotate(node_pointer &root)
+			void	lrRotate(node_pointer root)
 			{
-				Node   *subRoot;
+				node_pointer	newRoot;
 
-				subRoot = _traits.left->_traits._right;
+				newRoot = root->_traits.left->_traits._right;
 
-				//replace the current node with the subRoot
-				replace(root, subRoot);
+				//replace the current node with the newRoot
+				replace(root, newRoot);
 				
-				//adjsut the left child of the subRoot
-					//let the left child of the subroot embrace its new right child
-				_traits.left->_traits._right = subRoot->_traits.left;
-				if (subRoot->_traits.left)
-					subRoot->_traits.left->_traits._parent = _traits.left;
-					//let the subroot welcome its left child
-				subRoot->_traits.left = _traits.left;
-				_traits.left->_traits._parent = subRoot;
+				//adjsut the left child of the newRoot
+					//let the left child of the newroot embrace its new right child
+				root->_traits.left->_traits._right = newRoot->_traits.left;
+				if (newRoot->_traits.left)
+					newRoot->_traits.left->_traits._parent = root->_traits.left;
+					//let the newroot welcome its left child
+				newRoot->_traits.left = root->_traits.left;
+				root->_traits.left->_traits._parent = newRoot;
 
-				//adjust the right child of the subRoot
-					//let the right child of the subroot embrace its new left child
-				_traits.left = subRoot->_traits.right;
-				if (_traits.left)
-					_traits.left->_traits._parent = this;
-					//let the subroot welcome its right child
-				subRoot->_traits.right = this;
-				_traits.parent = subRoot;
+				//adjust the right child of the newRoot
+					//let the right child of the newroot embrace its new left child
+				root->_traits.left = newRoot->_traits.right;
+				if (root->_traits.left)
+					root->_traits.left->_traits._parent = root;
+					//let the newroot welcome its right child
+				newRoot->_traits.right = root;
+				root->_traits.parent = newRoot;
 
-				//update the height of subRoot and its childs
-				subRoot->_traits.left->updateHeight();
-				subRoot->_traits.right->updateHeight();
-				subRoot->updateHeight();
+				//update the height of newRoot and its childs
+				newRoot->_traits.left->updateHeight();
+				newRoot->_traits.right->updateHeight();
+				newRoot->updateHeight();
+			}
+
+			void	rlRotate(node_pointer root)
+			{
+				node_pointer	newRoot;
+
+				newRoot = root->_traits.right->_traits._left;
+
+				//replace the current node with the newRoot
+				replace(root, newRoot);
+				
+				//adjsut the right child of the newRoot
+					//let the right child of the newroot embrace its new left child
+				root->_traits.right->_traits._left = newRoot->_traits.right;
+				if (newRoot->_traits.right)
+					newRoot->_traits.right->_traits._parent = root->_traits.right;
+					//let the newroot welcome its right child
+				newRoot->_traits.right = root->_traits.right;
+				root->_traits.right->_traits._parent = newRoot;
+
+				//adjsut the left child of the newRoot
+					//let the left child of the newroot embrace its new right child
+				root->_traits.right = newRoot->_traits.left;
+				if (root->_traits.right)
+					root->_traits.right->_traits._parent = root;
+					//let the newroot welcome its left child
+				newRoot->_traits.left = root;
+				root->_traits.parent = newRoot;
+
+				//update the height of newRoot and its childs
+				newRoot->_traits.left->updateHeight();
+				newRoot->_traits.right->updateHeight();
+				newRoot->updateHeight();
 			}
 		/////////////////////////////////////////////////////////////////////////////////////////////////////
 		/// Modifiers End
@@ -647,111 +664,7 @@ namespace ft
 	/////////////////////////////////////////////////////////////////////////////////////////////////////
 	/// Tree manipulation functions
 	/////////////////////////////////////////////////////////////////////////////////////////////////////
-	template<typename T, typename Compare, typename Alloc>
-	void	Avl<T, Compare, Alloc>::Node::insert(node_pointer &root, node_pointer node)
-	{
-		//if the node->value is greater than the 'this' value
-		if (Compare(node->_value, _value))
-		{
-			if (_traits.left)
-				_traits.left->insert(root, node);
-			else
-			{
-				_traits.left = node;
-				node->_traits.parent = this;
-			}
-		}
-		//if the node->value is less than the 'this' value
-		else if (Compare(_value, node->_value))
-		{
-			if (_traits.right)
-				_traits.right->insert(root, node);
-			else
-			{
-				_traits.right = node;
-				node->_traits.parent = this;
-			}
-		}
-		//if the node->value is equal to the 'this' value : leak possible here !!!!!!!!!!!!!!!!!!!!!
-		else
-			_value = node->_value;
-		updateHeight();
-		balance(root);
-	}
-
-	//delete a node from the tree
-	template<typename T, typename Compare, typename Alloc>
-	void	Avl<T, Compare, Alloc>::Node::erase(node_pointer &root, value_type value)
-	{
-		node_pointer	parent;
-		node_pointer	candidate;
-
-		if (_value == value)
-		{
-			//the to-delete node has a both childs
-			if (_traits.left && _traits.right)
-			{
-				std::cout << "looking for candidate" << std::endl;
-				candidate = getInOrderSuccessor();
-				std::cout << "candidate found : " << candidate->_value << std::endl;
-				swap(root, candidate);
-				candidate->updateHeight();
-			}
-			parent = _traits.parent;
-			//the to-delete node has no children
-			if (!_traits.left && !_traits.right)
-				isolate(root);
-			//the to-delete node has a left child only
-			else if (_traits.left)
-				replace(root, _traits.left);
-			//the to-delete node has a right child only
-			else if (_traits.right)
-				replace(_traits.right);
-			while (parent)
-			{
-				parent->updateHeight();
-				parent->balance(root);
-				parent = parent->_traits.parent;
-			}
-		}
-		else if (_value < value)
-		{
-			if (_traits.right)
-				_traits.right->erase(root, value);
-		}
-		else
-		{
-			if (_traits.left)
-				_traits.left->erase(root, value);
-		}
-	}
-
-	template<typename T, typename Compare, typename Alloc>
-	void	Avl<T, Compare, Alloc>::Node::balance(node_pointer &root)
-	{
-		int balanceFactor;
-		int subBalanceFactor;
-
-		balanceFactor = getBalanceFactor();
-		if (std::abs(balanceFactor) < 2)
-			return ;
-		if (balanceFactor < 0)
-		{
-			subBalanceFactor = _traits.right->getBalanceFactor();
-			if (subBalanceFactor < 0)
-				rrRotate(root);
-			else if (subBalanceFactor > 0)
-				rlRotate(root);
-		}
-		else
-		{
-			subBalanceFactor = _traits.left->getBalanceFactor();
-			if (subBalanceFactor < 0)
-				lrRotate(root);
-			else if (subBalanceFactor > 0)
-				llRotate(root);
-		}
-	}
+	
 	/////////////////////////////////////////////////////////////////////////////////////////////////////
 	/// Tree manipulation functions End
 	/////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -760,112 +673,7 @@ namespace ft
 	/////////////////////////////////////////////////////////////////////////////////////////////////////
 	/// Nodes manipulation functions
 	/////////////////////////////////////////////////////////////////////////////////////////////////////
-	//node swaps position with 'this'
-	template<typename T, typename Compare, typename Alloc>
-	void	Avl<T, Compare, Alloc>::Node::swap(node_pointer &root, node_pointer node)
-	{
-		bool	isleft;
-		node_pointer	left;
-		node_pointer	right;
-		node_pointer	parent;
-
-		left = node->_traits.left;
-		right = node->_traits.right;
-		parent = node->_traits.parent;
-		if (parent)
-		{
-			isleft = 0;
-			if (node->_traits.parent->_traits._left == node)
-				isleft = 1;
-		}
-		replace(node);
-		if (parent == this)
-		{
-			if (isleft)
-			{
-				node->_traits.left = this;
-				node->_traits.right = _traits.right;
-				if (node->_traits.right)
-					node->_traits.right->_traits._parent = node;
-			}
-			else
-			{
-				node->_traits.left = _traits.left;
-				if (node->_traits.left)
-					node->_traits.left->_traits._parent = node;
-				node->_traits.right = this;
-			}
-			_traits.parent = node;
-			_traits.left = left;
-			if (left)
-				left->_traits.parent = this;
-			_traits.right = right;
-			if (right)
-				right->_traits.parent = this;
-		}
-		else
-		{
-			_traits.parent = parent;
-			if (parent)
-			{
-				if (parent->_traits.left == node)
-					_traits.parent->_traits._left = this;
-				else
-					_traits.parent->_traits._right = this;
-			}
-			else
-				root = this;
-			
-			//children swap
-				//give the children of 'this' to the node
-			node->_traits.left = _traits.left;
-			node->_traits.right = _traits.right;
-				//make the new children of node recognise node as their parent
-			if (node->_traits.left)
-				node->_traits.left->_traits._parent = node;
-			if (node->_traits.right)
-				node->_traits.right->_traits._parent = node;
-				//get the children of node from the custodian and give them to 'this'
-			_traits.left = left;
-			_traits.right = right;
-				//make the new children of 'this' recognise node as their parent
-			if (_traits.left)
-				_traits.left->_traits._parent = this;
-			if (_traits.right)
-				_traits.right->_traits._parent = this;
-		}
-	}
-
-	//node steals the parent of 'this'
-	template<typename T, typename Compare, typename Alloc>
-	void	Avl<T, Compare, Alloc>::Node::replace(node_pointer &root, node_pointer node)
-	{
-		node->_traits.parent = _traits.parent;
-		if (_traits.parent)
-		{
-			if (_traits.parent->_traits._left == this)
-					_traits.parent->_traits._left = node;
-			else
-				_traits.parent->_traits._right = node;
-		}
-		else
-			root = node;
-	}
-
-	//isolates a node from the rest of the tree (its parent does not recongnise him 'poor child')
-	template<typename T, typename Compare, typename Alloc>
-	void	Avl<T, Compare, Alloc>::Node::isolate(node_pointer &root)
-	{
-		if (_traits.parent)
-		{
-			if (_traits.parent->_traits._left == this)
-				_traits.parent->_traits._left = 0;
-			else
-				_traits.parent->_traits._right = 0;
-		}
-		else
-			root = 0;
-	}
+	
 	/////////////////////////////////////////////////////////////////////////////////////////////////////
 	/// Nodes manipulation functions End
 	/////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -875,119 +683,119 @@ namespace ft
 	/// Rotations
 	/////////////////////////////////////////////////////////////////////////////////////////////////////
 	template<typename T, typename Compare, typename Alloc>
-	void    Avl<T, Compare, Alloc>::Node::llRotate(node_pointer &root)
+	void	Avl<T, Compare, Alloc>::llRotate(node_pointer root)
 	{
-		Node   *subRoot;
+		node_pointer	newRoot;
 
-		subRoot = _traits.left;
+		newRoot = root->_traits.left;
 
-		//replace the current node with the subRoot
-		replace(root, subRoot);
+		//replace the current root with the newRoot
+		replace(root, newRoot);
 		
-		//make the current node the right child of the subRoot
-			//let the right child of the subRoot embrace its left child
-		_traits.left = subRoot->_traits.right;
-		if (_traits.left)
-			_traits.left->_traits._parent = this;
-			//let the subroot welcome its right child
-		_traits.parent = subRoot;
-		subRoot->_traits.right = this;
+		//make the current root the right child of the newRoot
+			//let the right child of the newRoot (current root) embrace its left child
+		root->_traits.left = newRoot->_traits.right;
+		if (root->_traits.left)
+			root->_traits.left->_traits._parent = root;
+			//let the newroot welcome its right child
+		root->_traits.parent = newRoot;
+		newRoot->_traits.right = root;
 
-		//update the height of subRoot and its right child
-		subRoot->_traits.right->updateHeight();
-		subRoot->updateHeight();
+		//update the height of newRoot and its right child
+		newRoot->_traits.right->updateHeight();
+		newRoot->updateHeight();
 	}
 
 	template<typename T, typename Compare, typename Alloc>
-	void    Avl<T, Compare, Alloc>::Node::rrRotate(node_pointer &root)
+	void	Avl<T, Compare, Alloc>::rrRotate(node_pointer root)
 	{
-		Node   *subRoot;
+		node_pointer	newRoot;
 
-		subRoot = _traits.right;
+		newRoot = root->_traits.right;
 
-		//replace the current node with the subRoot
-		replace(root, subRoot);
+		//replace the current root with the newRoot
+		replace(root, newRoot);
 		
-		//make the current node the left child of the subRoot
-			//let the left child of the subRoot embrace its right child
-		_traits.right = subRoot->_traits.left;
-		if (_traits.right)
-			_traits.right->_traits._parent = this;
-			//let the subroot welcome its left child
-		_traits.parent = subRoot;
-		subRoot->_traits.left = this;
+		//make the current root the left child of the newRoot
+			//let the left child of the newRoot embrace its right child
+		root->_traits.right = newRoot->_traits.left;
+		if (root->_traits.right)
+			root->_traits.right->_traits._parent = root;
+			//let the newroot welcome its left child
+		root->_traits.parent = newRoot;
+		newRoot->_traits.left = root;
 		
-		//update the height of subRoot and its left child
-		subRoot->_traits.left->updateHeight();
-		subRoot->updateHeight();
+		//update the height of newRoot and its left child
+		newRoot->_traits.left->updateHeight();
+		newRoot->updateHeight();
 	}
 
 	template<typename T, typename Compare, typename Alloc>
-	void    Avl<T, Compare, Alloc>::Node::lrRotate(node_pointer &root)
+	void	Avl<T, Compare, Alloc>::lrRotate(node_pointer root)
 	{
-		Node   *subRoot;
+		node_pointer	newRoot;
 
-		subRoot = _traits.left->_traits._right;
+		newRoot = root->_traits.left->_traits._right;
 
-		//replace the current node with the subRoot
-		replace(root, subRoot);
+		//replace the current node with the newRoot
+		replace(root, newRoot);
 		
-		//adjsut the left child of the subRoot
-			//let the left child of the subroot embrace its new right child
-		_traits.left->_traits._right = subRoot->_traits.left;
-		if (subRoot->_traits.left)
-			subRoot->_traits.left->_traits._parent = _traits.left;
-			//let the subroot welcome its left child
-		subRoot->_traits.left = _traits.left;
-		_traits.left->_traits._parent = subRoot;
+		//adjsut the left child of the newRoot
+			//let the left child of the newroot embrace its new right child
+		root->_traits.left->_traits._right = newRoot->_traits.left;
+		if (newRoot->_traits.left)
+			newRoot->_traits.left->_traits._parent = root->_traits.left;
+			//let the newroot welcome its left child
+		newRoot->_traits.left = root->_traits.left;
+		root->_traits.left->_traits._parent = newRoot;
 
-		//adjust the right child of the subRoot
-			//let the right child of the subroot embrace its new left child
-		_traits.left = subRoot->_traits.right;
-		if (_traits.left)
-			_traits.left->_traits._parent = this;
-			//let the subroot welcome its right child
-		subRoot->_traits.right = this;
-		_traits.parent = subRoot;
+		//adjust the right child of the newRoot
+			//let the right child of the newroot embrace its new left child
+		root->_traits.left = newRoot->_traits.right;
+		if (root->_traits.left)
+			root->_traits.left->_traits._parent = root;
+			//let the newroot welcome its right child
+		newRoot->_traits.right = root;
+		root->_traits.parent = newRoot;
 
-		//update the height of subRoot and its childs
-		subRoot->_traits.left->updateHeight();
-		subRoot->_traits.right->updateHeight();
-		subRoot->updateHeight();
+		//update the height of newRoot and its childs
+		newRoot->_traits.left->updateHeight();
+		newRoot->_traits.right->updateHeight();
+		newRoot->updateHeight();
 	}
 
 	template<typename T, typename Compare, typename Alloc>
-	void    Avl<T, Compare, Alloc>::Node::rlRotate(node_pointer &root)
+	void	Avl<T, Compare, Alloc>::rlRotate(node_pointer root)
 	{
-		Node   *subRoot;
+		node_pointer	newRoot;
 
-		subRoot = _traits.right->_traits._left;
+		newRoot = root->_traits.right->_traits._left;
 
-		//replace the current node with the subRoot
-		replace(root, subRoot);
+		//replace the current node with the newRoot
+		replace(root, newRoot);
 		
-		//adjsut the right child of the subRoot
-			//let the right child of the subroot embrace its new left child
-		_traits.right->_traits._left = subRoot->_traits.right;
-		if (subRoot->_traits.right)
-			subRoot->_traits.right->_traits._parent = _traits.right;
-			//let the subroot welcome its right child
-		subRoot->_traits.right = _traits.right;
-		_traits.right->_traits._parent = subRoot;
+		//adjsut the right child of the newRoot
+			//let the right child of the newroot embrace its new left child
+		root->_traits.right->_traits._left = newRoot->_traits.right;
+		if (newRoot->_traits.right)
+			newRoot->_traits.right->_traits._parent = root->_traits.right;
+			//let the newroot welcome its right child
+		newRoot->_traits.right = root->_traits.right;
+		root->_traits.right->_traits._parent = newRoot;
 
-		//adjsut the left child of the subRoot
-			//let the left child of the subroot embrace its new right child
-		_traits.right = subRoot->_traits.left;
-		if (_traits.right)
-			_traits.right->_traits._parent = this;
-			//let the subroot welcome its left child
-		subRoot->_traits.left = this;
-		_traits.parent = subRoot;
+		//adjsut the left child of the newRoot
+			//let the left child of the newroot embrace its new right child
+		root->_traits.right = newRoot->_traits.left;
+		if (root->_traits.right)
+			root->_traits.right->_traits._parent = root;
+			//let the newroot welcome its left child
+		newRoot->_traits.left = root;
+		root->_traits.parent = newRoot;
 
-		//update the height of subRoot and its childs
-		subRoot->_traits.left->updateHeight();
-		subRoot->_traits.right->updateHeight();
-		subRoot->updateHeight();
+		//update the height of newRoot and its childs
+		newRoot->_traits.left->updateHeight();
+		newRoot->_traits.right->updateHeight();
+		newRoot->updateHeight();
 	}
 	/////////////////////////////////////////////////////////////////////////////////////////////////////
 	/// Rotations End
@@ -995,9 +803,8 @@ namespace ft
 
 
 	/////////////////////////////////////////////////////////////////////////////////////////////////////
-	/// Status quo helper functions (do not change the tree nodes disposition)
+	/// Node Functions
 	/////////////////////////////////////////////////////////////////////////////////////////////////////
-
 	template<typename T, typename Compare, typename Alloc>
 	void	Avl<T, Compare, Alloc>::Node::updateHeight()
 	{
@@ -1082,12 +889,12 @@ namespace ft
 		return leftHeight - rightHeight;
 	}
 	/////////////////////////////////////////////////////////////////////////////////////////////////////
-	/// Status quo helper functions End
+	/// Node Functions End
 	/////////////////////////////////////////////////////////////////////////////////////////////////////
 
 
 	/////////////////////////////////////////////////////////////////////////////////////////////////////
-	/// Getters End
+	/// Node Getters
 	/////////////////////////////////////////////////////////////////////////////////////////////////////
 	template<typename T, typename Compare, typename Alloc>
 	typename Avl<T, Compare, Alloc>::Node::value_type	Avl<T, Compare, Alloc>::Node::getValue() const
@@ -1119,12 +926,12 @@ namespace ft
 		return _traits.parent;
 	}
 	/////////////////////////////////////////////////////////////////////////////////////////////////////
-	/// Getters End
+	/// Node Getters End
 	/////////////////////////////////////////////////////////////////////////////////////////////////////
 
 
 	/////////////////////////////////////////////////////////////////////////////////////////////////////
-	/// Setters
+	/// Node Setters
 	/////////////////////////////////////////////////////////////////////////////////////////////////////
 	template<typename T, typename Compare, typename Alloc>
 	void	Avl<T, Compare, Alloc>::Node::setValue(value_type value)
@@ -1156,7 +963,7 @@ namespace ft
 		_traits.parent = parent;
 	}
 	/////////////////////////////////////////////////////////////////////////////////////////////////////
-	/// Setters End
+	/// Node Setters End
 	/////////////////////////////////////////////////////////////////////////////////////////////////////
 
 
