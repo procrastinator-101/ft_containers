@@ -267,6 +267,93 @@ namespace ft
 		/////////////////////////////////////////////////////////////////////////////////////////////////////
 
 		/////////////////////////////////////////////////////////////////////////////////////////////////////
+		/// Iterator
+		/////////////////////////////////////////////////////////////////////////////////////////////////////
+		class iterator
+		{
+			private:
+				node_pointer	_ptr;
+
+			public:
+				iterator() : _ptr(0)
+				{
+				}
+
+				iterator(node_pointer ptr) : _ptr(ptr)
+				{
+				}
+
+				iterator(const iterator& src) : _ptr(src._ptr)
+				{
+				}
+
+				iterator	operator=(const iterator& rop)
+				{
+					if (this == &rop)
+						return *this;
+					_ptr = rop._ptr;
+					return *this;
+				}
+
+				friend bool	operator==(const iterator& lhs, const iterator& rhs)
+				{
+					return lhs._ptr == rhs._ptr;
+				}
+
+				friend bool	operator!=(const iterator& lhs, const iterator& rhs)
+				{
+					return lhs._ptr != rhs._ptr;
+				}
+
+				reference	operator*()
+				{
+					return _ptr->_value;
+				}
+
+				const_reference	operator*() const
+				{
+					return _ptr->_value;
+				}
+
+				pointer	operator->()
+				{
+					return &(_ptr->_value);
+				}
+
+				iterator	&operator++()
+				{
+					_ptr = _ptr->getInOrderSuccessor();
+					return *this;
+				}
+
+				iterator	operator++(int n)
+				{
+					iterator	ret(*this);
+
+					_ptr = _ptr->getInOrderSuccessor();
+					return ret;
+				}
+
+				iterator	&operator--()
+				{
+					_ptr = _ptr->getInOrderPredeccessor();
+					return *this;
+				}
+
+				iterator	operator--(int n)
+				{
+					iterator	ret(*this);
+
+					_ptr = _ptr->getInOrderPredeccessor();
+					return ret;
+				}
+
+		};
+		/////////////////////////////////////////////////////////////////////////////////////////////////////
+		/// Iterator End
+		/////////////////////////////////////////////////////////////////////////////////////////////////////
+
+		/////////////////////////////////////////////////////////////////////////////////////////////////////
 		/// private data members
 		/////////////////////////////////////////////////////////////////////////////////////////////////////
 		private:
@@ -283,41 +370,42 @@ namespace ft
 		/////////////////////////////////////////////////////////////////////////////////////////////////////
 		/// External
 		/////////////////////////////////////////////////////////////////////////////////////////////////////
-		friend void	printTree(std::ostream& ostr, const_node_pointer root, Trunk *prev, bool isLeft)
-		{
-			if (root == nullptr) {
-				return;
-			}
-		
-			std::string prev_str = "    ";
-			Trunk *trunk = new Trunk(prev, prev_str);
-		
-			printTree(ostr, root->getRight(), trunk, true);
-		
-			if (!prev) {
-				trunk->str = "———";
-			}
-			else if (isLeft)
+		public:
+			friend void	printTree(std::ostream& ostr, const_node_pointer root, Trunk *prev, bool isLeft)
 			{
-				trunk->str = ".———";
-				prev_str = "   |";
+				if (root == nullptr) {
+					return;
+				}
+			
+				std::string prev_str = "    ";
+				Trunk *trunk = new Trunk(prev, prev_str);
+			
+				printTree(ostr, root->getRight(), trunk, true);
+			
+				if (!prev) {
+					trunk->str = "———";
+				}
+				else if (isLeft)
+				{
+					trunk->str = ".———";
+					prev_str = "   |";
+				}
+				else {
+					trunk->str = "`———";
+					prev->str = prev_str;
+				}
+			
+				showTrunks(ostr, trunk);
+				// ostr << " " << root->getValue() << "(" << root->getHeight() << ")" << std::endl;
+				// ostr << " (" << root->getValue() << " | " << (root->getParent() ? root->getParent()->getValue() : -1) << ")" << std::endl;
+				ostr << " " << root->getValue() << std::endl;
+				if (prev) {
+					prev->str = prev_str;
+				}
+				trunk->str = "   |";
+			
+				printTree(ostr, root->getLeft(), trunk, false);
 			}
-			else {
-				trunk->str = "`———";
-				prev->str = prev_str;
-			}
-		
-			showTrunks(ostr, trunk);
-			// ostr << " " << root->getValue() << "(" << root->getHeight() << ")" << std::endl;
-			// ostr << " (" << root->getValue() << " | " << (root->getParent() ? root->getParent()->getValue() : -1) << ")" << std::endl;
-			ostr << " " << root->getValue() << std::endl;
-			if (prev) {
-				prev->str = prev_str;
-			}
-			trunk->str = "   |";
-		
-			printTree(ostr, root->getLeft(), trunk, false);
-		}
 		/////////////////////////////////////////////////////////////////////////////////////////////////////
 		/// External End
 		/////////////////////////////////////////////////////////////////////////////////////////////////////
