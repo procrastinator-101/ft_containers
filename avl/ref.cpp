@@ -241,6 +241,15 @@ int main(int argc, char **argv)
 
 	printTree(std::cout, root, nullptr, false);
 
+  char c = 0;
+	int val = 0;
+	while (c != 's')
+	{
+		std::cin >> val;
+		std::cin >> c;
+		root = deleteNode(root, val);
+    printTree(std::cout, root, nullptr, false);
+	}
 	// int nb;
 
 	// std::cin >> nb;

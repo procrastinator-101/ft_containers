@@ -165,7 +165,7 @@ namespace ft
 
 			typedef typename Node::size_type size_type;
 
-		// private://!!!!!!!!!!!!!!!!!!!!!!!!!
+		private:
 			typedef typename Node::node_pointer node_pointer;
 			typedef typename Node::const_node_pointer const_node_pointer;
 			typedef typename Node::node_reference node_reference;
@@ -218,11 +218,6 @@ namespace ft
 			}
 
 			friend std::ostream &operator<< <>(std::ostream& ostr, const Avl& tree);
-
-			node_pointer	getRoot() const
-			{
-				return _root;
-			}
 		/////////////////////////////////////////////////////////////////////////////////////////////////////
 		/// destructors, constructors, and assignment operators End
 		/////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -270,7 +265,6 @@ namespace ft
 		/// private data members
 		/////////////////////////////////////////////////////////////////////////////////////////////////////
 		private:
-		public://!!!!!!!!!!!!!!!!!! to take off
 			node_pointer	_root;
 			allocator_type	_allocator;
 			node_allocator_type	_nodeAllocator;
@@ -623,19 +617,29 @@ namespace ft
 			if (Compare()(val, current->_value))
 			{
 				if (current->_traits.left)
+				{
 					current = current->_traits.left;
+					continue ;
+				}
+				break ;
 			}
 			else if (Compare()(current->_value, val))
 			{
 				if (current->_traits.right)
+				{
 					current = current->_traits.right;
+					continue ;
+				}
+				break ;
 			}
 			else
 			{
 				//the to-delete node has a both childs
 				if (current->_traits.left && current->_traits.right)
 				{
+					std::cout << "looking for candidate" << std::endl;
 					candidate = current->getInOrderSuccessor();
+					std::cout << "candidate found : " << candidate->_value << std::endl;
 					_swap(current, candidate);
 					candidate->updateHeight();
 				}
@@ -649,11 +653,13 @@ namespace ft
 				//the to-delete node has a right child only
 				else if (current->_traits.right)
 					_replace(current, current->_traits.right);
-				//update the height of the upper subtree and balance
 				while (parent)
 				{
 					parent->updateHeight();
+					// std::cout << "height : " << parent->getHeight() << std::endl;
+					// std::cout << "balanceFactor : " << parent->getBalanceFactor() << std::endl;
 					_balance(parent);
+					// std::cout << "balanceFactor End: " << parent->getBalanceFactor() << std::endl;
 					parent = parent->_traits.parent;
 				}
 				_destroyNode(current);

@@ -1,6 +1,6 @@
 #!/bin/bash
 
-# g++ -o ref ref.cpp 
+g++ -o ref ref.cpp 
 # make; make clean
 
 
