@@ -78,6 +78,7 @@ int main()
 	for (size_t i = 0; i < nums.size(); i++)
 	{
 		std::cout << "rit[" << i << "] == stdrit[" << i << "] : " << (rit[i] == stdrit[i]) << std::endl;
+		std::cout << "rit->_val == stdrit->_val" << " : " << (rit->_val == stdrit->_val) << std::endl;
 	}
 	
 	std::cout << std::setw(20) << "ritEnd - rit == stdritEnd - stdrit" << " : " << (ritEnd - rit == stdritEnd - stdrit) << std::endl;
@@ -94,5 +95,8 @@ int main()
 
 	std::cout << std::setw(20) << "rit - ritEnd == stdrit - stdritEnd" << " : " << (rit - ritEnd == stdrit - stdritEnd) << std::endl;
 	std::cout << std::setw(20) << "ritEnd - rit == stdritEnd - stdrit" << " : " << (ritEnd - rit == stdritEnd - stdrit) << std::endl;
+
+
+
 	return 0;
 }

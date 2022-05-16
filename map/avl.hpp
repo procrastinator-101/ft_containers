@@ -5,6 +5,8 @@
 #include <stack>
 #include <iostream>
 
+#include "treeIterator.hpp"
+
 namespace ft
 {
 	template<typename T, typename Compare, typename Alloc>
@@ -39,8 +41,8 @@ namespace ft
 		/////////////////////////////////////////////////////////////////////////////////////////////////////
 		/// Node class Defintion
 		/////////////////////////////////////////////////////////////////////////////////////////////////////
-		// private:
-		private:
+		// private:///!!!!!!!!!!!!!!
+		public:
 			class Node
 			{
 				/////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -59,6 +61,8 @@ namespace ft
 					typedef const Node* const_node_pointer;
 					typedef Node& node_reference;
 					typedef const Node& const_node_reference;
+
+					typedef Alloc allocator_type;
 
 					typedef size_t size_type;
 				/////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -159,9 +163,14 @@ namespace ft
 			typedef typename Node::reference reference;
 			typedef typename Node::const_reference const_reference;
 
+
 			typedef Alloc allocator_type;
-			typedef typename allocator_type::template rebind<Node>::other node_allocator_type;
-			typedef typename allocator_type::template rebind<typename Node::Traits>::other traits_allocator_type;
+			typedef typename allocator_type::template rebind<Node>::other node_allocator_type;//!!!!!!!!!!
+			typedef typename allocator_type::template rebind<typename Node::Traits>::other traits_allocator_type;//!!!!!!!!
+
+
+			typedef treeIterator<Node> iterator;
+			typedef treeIterator<typename Avl<const value_type, value_compare, allocator_type>::Node> const_iterator;
 
 			typedef typename Node::size_type size_type;
 
@@ -181,15 +190,15 @@ namespace ft
 		/// destructors, constructors, and assignment operators
 		/////////////////////////////////////////////////////////////////////////////////////////////////////
 		public:
-			Avl() : _root(0), _allocator(allocator_type()), _nodeAllocator(node_allocator_type())
+			Avl() : _root(0), _begin(_root), _last(_root), _allocator(), _nodeAllocator(), _traits_allocator(traits_allocator_type())
 			{
 			}
 
-			Avl(node_pointer root) : _root(root)
+			Avl(node_pointer root) : _root(0), _begin(_root), _last(_root), _allocator(), _nodeAllocator(), _traits_allocator(traits_allocator_type())
 			{
 			}
 
-			Avl(const Avl& src) : _root(0), _allocator(src._allocator), _nodeAllocator(src._nodeAllocator)
+			Avl(const Avl& src) : _root(0), _begin(0), _last(0), _allocator(src._allocator), _nodeAllocator(src._nodeAllocator), _traits_allocator(src._traits_allocator)
 			{
 				node_pointer	tmp;
 				node_pointer	node;
@@ -222,6 +231,99 @@ namespace ft
 			node_pointer	getRoot() const
 			{
 				return _root;
+			}
+
+			iterator	begin()
+			{
+				return iterator(_begin);
+			}
+
+			void	_updateBoundsInsert(node_pointer newRoot)
+			{
+				_begin = newRoot;
+				_last = newRoot;
+			}
+
+			//parent and node are valid pointer (not null)
+			void	_updateBoundsInsert(node_pointer parent, node_pointer node)
+			{
+				if (parent == _last && parent->_traits.right == node)
+					_last = node;
+				if (parent == _begin && parent->_traits.left == node)
+					_begin = node;
+			}
+
+			void	_updateBoundsDelete()
+			{
+				_begin = 0;
+				_last = 0;
+			}
+
+			//parent and node are valid pointer (not null)
+			void	_updateBoundsDelete(node_pointer parent, node_pointer node)
+			{
+				if (parent == _last && parent->_traits.right == node)
+					_last = node;
+				if (parent == _begin && parent->_traits.left == node)
+					_begin = node;
+			}
+
+			void	_retroBalance(node_pointer node)
+			{
+				while (node)
+				{
+					node->updateHeight();
+					_balance(node);
+					node = node->_traits.parent;
+				}
+			}
+
+			void	_delete(node_pointer node)
+			{
+				node_pointer	parent;
+				node_pointer	candidate;
+
+				//the to-delete node has a both childs
+				if (node->_traits.left && node->_traits.right)
+				{
+					candidate = node->getInOrderSuccessor();
+					_swap(node, candidate);
+					candidate->updateHeight();
+				}
+				parent = node->_traits.parent;
+				//the to-delete node has no children
+				if (!node->_traits.left && !node->_traits.right)
+					_isolate(node);
+				//the to-delete node has a left child only
+				else if (node->_traits.left)
+					_replace(node, node->_traits.left);
+				//the to-delete node has a right child only
+				else if (node->_traits.right)
+					_replace(node, node->_traits.right);
+				//update the height of the upper subtree and balance
+				_retroBalance(parent);
+				_destroyNode(node);
+			}
+
+			void	_putInPosition(node_pointer parent, node_pointer node, bool isLeft)
+			{
+				if (isLeft)
+				{
+					parent->_traits.left = node;
+					node->_traits.parent = parent;
+				}
+				else
+				{
+					parent->_traits.right = node;
+					node->_traits.parent = parent;
+				}
+				_updateBoundsInsert(parent, node);
+			}
+
+			void	_putInPosition(node_pointer oldNode, node_pointer newNode)
+			{
+				oldNode->_value = newNode->_value;
+				_destroyNode(newNode);
 			}
 		/////////////////////////////////////////////////////////////////////////////////////////////////////
 		/// destructors, constructors, and assignment operators End
@@ -266,92 +368,6 @@ namespace ft
 		/// Nodes manipulation functions End
 		/////////////////////////////////////////////////////////////////////////////////////////////////////
 
-		/////////////////////////////////////////////////////////////////////////////////////////////////////
-		/// Iterator
-		/////////////////////////////////////////////////////////////////////////////////////////////////////
-		class iterator
-		{
-			private:
-				node_pointer	_ptr;
-
-			public:
-				iterator() : _ptr(0)
-				{
-				}
-
-				iterator(node_pointer ptr) : _ptr(ptr)
-				{
-				}
-
-				iterator(const iterator& src) : _ptr(src._ptr)
-				{
-				}
-
-				iterator	operator=(const iterator& rop)
-				{
-					if (this == &rop)
-						return *this;
-					_ptr = rop._ptr;
-					return *this;
-				}
-
-				friend bool	operator==(const iterator& lhs, const iterator& rhs)
-				{
-					return lhs._ptr == rhs._ptr;
-				}
-
-				friend bool	operator!=(const iterator& lhs, const iterator& rhs)
-				{
-					return lhs._ptr != rhs._ptr;
-				}
-
-				reference	operator*()
-				{
-					return _ptr->_value;
-				}
-
-				const_reference	operator*() const
-				{
-					return _ptr->_value;
-				}
-
-				pointer	operator->()
-				{
-					return &(_ptr->_value);
-				}
-
-				iterator	&operator++()
-				{
-					_ptr = _ptr->getInOrderSuccessor();
-					return *this;
-				}
-
-				iterator	operator++(int n)
-				{
-					iterator	ret(*this);
-
-					_ptr = _ptr->getInOrderSuccessor();
-					return ret;
-				}
-
-				iterator	&operator--()
-				{
-					_ptr = _ptr->getInOrderPredeccessor();
-					return *this;
-				}
-
-				iterator	operator--(int n)
-				{
-					iterator	ret(*this);
-
-					_ptr = _ptr->getInOrderPredeccessor();
-					return ret;
-				}
-
-		};
-		/////////////////////////////////////////////////////////////////////////////////////////////////////
-		/// Iterator End
-		/////////////////////////////////////////////////////////////////////////////////////////////////////
 
 		/////////////////////////////////////////////////////////////////////////////////////////////////////
 		/// private data members
@@ -359,6 +375,8 @@ namespace ft
 		private:
 		public://!!!!!!!!!!!!!!!!!! to take off
 			node_pointer	_root;
+			node_pointer	_last;
+			node_pointer	_begin;
 			allocator_type	_allocator;
 			node_allocator_type	_nodeAllocator;
 			traits_allocator_type	_traits_allocator;
@@ -646,7 +664,10 @@ namespace ft
 
 		node = _createNode(val);
 		if (!_root)
+		{
 			_root = node;
+			_updateBoundsInsert(_root, node);
+		}
 		else
 		{
 			current = _root;
@@ -656,53 +677,37 @@ namespace ft
 				if (Compare()(node->_value, current->_value))
 				{
 					if (current->_traits.left)
-					{
 						current = current->_traits.left;
-						continue ;
-					}
 					else
 					{
-						current->_traits.left = node;
-						node->_traits.parent = current;
+						_putInPosition(current, node, true);
 						break ;
 					}
 				}
 				else if (Compare()(current->_value, node->_value))
 				{
 					if (current->_traits.right)
-					{
 						current = current->_traits.right;
-						continue ;
-					}
 					else
 					{
-						current->_traits.right = node;
-						node->_traits.parent = current;
+						_putInPosition(current, node, false);
 						break ;
 					}
 				}
 				else
 				{
-					current->_value = node->_value;
-					_destroyNode(node);
+					_putInPosition(current, node);
 					break ;
 				}
 			}
-			while (current)
-			{
-				current->updateHeight();
-				_balance(current);
-				current = current->_traits.parent;
-			}
+			_retroBalance(current);
 		}
 	}
 
 	template<typename T, typename Compare, typename Alloc>
 	void	Avl<T, Compare, Alloc>::erase(const value_type& val)
 	{
-		node_pointer	parent;
 		node_pointer	current;
-		node_pointer	candidate;
 
 		current = _root;
 		while (current)
@@ -713,38 +718,16 @@ namespace ft
 				if (current->_traits.left)
 					current = current->_traits.left;
 			}
+			//if val is grater than the current node' value : erase on the right
 			else if (Compare()(current->_value, val))
 			{
 				if (current->_traits.right)
 					current = current->_traits.right;
 			}
+			//if val is equal to the current node' value : erase the current node
 			else
 			{
-				//the to-delete node has a both childs
-				if (current->_traits.left && current->_traits.right)
-				{
-					candidate = current->getInOrderSuccessor();
-					_swap(current, candidate);
-					candidate->updateHeight();
-				}
-				parent = current->_traits.parent;
-				//the to-delete node has no children
-				if (!current->_traits.left && !current->_traits.right)
-					_isolate(current);
-				//the to-delete node has a left child only
-				else if (current->_traits.left)
-					_replace(current, current->_traits.left);
-				//the to-delete node has a right child only
-				else if (current->_traits.right)
-					_replace(current, current->_traits.right);
-				//update the height of the upper subtree and balance
-				while (parent)
-				{
-					parent->updateHeight();
-					_balance(parent);
-					parent = parent->_traits.parent;
-				}
-				_destroyNode(current);
+				_delete(current);
 				break ;
 			}
 		}
