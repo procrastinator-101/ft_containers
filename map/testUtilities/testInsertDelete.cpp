@@ -134,7 +134,7 @@ namespace ft
           root = NULL;
         } else
           *root = *temp;
-        free(temp);
+        delete temp;
       } else {
         Node *temp = nodeWithMimumValue(root->right);
         root->key = temp->key;
@@ -172,7 +172,7 @@ namespace ft
 
   void showTrunks(std::ostream& ostr, Trunk *p)
   {
-    if (p == nullptr) {
+    if (p == 0) {
       return;
     }
   
@@ -181,7 +181,7 @@ namespace ft
   }
   void printTree(std::ostream& ostr, Node* root, Trunk *prev, bool isLeft)
   {
-    if (root == nullptr) {
+    if (root == 0) {
       return;
     }
   
@@ -248,7 +248,7 @@ void	testInsertDelete(std::vector<int>& numbers)
 		if (ret == false)
 		{
 			a.show();
-			printTree(std::cout, root, nullptr, false);
+			printTree(std::cout, root, 0, false);
 			std::cout << "insert : KO !!!!!!!!" << std::endl;
 			return ;
 		}
@@ -264,7 +264,7 @@ void	testInsertDelete(std::vector<int>& numbers)
 		if (ret == false)
 		{
 			a.show();
-			printTree(std::cout, root, nullptr, false);
+			printTree(std::cout, root, 0, false);
 			std::cout << "delete : KO !!!!!!!!" << std::endl;
 			return ;
 		}

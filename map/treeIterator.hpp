@@ -26,7 +26,7 @@ namespace ft
 			typedef Tree* tree_pointer;
 
 		private:
-			typedef Tree* node_pointer;
+			typedef typename Tree::Node* node_pointer;
 			typedef typename Tree::Node::value_compare value_compare;
 			typedef typename Tree::Node::allocator_type allocator_type;
 			typedef typename Avl<const value_type, value_compare, allocator_type>::iterator const_iterator;
@@ -38,16 +38,18 @@ namespace ft
 			tree_pointer	_tree;
 			node_pointer	_ptr;
 
+			bool			_isEnd;
+
 		public:
-			treeIterator() : _tree(0), _ptr(0)
+			treeIterator() : _tree(0), _ptr(0), _isEnd(false)
 			{
 			}
 
-			treeIterator(node_pointer ptr, tree_pointer tree) : _tree(tree), _ptr(ptr)
+			treeIterator(node_pointer ptr, tree_pointer tree) : _tree(tree), _ptr(ptr), _isEnd(_ptr == tree->_last)
 			{
 			}
 
-			treeIterator(const treeIterator& src) : _tree(src._tree), _ptr(src._ptr)
+			treeIterator(const treeIterator& src) : _tree(src._tree), _ptr(src._ptr), _isEnd(src._isEnd)
 			{
 			}
 
@@ -57,6 +59,7 @@ namespace ft
 					return *this;
 				_ptr = rop._ptr;
 				_tree = rop._tree;
+				_isEnd = rop._isEnd;
 				return *this;
 			}
 
@@ -87,23 +90,18 @@ namespace ft
 
 			treeIterator	&operator++()
 			{
-				node_pointer	prev;
-
 				//end or after end
 				if (!_ptr)
 				{
 					_isEnd = false;
-					_last = 0;
 					return *this;
 				}
 				//inside the sequence
-				prev = _ptr;
 				_ptr = _ptr->getInOrderSuccessor();
 				if (_ptr)
 					return *this;
 				//point at end now
 				_isEnd = true;
-				_last = prev;
 				return *this;
 			}
 
@@ -116,7 +114,6 @@ namespace ft
 				if (!_ptr)
 				{
 					_isEnd = false;
-					_last = 0;
 					return ret;
 				}
 				//inside the sequence
@@ -125,7 +122,6 @@ namespace ft
 					return ret;
 				//point at end now
 				_isEnd = true;
-				_last = ret._ptr;
 				return ret;
 			}
 
@@ -134,9 +130,8 @@ namespace ft
 				//at end : return last and restore the normal iterator state
 				if (_isEnd)
 				{
-					_ptr = _last;
+					_ptr = _tree->_last;
 					_isEnd = false;
-					_last = 0;
 				}
 				//inside the sequence
 				else if (_ptr)
@@ -153,9 +148,8 @@ namespace ft
 				//at end : return last and restore the normal iterator state
 				if (_isEnd)
 				{
-					_ptr = _last;
+					_ptr = _tree->_last;
 					_isEnd = false;
-					_last = 0;
 				}
 				//inside the sequence
 				else if (_ptr)

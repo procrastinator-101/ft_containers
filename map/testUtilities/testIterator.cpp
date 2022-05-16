@@ -21,6 +21,50 @@
 // 	std::cout << it->first << std::endl;
 // }
 
+template<typename T>
+void	testAvlRevIter(const std::map<T, T>& m, const ft::Avl<T, std::less<T>, std::allocator<T> >& tree)
+{
+	typename std::map<T, T>::reverse_iterator	mit = m.rbegin();
+	typename ft::Avl<T, std::less<T>, std::allocator<T> >::reverse_iterator	it = tree.rbegin();
+
+	while (it != tree.rend())
+	{
+		if (mit->first != *it)
+		{
+			std::cout << "RevIter KO !!!!" << std::endl;
+		}
+		++it;
+		++mit;
+	}
+}
+
+template<typename T>
+void	testAvlIter(const std::map<T, T>& m, const ft::Avl<T, std::less<T>, std::allocator<T> >& tree)
+{
+	std::cout << "ok" << std::endl;
+	typename ft::Avl<T, std::less<T>, std::allocator<T> >::iterator	it = tree.begin();
+	std::cout << "ok !" << std::endl;
+	std::cout << *it << std::endl;
+	std::cout << "ok End" << std::endl;
+	for (it = tree.begin(); it != tree.end(); ++it)
+	{
+		std::cout << *it << std::endl;
+	}
+	typename ft::Avl<T, std::less<T>, std::allocator<T> >::iterator	ite = tree.end();
+
+	tree.erase(11);
+	// ++ite;
+	--ite;
+	std::cout << *ite << std::endl;
+
+	typename std::map<T, T>::iterator	mite = m.end();
+
+	m.erase(11);
+	// ++ite;
+	--mite;
+	std::cout << mite->first << std::endl;
+}
+
 void	testAvlIterator(int n)
 {
 	std::map<int, int>	m;
@@ -32,27 +76,7 @@ void	testAvlIterator(int n)
 		m.insert(std::make_pair(i, i));
 	}
 	tree.show();
-	std::cout << "ok" << std::endl;
-	ft::Avl<int, std::less<int>, std::allocator<int> >::iterator	it = tree.begin();
-	std::cout << "ok !" << std::endl;
-	std::cout << *it << std::endl;
-	std::cout << "ok End" << std::endl;
-	for (it = tree.begin(); it != tree.end(); ++it)
-	{
-		std::cout << *it << std::endl;
-	}
-	// ft::Avl<int, std::less<int>, std::allocator<int> >::iterator	ite = tree.end();
+	testAvlRevIter(m, tree);
 
-	// tree.erase(11);
-	// // ++ite;
-	// --ite;
-	// std::cout << *ite << std::endl;
-
-	std::map<int, int>::iterator	mite = m.end();
-
-	m.erase(11);
-	// ++ite;
-	--mite;
-	std::cout << mite->first << std::endl;
 
 }

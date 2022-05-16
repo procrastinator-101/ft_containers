@@ -4,8 +4,8 @@
 #include <cstdlib>
 #include <stack>
 #include <iostream>
-
 #include "treeIterator.hpp"
+#include "../iterator/reverse_iterator.hpp"
 
 namespace ft
 {
@@ -169,8 +169,9 @@ namespace ft
 			typedef typename allocator_type::template rebind<typename Node::Traits>::other traits_allocator_type;//!!!!!!!!
 
 
-			typedef treeIterator<Node> iterator;
-			typedef treeIterator<typename Avl<const value_type, value_compare, allocator_type>::Node> const_iterator;
+			typedef treeIterator<Avl> iterator;
+			typedef ft::reverse_iterator<iterator> reverse_iterator;
+			typedef treeIterator<Avl<const value_type, value_compare, allocator_type> > const_iterator;
 
 			typedef typename Node::size_type size_type;
 
@@ -220,6 +221,11 @@ namespace ft
 				}
 			}
 
+			~Avl()
+			{
+				clear();
+			}
+
 			void	show() const
 			{
 				if (_root)
@@ -233,15 +239,39 @@ namespace ft
 				return _root;
 			}
 
-			iterator	begin()
+			iterator	begin() const
 			{
 				// std::cout << "begin : " << _begin << std::endl;
-				return iterator(_begin);
+				return iterator(_begin, this);
 			}
 
-			iterator	end()
+			iterator	end() const
 			{
-				return iterator(0, _last);
+				return iterator(0, this);
+			}
+
+			reverse_iterator	rbegin() const
+			{
+				return reverse_iterator(end());
+			}
+			reverse_iterator	rend() const
+			{
+				return reverse_iterator(begin());
+			}
+
+			void	_destorySubtree(node_pointer &root)
+			{
+				if (!root)
+					return;
+				_destorySubtree(root->_traits.left);
+				_destorySubtree(root->_traits.right);
+				_destroyNode(root);
+				root = 0;
+			}
+
+			void	clear()
+			{
+				_destorySubtree(_root);
 			}
 
 			void	_updateBoundsInsert(node_pointer node)
@@ -404,7 +434,7 @@ namespace ft
 		public:
 			friend void	printTree(std::ostream& ostr, const_node_pointer root, Trunk *prev, bool isLeft)
 			{
-				if (root == nullptr) {
+				if (root == 0) {
 					return;
 				}
 			
@@ -436,6 +466,7 @@ namespace ft
 				trunk->str = "   |";
 			
 				printTree(ostr, root->getLeft(), trunk, false);
+				delete trunk;
 			}
 		/////////////////////////////////////////////////////////////////////////////////////////////////////
 		/// External End
@@ -1043,7 +1074,7 @@ namespace ft
 	std::ostream &operator<<(std::ostream& ostr, const Avl<T, Compare, Alloc>& tree)
 	{
 		ostr << "======================================================================================================================" << std::endl;
-		printTree(ostr, tree._root, nullptr, false);
+		printTree(ostr, tree._root, 0, false);
 		ostr << "======================================================================================================================" << std::endl;
 		return ostr;
 	}
