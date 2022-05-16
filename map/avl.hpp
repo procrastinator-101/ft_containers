@@ -190,15 +190,15 @@ namespace ft
 		/// destructors, constructors, and assignment operators
 		/////////////////////////////////////////////////////////////////////////////////////////////////////
 		public:
-			Avl() : _root(0), _begin(_root), _last(_root), _allocator(), _nodeAllocator(), _traits_allocator(traits_allocator_type())
+			Avl() : _root(0), _last(_root), _begin(_root), _allocator(allocator_type()), _nodeAllocator(node_allocator_type()), _traits_allocator(traits_allocator_type())
 			{
 			}
 
-			Avl(node_pointer root) : _root(0), _begin(_root), _last(_root), _allocator(), _nodeAllocator(), _traits_allocator(traits_allocator_type())
+			Avl(node_pointer root) : _root(root), _last(_root), _begin(_root), _allocator(), _nodeAllocator(), _traits_allocator(traits_allocator_type())
 			{
 			}
 
-			Avl(const Avl& src) : _root(0), _begin(0), _last(0), _allocator(src._allocator), _nodeAllocator(src._nodeAllocator), _traits_allocator(src._traits_allocator)
+			Avl(const Avl& src) : _root(0), _last(0), _begin(0), _allocator(src._allocator), _nodeAllocator(src._nodeAllocator), _traits_allocator(src._traits_allocator)
 			{
 				node_pointer	tmp;
 				node_pointer	node;
@@ -235,37 +235,39 @@ namespace ft
 
 			iterator	begin()
 			{
+				// std::cout << "begin : " << _begin << std::endl;
 				return iterator(_begin);
 			}
 
-			void	_updateBoundsInsert(node_pointer newRoot)
+			iterator	end()
 			{
-				_begin = newRoot;
-				_last = newRoot;
+				return iterator(0, _last);
 			}
 
-			//parent and node are valid pointer (not null)
-			void	_updateBoundsInsert(node_pointer parent, node_pointer node)
+			void	_updateBoundsInsert(node_pointer node)
 			{
-				if (parent == _last && parent->_traits.right == node)
-					_last = node;
-				if (parent == _begin && parent->_traits.left == node)
-					_begin = node;
+				node_pointer	tmp;
+
+				if (node == _begin)
+				{
+					tmp = node->getInOrderPredeccessor();
+					if (tmp)
+						_begin = tmp;
+				}
+				if (node == _last)
+				{
+					tmp = node->getInOrderSuccessor();
+					if (tmp)
+						_last = tmp;
+				}
 			}
 
-			void	_updateBoundsDelete()
+			void	_updateBoundsDelete(node_pointer node)
 			{
-				_begin = 0;
-				_last = 0;
-			}
-
-			//parent and node are valid pointer (not null)
-			void	_updateBoundsDelete(node_pointer parent, node_pointer node)
-			{
-				if (parent == _last && parent->_traits.right == node)
-					_last = node;
-				if (parent == _begin && parent->_traits.left == node)
-					_begin = node;
+				if (node == _begin)
+					_begin = node->getInOrderSuccessor();
+				if (node == _last)
+					_last = node->getInOrderPredeccessor();
 			}
 
 			void	_retroBalance(node_pointer node)
@@ -283,6 +285,7 @@ namespace ft
 				node_pointer	parent;
 				node_pointer	candidate;
 
+				_updateBoundsDelete(node);
 				//the to-delete node has a both childs
 				if (node->_traits.left && node->_traits.right)
 				{
@@ -317,13 +320,23 @@ namespace ft
 					parent->_traits.right = node;
 					node->_traits.parent = parent;
 				}
-				_updateBoundsInsert(parent, node);
+				_updateBoundsInsert(parent);
 			}
 
 			void	_putInPosition(node_pointer oldNode, node_pointer newNode)
 			{
 				oldNode->_value = newNode->_value;
 				_destroyNode(newNode);
+			}
+
+			void	_putInPosition(node_pointer newRoot)
+			{
+				_root = newRoot;
+				_last = newRoot;
+				_begin = newRoot;
+				// std::cout << "begin : " << _begin << std::endl;
+				// std::cout << "last : " << _last << std::endl;
+				// std::cout << "root : " << _root << std::endl;
 			}
 		/////////////////////////////////////////////////////////////////////////////////////////////////////
 		/// destructors, constructors, and assignment operators End
@@ -506,13 +519,11 @@ namespace ft
 		int subBalanceFactor;
 
 		balanceFactor = node->getBalanceFactor();
-		// std::cout << "balanceFactor : " << balanceFactor << std::endl;
 		if (abs(balanceFactor) < 2)
 			return ;
 		if (balanceFactor < 0)
 		{
 			subBalanceFactor = node->_traits.right->getBalanceFactor();
-			// std::cout << "RsubBalanceFactor : " << subBalanceFactor << std::endl;
 			if (subBalanceFactor <= 0)
 				_rrRotate(node);
 			else
@@ -521,7 +532,6 @@ namespace ft
 		else
 		{
 			subBalanceFactor = node->_traits.left->getBalanceFactor();
-			// std::cout << "LsubBalanceFactor : " << subBalanceFactor << std::endl;
 			if (subBalanceFactor < 0)
 				_lrRotate(node);
 			else
@@ -664,10 +674,7 @@ namespace ft
 
 		node = _createNode(val);
 		if (!_root)
-		{
-			_root = node;
-			_updateBoundsInsert(_root, node);
-		}
+			_putInPosition(node);
 		else
 		{
 			current = _root;
@@ -684,6 +691,7 @@ namespace ft
 						break ;
 					}
 				}
+				//if the node value is greater than the current node' value : insert on the right
 				else if (Compare()(current->_value, node->_value))
 				{
 					if (current->_traits.right)
@@ -694,6 +702,7 @@ namespace ft
 						break ;
 					}
 				}
+				//if the node value is equal to the current node' value : insert in the current node
 				else
 				{
 					_putInPosition(current, node);
