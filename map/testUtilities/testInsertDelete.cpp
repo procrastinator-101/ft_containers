@@ -3,18 +3,18 @@
 
 namespace ft
 {
-  class Node {
+  class TNode {
     public:
     int key;
-    Node *left;
-    Node *right;
+    TNode *left;
+    TNode *right;
     int height;
   };
 
   int max(int a, int b);
 
   // Calculate height
-  int height(Node *N) {
+  int height(TNode *N) {
     if (N == NULL)
       return 0;
     return N->height;
@@ -25,8 +25,8 @@ namespace ft
   }
 
   // New node creation
-  Node *newNode(int key) {
-    Node *node = new Node();
+  TNode *newTNode(int key) {
+    TNode *node = new TNode();
     node->key = key;
     node->left = NULL;
     node->right = NULL;
@@ -35,9 +35,9 @@ namespace ft
   }
 
   // Rotate right
-  Node *rightRotate(Node *y) {
-    Node *x = y->left;
-    Node *T2 = x->right;
+  TNode *rightRotate(TNode *y) {
+    TNode *x = y->left;
+    TNode *T2 = x->right;
     x->right = y;
     y->left = T2;
     y->height = max(height(y->left),
@@ -50,9 +50,9 @@ namespace ft
   }
 
   // Rotate left
-  Node *leftRotate(Node *x) {
-    Node *y = x->right;
-    Node *T2 = y->left;
+  TNode *leftRotate(TNode *x) {
+    TNode *y = x->right;
+    TNode *T2 = y->left;
     y->left = x;
     x->right = T2;
     x->height = max(height(x->left),
@@ -65,7 +65,7 @@ namespace ft
   }
 
   // Get the balance factor of each node
-  int getBalanceFactor(Node *N) {
+  int getBalanceFactor(TNode *N) {
     if (N == NULL)
       return 0;
     return height(N->left) -
@@ -73,14 +73,14 @@ namespace ft
   }
 
   // Insert a node
-  Node *insertNode(Node *node, int key) {
+  TNode *insertTNode(TNode *node, int key) {
     // Find the correct postion and insert the node
     if (node == NULL)
-      return (newNode(key));
+      return (newTNode(key));
     if (key < node->key)
-      node->left = insertNode(node->left, key);
+      node->left = insertTNode(node->left, key);
     else if (key > node->key)
-      node->right = insertNode(node->right, key);
+      node->right = insertTNode(node->right, key);
     else
       return node;
 
@@ -108,27 +108,27 @@ namespace ft
     return node;
   }
 
-  // Node with minimum value
-  Node *nodeWithMimumValue(Node *node) {
-    Node *current = node;
+  // TNode with minimum value
+  TNode *nodeWithMimumValue(TNode *node) {
+    TNode *current = node;
     while (current->left != NULL)
       current = current->left;
     return current;
   }
 
   // Delete a node
-  Node *deleteNode(Node *root, int key) {
+  TNode *deleteTNode(TNode *root, int key) {
     // Find the node and delete it
     if (root == NULL)
       return root;
     if (key < root->key)
-      root->left = deleteNode(root->left, key);
+      root->left = deleteTNode(root->left, key);
     else if (key > root->key)
-      root->right = deleteNode(root->right, key);
+      root->right = deleteTNode(root->right, key);
     else {
       if ((root->left == NULL) ||
         (root->right == NULL)) {
-        Node *temp = root->left ? root->left : root->right;
+        TNode *temp = root->left ? root->left : root->right;
         if (temp == NULL) {
           temp = root;
           root = NULL;
@@ -136,9 +136,9 @@ namespace ft
           *root = *temp;
         delete temp;
       } else {
-        Node *temp = nodeWithMimumValue(root->right);
+        TNode *temp = nodeWithMimumValue(root->right);
         root->key = temp->key;
-        root->right = deleteNode(root->right,
+        root->right = deleteTNode(root->right,
                     temp->key);
       }
     }
@@ -179,7 +179,7 @@ namespace ft
     showTrunks(ostr, p->prev);
     ostr << p->str;
   }
-  void printTree(std::ostream& ostr, Node* root, Trunk *prev, bool isLeft)
+  void printTree(std::ostream& ostr, TNode* root, Trunk *prev, bool isLeft)
   {
     if (root == 0) {
       return;
@@ -216,7 +216,7 @@ namespace ft
   }
 
   template<typename T, typename Compare, typename Alloc>
-  bool	compareTrees(const typename ft::Avl<T, Compare, Alloc>::node_pointer a, const Node *b)
+  bool	compareTrees(const typename ft::Avl<T, Compare, Alloc>::node_pointer a, const TNode *b)
   {
     bool	ret;
 
@@ -238,12 +238,12 @@ void	testInsertDelete(std::vector<int>& numbers)
 	int		idx;
 	bool	ret;
 
-	ft::Node *root = NULL;
+	ft::TNode *root = NULL;
 	ft::Avl<int, std::less<int>, std::allocator<int> >	a;
 	for (size_t i = 0; i < numbers.size(); i++)
 	{
 		a.insert(numbers[i]);
-		root = insertNode(root, numbers[i]);
+		root = insertTNode(root, numbers[i]);
 		ret = ft::compareTrees<int, std::less<int>, std::allocator<int> >(a._root, root);
 		if (ret == false)
 		{
@@ -259,7 +259,7 @@ void	testInsertDelete(std::vector<int>& numbers)
 	{
 		idx = std::rand() % numbers.size();
 		a.erase(numbers[idx]);
-		root = deleteNode(root, numbers[idx]);
+		root = deleteTNode(root, numbers[idx]);
 		ret = ft::compareTrees<int, std::less<int>, std::allocator<int> >(a._root, root);
 		if (ret == false)
 		{

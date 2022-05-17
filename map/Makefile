@@ -21,7 +21,7 @@ TEST_UTILITIES_PATH = testUtilities
 
 TEST_UTILITIES_SRC = avl.cpp
 
-TEST_UTILITIES_HDR = avl.hpp
+TEST_UTILITIES_HDR = avl.hpp node.hpp
 
 SRC = main.cpp $(TEST_UTILITIES_SRC)
 

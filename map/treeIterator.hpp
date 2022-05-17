@@ -16,19 +16,19 @@ namespace ft
 		/////////////////////////////////////////////////////////////////////////////////////////////////////
 		public:
 			typedef std::bidirectional_iterator_tag iterator_category;
-			typedef typename Tree::Node::value_type value_type;
+			typedef typename Tree::value_type value_type;
 			typedef std::ptrdiff_t difference_type;
-			typedef typename Tree::Node::pointer pointer;
-			typedef typename Tree::Node::reference reference;
-			typedef typename Tree::Node::const_pointer const_pointer;
-			typedef typename Tree::Node::const_reference const_reference;
+			typedef typename Tree::pointer pointer;
+			typedef typename Tree::reference reference;
+			typedef typename Tree::const_pointer const_pointer;
+			typedef typename Tree::const_reference const_reference;
 
 			typedef Tree* tree_pointer;
 
 		private:
-			typedef typename Tree::Node* node_pointer;
-			typedef typename Tree::Node::value_compare value_compare;
-			typedef typename Tree::Node::allocator_type allocator_type;
+			typedef typename Tree::node_pointer node_pointer;
+			typedef typename Tree::value_compare value_compare;
+			typedef typename Tree::allocator_type allocator_type;
 			typedef typename Avl<const value_type, value_compare, allocator_type>::iterator const_iterator;
 		/////////////////////////////////////////////////////////////////////////////////////////////////////
 		/// type definitions End
