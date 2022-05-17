@@ -45,7 +45,7 @@ namespace ft
 			{
 			}
 
-			treeIterator(node_pointer ptr, tree_pointer tree) : _tree(tree), _ptr(ptr), _isEnd(_ptr == tree->_last)
+			treeIterator(node_pointer ptr, tree_pointer tree, bool isEnd) : _tree(tree), _ptr(ptr), _isEnd(isEnd)
 			{
 			}
 

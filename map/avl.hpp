@@ -239,39 +239,42 @@ namespace ft
 				return _root;
 			}
 
-			iterator	begin() const
+			iterator	begin()
 			{
 				// std::cout << "begin : " << _begin << std::endl;
-				return iterator(_begin, this);
+				return iterator(_begin, this, false);
 			}
 
-			iterator	end() const
+			iterator	end()
 			{
-				return iterator(0, this);
+				return iterator(0, this, true);
 			}
 
-			reverse_iterator	rbegin() const
+			reverse_iterator	rbegin()
 			{
 				return reverse_iterator(end());
 			}
-			reverse_iterator	rend() const
+			reverse_iterator	rend()
 			{
 				return reverse_iterator(begin());
 			}
 
-			void	_destorySubtree(node_pointer &root)
+		public:
+			void	_destorySubtree(node_pointer root)
 			{
 				if (!root)
 					return;
 				_destorySubtree(root->_traits.left);
 				_destorySubtree(root->_traits.right);
 				_destroyNode(root);
-				root = 0;
 			}
 
 			void	clear()
 			{
 				_destorySubtree(_root);
+				_root = 0;
+				_last = 0;
+				_begin = 0;
 			}
 
 			void	_updateBoundsInsert(node_pointer node)
@@ -754,16 +757,10 @@ namespace ft
 		{
 			//if val is less than the current node' value : erase on the left
 			if (Compare()(val, current->_value))
-			{
-				if (current->_traits.left)
-					current = current->_traits.left;
-			}
+				current = current->_traits.left;
 			//if val is grater than the current node' value : erase on the right
 			else if (Compare()(current->_value, val))
-			{
-				if (current->_traits.right)
-					current = current->_traits.right;
-			}
+				current = current->_traits.right;
 			//if val is equal to the current node' value : erase the current node
 			else
 			{
@@ -1081,6 +1078,12 @@ namespace ft
 	/////////////////////////////////////////////////////////////////////////////////////////////////////
 	/// Ostream operator << overload End
 	/////////////////////////////////////////////////////////////////////////////////////////////////////
+
+	template<typename T, typename Compare, typename Alloc>
+	class Avl<T, Compare, Alloc>::Node
+	{
+
+	};
 }
 
 

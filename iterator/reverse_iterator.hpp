@@ -118,7 +118,9 @@ namespace ft
 		public:
 			reference	operator*() const
 			{
-				return *(_base - 1);
+				iterator_type	tmp(_base);
+
+				return *(--tmp);
 			}
 
 			pointer	operator->() const

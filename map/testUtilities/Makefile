@@ -19,7 +19,7 @@ CFLAGS = -Wall -Werror -Wextra -std=c++98 -fsanitize=address
 
 TEST_UTILITIES_PATH = testUtilities
 
-TEST_UTILITIES_SRC = testAvl.cpp testIterator.cpp testInsertDelete.cpp
+TEST_UTILITIES_SRC = testAvl.cpp testIterator.cpp testInsertDelete.cpp ../../vector/testUtilities/display.cpp
 
 TEST_UTILITIES_HDR = ../avl.hpp testUtilities.hpp
 
