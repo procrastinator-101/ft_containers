@@ -51,7 +51,7 @@ void	testAvlRevIter(std::map<T, T>& m, ft::Avl<T, std::less<T>, std::allocator<T
 		typename std::map<T, T>::reverse_iterator	mit = m.rend();
 		typename ft::Avl<T, std::less<T>, std::allocator<T> >::reverse_iterator	it = tree.rend();
 
-		T	val = tree._root->getValue();
+		T	val = m.begin()->first;
 		// if (tree._last)
 		// 	tree._last->getValue();
 		bool	mine = 1;
@@ -85,11 +85,8 @@ void	testAvlRevIter(std::map<T, T>& m, ft::Avl<T, std::less<T>, std::allocator<T
 			std::cout << "Map empty Iter : KO !!!!!!" << std::endl;
 		std::cout << "Map empty Iter : OK" << std::endl;
 	}
-	tree.clear();
-	std::cout << "last : " << tree._last << std::endl;
-	std::cout << "root : " << tree._root << std::endl;
-	std::cout << "begin : " << tree._begin << std::endl;
 	m.clear();
+	tree.clear();
 	checkContent(m, tree);
 	displayHeader("testAvlRevIter End");
 }
@@ -120,15 +117,12 @@ void	testAvlIter(std::map<T, T>& m, ft::Avl<T, std::less<T>, std::allocator<T> >
 		typename std::map<T, T>::iterator	mit = m.end();
 		typename ft::Avl<T, std::less<T>, std::allocator<T> >::iterator	it = tree.end();
 
-		T	val = T();
-		if (tree._last)
-			tree._last->getValue();
-		(void)val;
+		T	val = m.begin()->first;
 		bool	mine = 1;
 		if (mine)
 		{
 			std::cout << "Tree start" << std::endl;
-			// tree.erase(val);
+			tree.erase(val);
 			std::cout << "Tree erase" << std::endl;
 			// ++ite;
 			--it;
@@ -139,7 +133,7 @@ void	testAvlIter(std::map<T, T>& m, ft::Avl<T, std::less<T>, std::allocator<T> >
 		std::cout << "Map start" << std::endl;
 		
 
-		// m.erase(val);
+		m.erase(val);
 		std::cout << "Map erase" << std::endl;
 		// ++ite;
 		--mit;

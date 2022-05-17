@@ -5,9 +5,6 @@
 
 namespace ft
 {
-	template<typename T, typename Compare, typename Alloc>
-	class Avl;
-
 	template<typename Tree>
 	class treeIterator
 	{
@@ -29,7 +26,6 @@ namespace ft
 			typedef typename Tree::node_pointer node_pointer;
 			typedef typename Tree::value_compare value_compare;
 			typedef typename Tree::allocator_type allocator_type;
-			typedef typename Avl<const value_type, value_compare, allocator_type>::iterator const_iterator;
 		/////////////////////////////////////////////////////////////////////////////////////////////////////
 		/// type definitions End
 		/////////////////////////////////////////////////////////////////////////////////////////////////////

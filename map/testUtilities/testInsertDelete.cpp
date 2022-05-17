@@ -215,8 +215,8 @@ namespace ft
     printTree(ostr, root->left, trunk, false);
   }
 
-  template<typename T, typename Compare, typename Alloc>
-  bool	compareTrees(const typename ft::Avl<T, Compare, Alloc>::node_pointer a, const TNode *b)
+  template<typename T, typename Compare>
+  bool	compareTrees(const Node<T, Compare>* a, const TNode *b)
   {
     bool	ret;
 
@@ -226,10 +226,10 @@ namespace ft
       return true;
     if (a->_value != b->key)
       return false;
-    ret = compareTrees<T, Compare, Alloc>(a->_traits.left, b->left);
+    ret = compareTrees(a->_traits.left, b->left);
     if (ret == false)
       return ret;
-    return compareTrees<T, Compare, Alloc>(a->_traits.right, b->right);
+    return compareTrees(a->_traits.right, b->right);
   }
 }
 
@@ -244,7 +244,7 @@ void	testInsertDelete(std::vector<int>& numbers)
 	{
 		a.insert(numbers[i]);
 		root = insertTNode(root, numbers[i]);
-		ret = ft::compareTrees<int, std::less<int>, std::allocator<int> >(a._root, root);
+		ret = ft::compareTrees(a.getRoot(), root);
 		if (ret == false)
 		{
 			a.show();
@@ -260,7 +260,7 @@ void	testInsertDelete(std::vector<int>& numbers)
 		idx = std::rand() % numbers.size();
 		a.erase(numbers[idx]);
 		root = deleteTNode(root, numbers[idx]);
-		ret = ft::compareTrees<int, std::less<int>, std::allocator<int> >(a._root, root);
+		ret = ret = ft::compareTrees(a.getRoot(), root);
 		if (ret == false)
 		{
 			a.show();
