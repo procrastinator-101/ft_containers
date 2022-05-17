@@ -4,33 +4,20 @@
 #include <map>
 #include <memory>
 #include <utility>
+#include <random>
+#include <algorithm>
 
-// static void	verbose(int n)
-// {
-// 	std::map<int, int>	m;
 
-// 	// for (int i = 0; i < 2; i++)
-// 	// 	m.insert(std::make_pair(i, i));
-// 	std::map<int, int>::iterator	it = m.end();
-
-// 	(void)n;
-// 	// ++it;
-// 	// --it;
-// 	// --it;
-// 	std::cout << &(*it) << std::endl;
-// 	// m.insert(std::make_pair(11, 12));
-// 	std::cout << it->first << std::endl;
-// }
+static bool isStdFirst = 0;
 
 template<typename T>
 void	checkContent(std::map<T, T>& m, ft::Avl<T, std::less<T>, std::allocator<T> >& tree)
 {
+	displaySubHeader("checkContent");
 	typename std::map<T, T>::reverse_iterator	mit = m.rbegin();
 	typename ft::Avl<T, std::less<T>, std::allocator<T> >::reverse_iterator	it = tree.rbegin();
-	displayHeader("checkContent");
 	while (it != tree.rend())
 	{
-		std::cout << "++++" << std::endl;
 		if (mit->first != *it)
 			std::cout << "RevIter KO !!!!" << std::endl;
 		std::cout << *it << " ";
@@ -38,7 +25,76 @@ void	checkContent(std::map<T, T>& m, ft::Avl<T, std::less<T>, std::allocator<T> 
 		++mit;
 	}
 	std::cout << std::endl;
-	displayHeader("checkContent End");
+	displaySubHeader("checkContent End");
+}
+
+template<typename T>
+void	testOutOfRangeIter(std::map<T, T>& subject, const T& toErase)
+{
+	displaySubHeader("Map testOutOfRangeIter");
+	typename std::map<T, T>::iterator	it = subject.end();
+	showPair(subject.begin(), subject.end());
+	subject.erase(toErase);
+	std::cout << "Erase : OK" << std::endl;
+	--it;
+	std::cout << "Decrement : OK" << std::endl;
+	std::cout << "lastVal : " << it->first << std::endl;
+	displaySubHeader("Map testOutOfRangeIter End");
+}
+
+template<typename T>
+void	testOutOfRangeIter(ft::Avl<T, std::less<T>, std::allocator<T> >& subject, const T& toErase)
+{
+	displaySubHeader("Tree testOutOfRangeIter");
+	typename ft::Avl<T, std::less<T>, std::allocator<T> >::iterator	it = subject.end();
+	show(subject.begin(), subject.end());
+	subject.erase(toErase);
+	std::cout << "Erase : OK" << std::endl;
+	--it;
+	std::cout << "Decrement : OK" << std::endl;
+	std::cout << "lastVal : " << *it << std::endl;
+	displaySubHeader("Tree testOutOfRangeIter End");
+}
+
+template<typename T>
+void	testEmptyMap(std::map<T, T>& subject)
+{
+	displaySubHeader("Map testEmpties");
+	if (subject.begin() != subject.end())
+		std::cout << "Map empty Iter : KO !!!!!!" << std::endl;
+	std::cout << "Map empty Iter : OK" << std::endl;
+	if (subject.rbegin() != subject.rend())
+		std::cout << "Map empty Reverse Iter : KO !!!!!!" << std::endl;
+	std::cout << "Map empty Reverse Iter : OK" << std::endl;
+	displaySubHeader("Map testEmpties End");
+}
+
+template<typename T>
+void	testEmptyTree(ft::Avl<T, std::less<T>, std::allocator<T> >& subject)
+{
+	displaySubHeader("Tree testEmpties");
+	if (subject.begin() != subject.end())
+		std::cout << "Tree empty Iter : KO !!!!!!" << std::endl;
+	std::cout << "Tree empty Iter : OK" << std::endl;
+	if (subject.rbegin() != subject.rend())
+		std::cout << "Tree empty Reverse Iter : KO !!!!!!" << std::endl;
+	std::cout << "Tree empty Reverse Iter : OK" << std::endl;
+	displaySubHeader("Tree testEmpties End");
+}
+
+template<typename T>
+void	testEmpties(std::map<T, T>& m, ft::Avl<T, std::less<T>, std::allocator<T> >& tree)
+{
+	if (isStdFirst)
+	{
+		testEmptyMap(m);
+		testEmptyTree(tree);
+	}
+	else
+	{
+		testEmptyTree(tree);
+		testEmptyMap(m);
+	}
 }
 
 template<typename T>
@@ -48,42 +104,21 @@ void	testAvlRevIter(std::map<T, T>& m, ft::Avl<T, std::less<T>, std::allocator<T
 	checkContent(m, tree);
 	if (!m.empty())
 	{
-		typename std::map<T, T>::reverse_iterator	mit = m.rend();
-		typename ft::Avl<T, std::less<T>, std::allocator<T> >::reverse_iterator	it = tree.rend();
-
 		T	val = m.begin()->first;
-		// if (tree._last)
-		// 	tree._last->getValue();
-		bool	mine = 1;
-		if (mine)
+		if (isStdFirst)
 		{
-			std::cout << "Tree start" << std::endl;
-			tree.erase(val);
-			std::cout << "Tree erase" << std::endl;
-			// ++it;
-			--it;
-			std::cout << "Tree --" << std::endl;
-			std::cout << "Tree::val : " << *it << std::endl;
+			testOutOfRangeIter(m, val);
+			testOutOfRangeIter(tree, val);
 		}
-
-		std::cout << "Map start" << std::endl;
-		
-
-		m.erase(val);
-		std::cout << "Map erase" << std::endl;
-		// ++mit;
-		--mit;
-		std::cout << "Map --" << std::endl;
-		std::cout << "Map::val : " << mit->first << std::endl;
+		else
+		{
+			testOutOfRangeIter(tree, val);
+			testOutOfRangeIter(m, val);
+		}
 	}
 	else
 	{
-		if (tree.begin() != tree.end())
-			std::cout << "Tree empty Iter : KO !!!!!!" << std::endl;
-		std::cout << "Tree empty Iter : OK" << std::endl;
-		if (m.begin() != m.end())
-			std::cout << "Map empty Iter : KO !!!!!!" << std::endl;
-		std::cout << "Map empty Iter : OK" << std::endl;
+		testEmpties(m, tree);
 	}
 	m.clear();
 	tree.clear();
@@ -96,60 +131,35 @@ void	testAvlIter(std::map<T, T>& m, ft::Avl<T, std::less<T>, std::allocator<T> >
 {
 	displayHeader("testAvlIter");
 	{
-		typename std::map<T, T>::iterator	mit = m.begin();
-		typename ft::Avl<T, std::less<T>, std::allocator<T> >::iterator	it = tree.begin();
-
-		for (it = tree.begin(); it != tree.end(); ++it)
-		{
-			std::cout << *it << " ";
-		}
-		std::cout << std::endl;
-		std::cout << "Tree traverse OK" << std::endl;
-		for (mit = m.begin(); mit != m.end(); ++mit)
-		{
-			std::cout << mit->first << " ";
-		}
-		std::cout << std::endl;
-		std::cout << "Map traverse OK" << std::endl;
+		showPair(m.begin(), m.end());
+		show(tree.begin(), tree.end());
 	}
 	if (!m.empty())
 	{
-		typename std::map<T, T>::iterator	mit = m.end();
-		typename ft::Avl<T, std::less<T>, std::allocator<T> >::iterator	it = tree.end();
-
 		T	val = m.begin()->first;
-		bool	mine = 1;
-		if (mine)
+		if (isStdFirst)
 		{
-			std::cout << "Tree start" << std::endl;
-			tree.erase(val);
-			std::cout << "Tree erase" << std::endl;
-			// ++ite;
-			--it;
-			std::cout << "Tree --" << std::endl;
-			std::cout << "Tree::val : " << *it << std::endl;
+			testOutOfRangeIter(m, val);
+			testOutOfRangeIter(tree, val);
 		}
-
-		std::cout << "Map start" << std::endl;
-		
-
-		m.erase(val);
-		std::cout << "Map erase" << std::endl;
-		// ++ite;
-		--mit;
-		std::cout << "Map --" << std::endl;
-		std::cout << "Map::val : " << mit->first << std::endl;
+		else
+		{
+			testOutOfRangeIter(tree, val);
+			testOutOfRangeIter(m, val);
+		}
 	}
 	else
 	{
-		if (tree.begin() != tree.end())
-			std::cout << "Tree empty Iter : KO !!!!!!" << std::endl;
-		std::cout << "Tree empty Iter : OK" << std::endl;
-		if (m.begin() != m.end())
-			std::cout << "Map empty Iter : KO !!!!!!" << std::endl;
-		std::cout << "Map empty Iter : OK" << std::endl;
+		testEmpties(m, tree);
 	}
 	displayHeader("testAvlIter End");
+}
+
+void	testConstAvlIter(std::map<int, int>& m, ft::Avl<int, std::less<int>, std::allocator<int> >& tree)
+{
+	displayHeader("testConstAvlIter");
+	ft::Avl<int, std::less<int>, std::allocator<int> >::const_iterator	it = tree.begin();
+	displayHeader("testConstAvlIter End");
 }
 
 void	testAvlIterator(int n)
@@ -157,8 +167,11 @@ void	testAvlIterator(int n)
 	std::vector<int>	numbers;
 
 	for (int i = 0; i < n; i++)
-		numbers.push_back(std::rand() % n);
+		numbers.push_back(i);
 
+    unsigned seed = std::chrono::system_clock::now().time_since_epoch().count();
+	std::default_random_engine engine(seed);
+    std::shuffle(numbers.begin(), numbers.end(), engine);
 	
 	std::map<int, int>	m;
 	ft::Avl<int, std::less<int>, std::allocator<int> >	tree;
@@ -168,11 +181,6 @@ void	testAvlIterator(int n)
 		tree.insert(numbers[i]);
 		m.insert(std::make_pair(numbers[i], i));
 	}
-	std::cout << "show" << std::endl;
-	tree.show();
-	std::cout << "show End" << std::endl;
 	testAvlRevIter(m, tree);
 	testAvlIter(m, tree);
-
-
 }

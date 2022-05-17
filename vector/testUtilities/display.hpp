@@ -24,6 +24,19 @@ void	show(INPUT_ITERATOR first, INPUT_ITERATOR last)
 	std::cout << "======================================================" << std::endl;
 }
 
+template<typename INPUT_ITERATOR>
+void	showPair(INPUT_ITERATOR first, INPUT_ITERATOR last)
+{
+	std::cout << "======================= Show =========================" << std::endl;
+	while (first != last)
+	{
+		std::cout << first->first << " ";
+		++first;
+	}
+	std::cout << std::endl;
+	std::cout << "======================================================" << std::endl;
+}
+
 template<typename T, typename Alloc>
 std::ostream	&operator<<(std::ostream& ostr, const ft::vector<T, Alloc>& v)
 {

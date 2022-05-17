@@ -47,6 +47,7 @@ namespace ft
 			typedef treeIterator<Avl> iterator;
 			typedef ft::reverse_iterator<iterator> reverse_iterator;
 			typedef treeIterator<Avl<const value_type, value_compare, allocator_type> > const_iterator;
+			typedef ft::reverse_iterator<const_iterator> const_reverse_iterator;
 
 			typedef typename Node::size_type size_type;
 		/////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -92,6 +93,11 @@ namespace ft
 
 			reverse_iterator	rend();
 			reverse_iterator	rbegin();
+
+			const_iterator	begin() const
+			{
+				return const_iterator(_begin, this, false);
+			}
 		/////////////////////////////////////////////////////////////////////////////////////////////////////
 		/// Iterators End
 		/////////////////////////////////////////////////////////////////////////////////////////////////////
