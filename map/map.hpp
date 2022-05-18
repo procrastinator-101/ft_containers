@@ -31,15 +31,18 @@ namespace ft
 			typedef typename allocator_type::pointer pointer;
 			typedef typename allocator_type::const_pointer const_pointer;
 
-			//iterator
-			//const_iterator
-			//reverse_iterator
-			//const_reverse_iterator
-
-			//typedef typename iterator_traits<iterator>::difference_type difference_type;
 			typedef size_t size_type;
 
-			typedef Avl<value_type, value_compare> Bst;
+		private:
+			typedef Avl<value_type, value_compare, allocator_type> Bst;
+
+		public:
+			typedef typename Bst::iterator iterator;
+			typedef typename Bst::const_iterator const_iterator;
+			typedef typename Bst::reverse_iterator reverse_iterator;
+			typedef typename Bst::const_reverse_iterator const_reverse_iterator;
+
+			typedef typename iterator_traits<iterator>::difference_type difference_type;
 		/////////////////////////////////////////////////////////////////////////////////////////////////////
 		/// type definitions End
 		/////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -49,6 +52,8 @@ namespace ft
 		/// Avl class Defintion
 		/////////////////////////////////////////////////////////////////////////////////////////////////////
 		Bst _data;
+		key_compare	_key_comparator;
+		value_compare	_value_comparator;
 		/////////////////////////////////////////////////////////////////////////////////////////////////////
 		/// Avl class Defintion End
 		/////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -56,12 +61,270 @@ namespace ft
 		/////////////////////////////////////////////////////////////////////////////////////////////////////
 		/// destructors, constructors, and assignment operators
 		/////////////////////////////////////////////////////////////////////////////////////////////////////
-		explicit	map(const key_compare& comp = key_compare(), const allocator_type& alloc = allocator_type())
-		{
-			
-		}
+		public:
+			explicit map(const key_compare& comp = key_compare(), const allocator_type& alloc = allocator_type()) : _data(comp, alloc)
+			{
+			}
+
+			template <class InputIterator>
+			map(InputIterator first, InputIterator last, const key_compare& comp = key_compare(), const allocator_type& alloc = allocator_type()) : _data(comp, alloc)
+			{
+				while (first != last)
+				{
+					_data.insert(*first);
+					++first;
+				}
+			}
+
+			map(const map& src) : _data(src._data)
+			{
+			}
+
+			~map()
+			{
+			}
+
+			map	&operator=(const map& rop)
+			{
+				if (this == &rop)
+					return *this;
+				_data = rop._data;
+				_key_comparator = rop._key_comparator;
+				_value_comparator = rop._value_comparator;
+				return *this;
+			}
 		/////////////////////////////////////////////////////////////////////////////////////////////////////
 		/// destructors and constructors End
+		/////////////////////////////////////////////////////////////////////////////////////////////////////
+
+		/////////////////////////////////////////////////////////////////////////////////////////////////////
+		/// Iterators
+		/////////////////////////////////////////////////////////////////////////////////////////////////////
+		public:
+			iterator begin()
+			{
+				return _data.begin();
+			}
+
+			const_iterator begin() const
+			{
+				return _data.begin();
+			}
+
+			iterator end()
+			{
+				return _data.end();
+			}
+
+			const_iterator end() const
+			{
+				return _data.end();
+			}
+
+			reverse_iterator rbegin()
+			{
+				return _data.rbegin();
+			}
+
+			const_reverse_iterator rbegin() const
+			{
+				return _data.rbegin();
+			}
+
+			reverse_iterator rend()
+			{
+				return _data.rend();
+			}
+
+			const_reverse_iterator rend() const
+			{
+				return _data.rend();
+			}
+		/////////////////////////////////////////////////////////////////////////////////////////////////////
+		/// Iterators End
+		/////////////////////////////////////////////////////////////////////////////////////////////////////
+
+
+		/////////////////////////////////////////////////////////////////////////////////////////////////////
+		/// Capacity
+		/////////////////////////////////////////////////////////////////////////////////////////////////////
+		public:
+			bool	empty() const
+			{
+				return !_data.getCount();
+			}
+
+			size_type	size() const
+			{
+				return _data.getCount();
+			}
+
+			size_type	max_size() const
+			{
+				return _data.max_size();
+			}
+		/////////////////////////////////////////////////////////////////////////////////////////////////////
+		/// Capacity
+		/////////////////////////////////////////////////////////////////////////////////////////////////////
+
+
+		/////////////////////////////////////////////////////////////////////////////////////////////////////
+		/// Element access
+		/////////////////////////////////////////////////////////////////////////////////////////////////////
+		public:
+			mapped_type	&operator[](const key_type& k)
+			{
+				pair<iterator,bool>	ret = _data.insert(make_pair(k, mapped_type()));
+
+				return ret.first->second;
+			}
+		/////////////////////////////////////////////////////////////////////////////////////////////////////
+		/// Element access End
+		/////////////////////////////////////////////////////////////////////////////////////////////////////
+
+		/////////////////////////////////////////////////////////////////////////////////////////////////////
+		/// Modifiers
+		/////////////////////////////////////////////////////////////////////////////////////////////////////
+		public:
+			pair<iterator,bool>	insert(const value_type& val)
+			{
+				_data.insert(val);
+			}
+
+			iterator	insert(iterator position, const value_type& val)
+			{
+				pair<iterator, bool>	ret =  _data.insert(val);
+
+				(void)position;
+				return ret.first;
+			}
+
+			template <class InputIterator>
+			void	insert(InputIterator first, InputIterator last)
+			{
+				while (first != last)
+				{
+					_data.insert(first);
+					++first;
+				}
+			}
+
+			void	erase(iterator position)
+			{
+				_data.erase(*position);
+			}
+
+			size_type	erase(const key_type& k)
+			{
+				return _data.erase(make_pair(k, mapped_type()));
+			}
+
+			void	erase(iterator first, iterator last)
+			{
+				while (first != last)
+				{
+					erase(*first);
+					++first;
+				}
+			}
+
+			void	clear()
+			{
+				_data.clear();
+			}
+
+			void	swap(map& x)
+			{
+				_data.swap(x._data);
+				std::swap(_value_comparator, x._value_comparator);
+				std::swap(_key_comparator, x._key_comparator);
+			}
+		/////////////////////////////////////////////////////////////////////////////////////////////////////
+		/// Modifiers End
+		/////////////////////////////////////////////////////////////////////////////////////////////////////
+
+
+		/////////////////////////////////////////////////////////////////////////////////////////////////////
+		/// Observers
+		/////////////////////////////////////////////////////////////////////////////////////////////////////
+		public:
+			key_compare	key_comp() const
+			{
+				return _key_comparator;
+			}
+
+			value_compare	value_comp() const
+			{
+				return _value_comparator;
+			}
+		/////////////////////////////////////////////////////////////////////////////////////////////////////
+		/// Observers End
+		/////////////////////////////////////////////////////////////////////////////////////////////////////
+
+
+		/////////////////////////////////////////////////////////////////////////////////////////////////////
+		/// Operations
+		/////////////////////////////////////////////////////////////////////////////////////////////////////
+		public:
+			iterator	find(const key_type& k)
+			{
+				return _data.find(make_pair(k, mapped_type()));
+			}
+
+			const_iterator	find(const key_type& k) const
+			{
+				return _data.find(make_pair(k, mapped_type()));
+			}
+
+			size_type	count(const key_type& k) const
+			{
+				iterator	tmp = _data.find(make_pair(k, mapped_type()));
+
+				return tmp == _data.end();
+			}
+
+			iterator	lower_bound(const key_type& k)
+			{
+				return _data.lower_bound(make_pair(k, mapped_type()));
+			}
+
+			const_iterator	lower_bound(const key_type& k) const
+			{
+				return _data.lower_bound(make_pair(k, mapped_type()));
+			}
+
+			iterator	upper_bound(const key_type& k)
+			{
+				return _data.upper_bound(make_pair(k, mapped_type()));
+			}
+
+			const_iterator	upper_bound(const key_type& k) const
+			{
+				return _data.upper_bound(make_pair(k, mapped_type()));
+			}
+
+			pair<const_iterator,const_iterator>	equal_range(const key_type& k) const
+			{
+
+			}
+			pair<iterator,iterator>	equal_range(const key_type& k)
+			{
+
+			}
+		/////////////////////////////////////////////////////////////////////////////////////////////////////
+		/// Operations End
+		/////////////////////////////////////////////////////////////////////////////////////////////////////
+
+		/////////////////////////////////////////////////////////////////////////////////////////////////////
+		/// Allocator
+		/////////////////////////////////////////////////////////////////////////////////////////////////////
+		public:
+			allocator_type get_allocator() const
+			{
+				return _data.get_allocator();
+			}
+		/////////////////////////////////////////////////////////////////////////////////////////////////////
+		/// Allocator
 		/////////////////////////////////////////////////////////////////////////////////////////////////////
 	};
 }

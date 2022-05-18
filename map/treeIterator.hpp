@@ -8,7 +8,7 @@
 namespace ft
 {
 	template<class NodeType>
-	class treeIterator
+	class avlIterator
 	{
 		/////////////////////////////////////////////////////////////////////////////////////////////////////
 		/// type definitions
@@ -24,30 +24,31 @@ namespace ft
 
 		private:
 			typedef typename NodeType::node_pointer node_pointer;
+			typedef typename const_treeIterator<NodeType>::node_pointer ;
 		/////////////////////////////////////////////////////////////////////////////////////////////////////
 		/// type definitions End
 		/////////////////////////////////////////////////////////////////////////////////////////////////////
 
 		private:
-			node_pointer	_last;
+			node_pointer	*_last;
 			node_pointer	_ptr;
 
 			bool			_isEnd;
 
 		public:
-			treeIterator() : _last(0), _ptr(0), _isEnd(false)
+			avlIterator() : _last(0), _ptr(0), _isEnd(false)
 			{
 			}
 
-			treeIterator(node_pointer ptr, node_pointer last, bool isEnd) : _last(last), _ptr(ptr), _isEnd(isEnd)
+			avlIterator(node_pointer ptr, node_pointer *last, bool isEnd) : _last(last), _ptr(ptr), _isEnd(isEnd)
 			{
 			}
 
-			treeIterator(const treeIterator& src) : _last(src._last), _ptr(src._ptr), _isEnd(src._isEnd)
+			avlIterator(const avlIterator& src) : _last(src._last), _ptr(src._ptr), _isEnd(src._isEnd)
 			{
 			}
 
-			treeIterator	operator=(const treeIterator& rop)
+			avlIterator	operator=(const avlIterator& rop)
 			{
 				if (this == &rop)
 					return *this;
@@ -57,12 +58,12 @@ namespace ft
 				return *this;
 			}
 
-			friend bool	operator==(const treeIterator& lhs, const treeIterator& rhs)
+			friend bool	operator==(const avlIterator& lhs, const avlIterator& rhs)
 			{
 				return lhs._ptr == rhs._ptr && lhs._last == rhs._last;
 			}
 
-			friend bool	operator!=(const treeIterator& lhs, const treeIterator& rhs)
+			friend bool	operator!=(const avlIterator& lhs, const avlIterator& rhs)
 			{
 				return !(lhs._ptr == rhs._ptr);
 			}
@@ -82,7 +83,7 @@ namespace ft
 				return &(_ptr->_value);
 			}
 
-			treeIterator	&operator++()
+			avlIterator	&operator++()
 			{
 				//end or after end
 				if (!_ptr)
@@ -99,9 +100,9 @@ namespace ft
 				return *this;
 			}
 
-			treeIterator	operator++(int n)
+			avlIterator	operator++(int n)
 			{
-				treeIterator	ret(*this);
+				avlIterator	ret(*this);
 
 				(void)n;
 				//end or after end
@@ -119,12 +120,15 @@ namespace ft
 				return ret;
 			}
 
-			treeIterator	&operator--()
+			avlIterator	&operator--()
 			{
 				//at end : return last and restore the normal iterator state
 				if (_isEnd)
 				{
-					_ptr = _last;
+					if (_last)
+						_ptr = *_last;
+					else
+						_ptr = 0;
 					_isEnd = false;
 				}
 				//inside the sequence
@@ -134,15 +138,18 @@ namespace ft
 				return *this;
 			}
 
-			treeIterator	operator--(int n)
+			avlIterator	operator--(int n)
 			{
-				treeIterator	ret(*this);
+				avlIterator	ret(*this);
 
 				(void)n;
 				//at end : return last and restore the normal iterator state
 				if (_isEnd)
 				{
-					_ptr = _last;
+					if (_last)
+						_ptr = *_last;
+					else
+						_ptr = 0;
 					_isEnd = false;
 				}
 				//inside the sequence

@@ -2,7 +2,6 @@
 # define CONST_TREEITERATOR_HPP
 
 #include <iterator>
-// #include "treeIterator.hpp"
 
 namespace ft
 {
@@ -123,7 +122,10 @@ namespace ft
 				//at end : return last and restore the normal iterator state
 				if (_isEnd)
 				{
-					_ptr = _last->_last;
+					if (_last)
+						_ptr = *_last;
+					else
+						_ptr = 0;
 					_isEnd = false;
 				}
 				//inside the sequence
@@ -141,7 +143,10 @@ namespace ft
 				//at end : return last and restore the normal iterator state
 				if (_isEnd)
 				{
-					_ptr = _last->_last;
+					if (_last)
+						_ptr = *_last;
+					else
+						_ptr = 0;
 					_isEnd = false;
 				}
 				//inside the sequence
@@ -150,11 +155,6 @@ namespace ft
 				//outside of the sequence : do nothing
 				return ret;
 			}
-
-			// operator treeIterator<NodeType>() const
-			// {
-			// 	return treeIterator<NodeType>(_ptr, _last, _isEnd);
-			// }
 	};
 }
 

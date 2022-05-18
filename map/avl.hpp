@@ -6,12 +6,17 @@
 #include <iostream>
 #include <type_traits>
 
+#include "../utility/pair.hpp"
+#include "../utility/make_pair.hpp"
+
 #include "node.hpp"
 #include "../iterator/reverse_iterator.hpp"
 
 
-#include "treeIterator.hpp"
-#include "const_treeIterator.hpp"
+#include "../utility/pair.hpp"
+#include "../utility/make_pair.hpp"
+
+#include "smartIterator.hpp"
 
 
 namespace ft
@@ -39,6 +44,7 @@ namespace ft
 
 		public:
 			typedef typename Node::value_type value_type;
+			typedef typename Node::Compare value_compare;
 
 			typedef typename Node::pointer pointer;
 			typedef typename Node::const_pointer const_pointer;
@@ -47,9 +53,9 @@ namespace ft
 
 			typedef typename Node::size_type size_type;
 
-			typedef treeIterator<Node> iterator;
+			typedef treeIterator<T, ft::Node> iterator;
 			typedef ft::reverse_iterator<iterator> reverse_iterator;
-			typedef const_treeIterator<Node> const_iterator;
+			typedef treeIterator<const T, ft::Node> const_iterator;
 			typedef ft::reverse_iterator<const_iterator> const_reverse_iterator;
 		/////////////////////////////////////////////////////////////////////////////////////////////////////
 		/// type definitions End
@@ -78,8 +84,18 @@ namespace ft
 			Avl();
 			~Avl();
 
+			Avl(const value_compare& compare = value_compare(), const allocator_type& alloc = allocator_type());
 			Avl(node_pointer root);
 			Avl(const Avl& src);
+
+			Avl	&operator=(const Avl& rop)
+			{
+				if (this == &rop)
+					return *this;
+				clear();
+				_clone(rop);
+				return *this;
+			}
 		/////////////////////////////////////////////////////////////////////////////////////////////////////
 		/// destructors, constructors, and assignment operators End
 		/////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -94,10 +110,11 @@ namespace ft
 			reverse_iterator	rend();
 			reverse_iterator	rbegin();
 
-			const_iterator	begin() const
-			{
-				return const_iterator(_begin, this, false);
-			}
+			const_iterator	end() const;
+			const_iterator	begin() const;
+
+			const_reverse_iterator	rend() const;
+			const_reverse_iterator	rbegin() const;
 		/////////////////////////////////////////////////////////////////////////////////////////////////////
 		/// Iterators End
 		/////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -108,10 +125,99 @@ namespace ft
 		/////////////////////////////////////////////////////////////////////////////////////////////////////
 		public:
 			void	clear();
-			void	erase(const value_type& val);
-			void	insert(const value_type& val);
+			size_type	erase(const value_type& val);
+			size_type	erase(const node_pointer node);
+			pair<iterator,bool>	insert(const value_type& val);
+
+
+			iterator	find(const value_type& val)
+			{
+				node_pointer	node;
+
+				node = _root;
+				while (node)
+				{
+					if (value_compare(node->_value, val))
+						node = node->_traits.right;
+					else if (value_compare(val, node->_value))
+						node = node->_traits.left;
+					else
+						return iterator(node, &_last, false);
+				}
+				return end();
+			}
+
+			iterator	lower_bound(const value_type& val)
+			{
+				node_pointer	ret;
+				node_pointer	node;
+
+				ret = 0;
+				node = _root;
+				while (node)
+				{
+					if (value_compare(node->_value, val))
+						node = node->_traits.right;
+					else if (value_compare(val, node->_value))
+					{
+						ret = node;
+						node = node->_traits.left;
+					}
+					else
+						return iterator(node, &_last, false);
+				}
+				if (ret)
+					return iterator(ret, &_last, false);
+				return end();
+			}
+
+			iterator	upper_bound(const value_type& val)
+			{
+				node_pointer	ret;
+				node_pointer	node;
+
+				ret = 0;
+				node = _root;
+				while (node)
+				{
+					if (value_compare(node->_value, val))
+					{
+						ret = node;
+						node = node->_traits.right;
+					}
+					else if (value_compare(val, node->_value))
+						node = node->_traits.left;
+					else
+						return iterator(node->getInOrderSuccessor(), &_last, false);
+				}
+				if (ret)
+					return iterator(ret, &_last, false);
+				return end();
+			}
+
+			void	swap(Avl& x)
+			{
+				std::swap(_count, x._count);
+				std::swap(_root, x._root);
+				std::swap(_last, x._last);
+				std::swap(_begin, x._begin);
+				std::swap(_allocator, x._allocator);
+				std::swap(_nodeAllocator, x._nodeAllocator);
+				std::swap(_traits_allocator, x._traits_allocator);
+			}
 		/////////////////////////////////////////////////////////////////////////////////////////////////////
 		/// Modifiers End
+		/////////////////////////////////////////////////////////////////////////////////////////////////////
+
+
+		/////////////////////////////////////////////////////////////////////////////////////////////////////
+		/// Getters
+		/////////////////////////////////////////////////////////////////////////////////////////////////////
+		public:
+			size_type	getCount() const;
+			size_type	max_size() const;
+		/////////////////////////////////////////////////////////////////////////////////////////////////////
+		/// Getters End
 		/////////////////////////////////////////////////////////////////////////////////////////////////////
 
 
@@ -124,6 +230,7 @@ namespace ft
 		/////////////////////////////////////////////////////////////////////////////////////////////////////
 		/// Nodes manipulation functions End
 		/////////////////////////////////////////////////////////////////////////////////////////////////////
+
 
 		/////////////////////////////////////////////////////////////////////////////////////////////////////
 		/// Internal modifiers
@@ -139,9 +246,13 @@ namespace ft
 			void	_delete(node_pointer node);
 			void	_retroBalance(node_pointer node);
 			void	_destorySubtree(node_pointer root);
+
+
+			void	_clone(const Avl& src);
 		/////////////////////////////////////////////////////////////////////////////////////////////////////
 		/// Internal modifiers End
 		/////////////////////////////////////////////////////////////////////////////////////////////////////
+
 
 		/////////////////////////////////////////////////////////////////////////////////////////////////////
 		/// Rotations
@@ -155,6 +266,7 @@ namespace ft
 		/// Rotations End
 		/////////////////////////////////////////////////////////////////////////////////////////////////////
 
+
 		/////////////////////////////////////////////////////////////////////////////////////////////////////
 		/// auxiliaries
 		/////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -162,11 +274,23 @@ namespace ft
 			void	_updateBoundsInsert(node_pointer node);
 			void	_updateBoundsDelete(node_pointer node);
 
-			void	_putInPosition(node_pointer newRoot);
-			void	_putInPosition(node_pointer oldNode, node_pointer newNode);
-			void	_putInPosition(node_pointer parent, node_pointer node, bool isLeft);
+			node_pointer	_putInPosition(const value_type& val);
+			node_pointer	_putInPosition(node_pointer node, const value_type& val);
+			node_pointer	_putInPosition(node_pointer parent, const value_type& val, bool isLeft);
 		/////////////////////////////////////////////////////////////////////////////////////////////////////
 		/// auxiliaries
+		/////////////////////////////////////////////////////////////////////////////////////////////////////
+
+		/////////////////////////////////////////////////////////////////////////////////////////////////////
+		/// Allocator
+		/////////////////////////////////////////////////////////////////////////////////////////////////////
+		public:
+			allocator_type	get_allocator() const
+			{
+				return _allocator;
+			}
+		/////////////////////////////////////////////////////////////////////////////////////////////////////
+		/// Allocator End
 		/////////////////////////////////////////////////////////////////////////////////////////////////////
 
 
@@ -174,6 +298,7 @@ namespace ft
 		/// private data members
 		/////////////////////////////////////////////////////////////////////////////////////////////////////
 		private:
+			size_type		_count;
 			node_pointer	_root;
 			node_pointer	_last;
 			node_pointer	_begin;
@@ -189,22 +314,19 @@ namespace ft
 	/// destructors, constructors, and assignment operators
 	/////////////////////////////////////////////////////////////////////////////////////////////////////
 	template<typename T, typename Compare, typename Alloc>
-	Avl<T, Compare, Alloc>::Avl() : _root(0), _last(_root), _begin(_root), _allocator(allocator_type()), _nodeAllocator(node_allocator_type()), _traits_allocator(traits_allocator_type())
+	Avl<T, Compare, Alloc>::Avl() : _count(0), _root(0), _last(_root), _begin(_root), _allocator(allocator_type()), _nodeAllocator(node_allocator_type()), _traits_allocator(traits_allocator_type())
 	{
 	}
 
 	template<typename T, typename Compare, typename Alloc>
-	Avl<T, Compare, Alloc>::Avl(node_pointer root) : _root(root), _last(_root), _begin(_root), _allocator(), _nodeAllocator(), _traits_allocator(traits_allocator_type())
+	Avl<T, Compare, Alloc>::Avl(node_pointer root) : _count(0), _root(root), _last(_root), _begin(_root), _allocator(), _nodeAllocator(), _traits_allocator(traits_allocator_type())
 	{
 	}
 
 	template<typename T, typename Compare, typename Alloc>
-	Avl<T, Compare, Alloc>::Avl(const Avl& src) : _root(0), _last(0), _begin(0), _allocator(src._allocator), _nodeAllocator(src._nodeAllocator), _traits_allocator(src._traits_allocator)
+	Avl<T, Compare, Alloc>::Avl(const Avl& src) : _count(0), _root(0), _last(0), _begin(0), _allocator(src._allocator), _nodeAllocator(src._nodeAllocator), _traits_allocator(src._traits_allocator)
 	{
-		node_pointer	node;
-
-		for (node = src._root; node; node = node->getInOrderSuccessor())
-			insert(node->_value);
+		_clone(src);
 	}
 
 	template<typename T, typename Compare, typename Alloc>
@@ -222,13 +344,15 @@ namespace ft
 	template<typename T, typename Compare, typename Alloc>
 	typename Avl<T, Compare, Alloc>::iterator	Avl<T, Compare, Alloc>::begin()
 	{
-		return iterator(_begin, _last, false);
+		// return iterator(_begin, _last, false);
+		return iterator(_begin, &_last, false);
 	}
 
 	template<typename T, typename Compare, typename Alloc>
 	typename Avl<T, Compare, Alloc>::iterator	Avl<T, Compare, Alloc>::end()
 	{
-		return iterator(0, _last, true);
+		// return iterator(0, _last, true);
+		return iterator(0, &_last, true);
 	}
 
 	template<typename T, typename Compare, typename Alloc>
@@ -242,6 +366,30 @@ namespace ft
 	{
 		return reverse_iterator(begin());
 	}
+
+	template<typename T, typename Compare, typename Alloc>
+	typename Avl<T, Compare, Alloc>::const_iterator	Avl<T, Compare, Alloc>::end() const
+	{
+		// return const_iterator(0, _last, true);
+		return const_iterator(0, &_last, true);
+	}
+	template<typename T, typename Compare, typename Alloc>
+	typename Avl<T, Compare, Alloc>::const_iterator	Avl<T, Compare, Alloc>::begin() const
+	{
+
+	}
+
+	template<typename T, typename Compare, typename Alloc>
+	typename Avl<T, Compare, Alloc>::const_reverse_iterator	Avl<T, Compare, Alloc>::rend() const
+	{
+
+	}
+
+	template<typename T, typename Compare, typename Alloc>
+	typename Avl<T, Compare, Alloc>::const_reverse_iterator	Avl<T, Compare, Alloc>::rbegin() const
+	{
+
+	}
 	/////////////////////////////////////////////////////////////////////////////////////////////////////
 	/// Iterators End
 	/////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -251,57 +399,63 @@ namespace ft
 	/// Modifiers
 	/////////////////////////////////////////////////////////////////////////////////////////////////////
 	template<typename T, typename Compare, typename Alloc>
-	void	Avl<T, Compare, Alloc>::insert(const value_type& val)
+	pair<typename Avl<T, Compare, Alloc>::iterator,bool>	Avl<T, Compare, Alloc>::insert(const value_type& val)
 	{
+		bool			isnew;
 		node_pointer	node;
 		node_pointer	current;
 
-		node = _createNode(val);
+		isnew = true;
 		if (!_root)
-			_putInPosition(node);
+			node = _putInPosition(val);
 		else
 		{
 			current = _root;
 			while (1)
 			{
-				//if the node value is less than the current node' value : insert on the left
-				if (Compare()(node->_value, current->_value))
+				//if val is less than the current node' value : insert on the left
+				if (Compare()(val, current->_value))
 				{
 					if (current->_traits.left)
 						current = current->_traits.left;
 					else
 					{
-						_putInPosition(current, node, true);
+						node = _putInPosition(current, val, true);
 						break ;
 					}
 				}
-				//if the node value is greater than the current node' value : insert on the right
-				else if (Compare()(current->_value, node->_value))
+				//if val is greater than the current node' value : insert on the right
+				else if (Compare()(current->_value, val))
 				{
 					if (current->_traits.right)
 						current = current->_traits.right;
 					else
 					{
-						_putInPosition(current, node, false);
+						node = _putInPosition(current, val, false);
 						break ;
 					}
 				}
-				//if the node value is equal to the current node' value : insert in the current node
+				//if val is equal to the current node' value : insert in the current node
 				else
 				{
-					_putInPosition(current, node);
+					node = _putInPosition(current, val);
+					isnew = false;
 					break ;
 				}
 			}
 			_retroBalance(current);
 		}
+		_count++;
+		return make_pair(iterator(node, &_last, false), isnew);
 	}
 
 	template<typename T, typename Compare, typename Alloc>
-	void	Avl<T, Compare, Alloc>::erase(const value_type& val)
+	typename Avl<T, Compare, Alloc>::size_type	Avl<T, Compare, Alloc>::erase(const value_type& val)
 	{
+		size_type		ret;
 		node_pointer	current;
 
+		ret = 0;
 		current = _root;
 		while (current)
 		{
@@ -315,21 +469,73 @@ namespace ft
 			else
 			{
 				_delete(current);
+				ret = 1;
 				break ;
 			}
 		}
+		_count--;
+		return ret;
+	}
+
+	template<typename T, typename Compare, typename Alloc>
+	typename Avl<T, Compare, Alloc>::size_type	Avl<T, Compare, Alloc>::erase(const node_pointer node)
+	{
+		size_type		ret;
+		node_pointer	current;
+
+		ret = 0;
+		current = _root;
+		while (current)
+		{
+			//if node' val is less than the current node' value : erase on the left
+			if (Compare()(node->_value, current->_value))
+				current = current->_traits.left;
+			//if node' val is grater than the current node' value : erase on the right
+			else if (Compare()(current->_value, node->_value))
+				current = current->_traits.right;
+			//if node' val is equal to the current node' value : erase the current node
+			else
+			{
+				_delete(current);
+				ret = 1;
+				break ;
+			}
+		}
+		_count--;
+		return ret;
 	}
 
 	template<typename T, typename Compare, typename Alloc>
 	void	Avl<T, Compare, Alloc>::clear()
 	{
 		_destorySubtree(_root);
+		_count = 0;
 		_root = 0;
 		_last = 0;
 		_begin = 0;
 	}
 	/////////////////////////////////////////////////////////////////////////////////////////////////////
 	/// Modifiers End
+	/////////////////////////////////////////////////////////////////////////////////////////////////////
+
+
+	/////////////////////////////////////////////////////////////////////////////////////////////////////
+	/// Getters
+	/////////////////////////////////////////////////////////////////////////////////////////////////////
+	template<typename T, typename Compare, typename Alloc>
+	typename Avl<T, Compare, Alloc>::size_type	Avl<T, Compare, Alloc>::getCount() const
+	{
+		return _count;
+	}
+
+	template<typename T, typename Compare, typename Alloc>
+	typename Avl<T, Compare, Alloc>::size_type	Avl<T, Compare, Alloc>::max_size() const
+	{
+		return _nodeAllocator.max_size();
+	}
+
+	/////////////////////////////////////////////////////////////////////////////////////////////////////
+	/// Getters End
 	/////////////////////////////////////////////////////////////////////////////////////////////////////
 
 
@@ -566,6 +772,15 @@ namespace ft
 			node = node->_traits.parent;
 		}
 	}
+
+	template<typename T, typename Compare, typename Alloc>
+	void	Avl<T, Compare, Alloc>::_clone(const Avl& src)
+	{
+		node_pointer	node;
+
+		for (node = src._root; node; node = node->getInOrderSuccessor())
+			insert(node->_value);
+	}
 	/////////////////////////////////////////////////////////////////////////////////////////////////////
 	/// Internal modifiers End
 	/////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -727,8 +942,11 @@ namespace ft
 	}
 
 	template<typename T, typename Compare, typename Alloc>
-	void	Avl<T, Compare, Alloc>::_putInPosition(node_pointer parent, node_pointer node, bool isLeft)
+	typename Avl<T, Compare, Alloc>::node_pointer	Avl<T, Compare, Alloc>::_putInPosition(node_pointer parent, const value_type& val, bool isLeft)
 	{
+		node_pointer	node;
+
+		node = _createNode(val);
 		if (isLeft)
 		{
 			parent->_traits.left = node;
@@ -743,21 +961,22 @@ namespace ft
 	}
 
 	template<typename T, typename Compare, typename Alloc>
-	void	Avl<T, Compare, Alloc>::_putInPosition(node_pointer oldNode, node_pointer newNode)
+	typename Avl<T, Compare, Alloc>::node_pointer	Avl<T, Compare, Alloc>::_putInPosition(node_pointer node, const value_type& val)
 	{
-		oldNode->_value = newNode->_value;
-		_destroyNode(newNode);
+		node->_value = val;
+		return node;
 	}
 
 	template<typename T, typename Compare, typename Alloc>
-	void	Avl<T, Compare, Alloc>::_putInPosition(node_pointer newRoot)
+	typename Avl<T, Compare, Alloc>::node_pointer	Avl<T, Compare, Alloc>::_putInPosition(const value_type& val)
 	{
-		_root = newRoot;
-		_last = newRoot;
-		_begin = newRoot;
-		// std::cout << "begin : " << _begin << std::endl;
-		// std::cout << "last : " << _last << std::endl;
-		// std::cout << "root : " << _root << std::endl;
+		node_pointer	node;
+
+		node = _createNode(val);
+		_root = node;
+		_last = node;
+		_begin = node;
+		return node;
 	}
 	/////////////////////////////////////////////////////////////////////////////////////////////////////
 	/// auxiliaries End
