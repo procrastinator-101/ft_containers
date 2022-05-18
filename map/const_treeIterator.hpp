@@ -2,7 +2,7 @@
 # define CONST_TREEITERATOR_HPP
 
 #include <iterator>
-#include "treeIterator.hpp"
+// #include "treeIterator.hpp"
 
 namespace ft
 {
@@ -151,10 +151,10 @@ namespace ft
 				return ret;
 			}
 
-			operator treeIterator<NodeType>() const
-			{
-				return treeIterator<NodeType>(_ptr, _last, _isEnd);
-			}
+			// operator treeIterator<NodeType>() const
+			// {
+			// 	return treeIterator<NodeType>(_ptr, _last, _isEnd);
+			// }
 	};
 }
 

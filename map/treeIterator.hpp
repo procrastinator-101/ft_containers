@@ -3,6 +3,8 @@
 
 #include <iterator>
 
+#include "const_treeIterator.hpp"
+
 namespace ft
 {
 	template<class NodeType>
@@ -122,7 +124,7 @@ namespace ft
 				//at end : return last and restore the normal iterator state
 				if (_isEnd)
 				{
-					_ptr = _last->_last;
+					_ptr = _last;
 					_isEnd = false;
 				}
 				//inside the sequence
@@ -140,7 +142,7 @@ namespace ft
 				//at end : return last and restore the normal iterator state
 				if (_isEnd)
 				{
-					_ptr = _last->_last;
+					_ptr = _last;
 					_isEnd = false;
 				}
 				//inside the sequence
@@ -148,6 +150,11 @@ namespace ft
 					_ptr = _ptr->getInOrderPredeccessor();
 				//outside of the sequence : do nothing
 				return ret;
+			}
+
+			operator const_treeIterator<NodeType>() const
+			{
+				return const_treeIterator<NodeType>(_ptr, _last, _isEnd);
 			}
 	};
 }

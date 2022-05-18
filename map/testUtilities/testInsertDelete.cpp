@@ -215,8 +215,8 @@ namespace ft
     printTree(ostr, root->left, trunk, false);
   }
 
-  template<typename T, typename Compare>
-  bool	compareTrees(const Node<T, Compare>* a, const TNode *b)
+  template<typename T>
+  bool	compareTrees(const Node<T>* a, const TNode *b)
   {
     bool	ret;
 

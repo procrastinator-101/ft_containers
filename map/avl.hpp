@@ -9,6 +9,11 @@
 #include "node.hpp"
 #include "../iterator/reverse_iterator.hpp"
 
+
+#include "treeIterator.hpp"
+#include "const_treeIterator.hpp"
+
+
 namespace ft
 {
 	template<typename T, typename Compare, typename Alloc>
@@ -33,7 +38,6 @@ namespace ft
 			typedef typename allocator_type::template rebind<typename Node::Traits>::other traits_allocator_type;//!!!!!!!!
 
 		public:
-			typedef typename Node::value_compare value_compare;
 			typedef typename Node::value_type value_type;
 
 			typedef typename Node::pointer pointer;
@@ -42,169 +46,17 @@ namespace ft
 			typedef typename Node::const_reference const_reference;
 
 			typedef typename Node::size_type size_type;
+
+			typedef treeIterator<Node> iterator;
+			typedef ft::reverse_iterator<iterator> reverse_iterator;
+			typedef const_treeIterator<Node> const_iterator;
+			typedef ft::reverse_iterator<const_iterator> const_reverse_iterator;
 		/////////////////////////////////////////////////////////////////////////////////////////////////////
 		/// type definitions End
 		/////////////////////////////////////////////////////////////////////////////////////////////////////
 
-		/////////////////////////////////////////////////////////////////////////////////////////////////////
-		/// Tree iterator definition
-		/////////////////////////////////////////////////////////////////////////////////////////////////////
-		public:
-			class iterator
-			{
-				/////////////////////////////////////////////////////////////////////////////////////////////////////
-				/// type definitions
-				/////////////////////////////////////////////////////////////////////////////////////////////////////
-				public:
-					typedef std::bidirectional_iterator_tag iterator_category;
-					typedef value_type value_type;
-					typedef std::ptrdiff_t difference_type;
-					typedef pointer pointer;
-					typedef reference reference;
-					typedef const_pointer const_pointer;
-					typedef const_reference const_reference;
+		
 
-				private:
-					typedef node_pointer node_pointer;
-					typedef value_compare value_compare;
-					typedef typename Avl<const value_type, value_compare, allocator_type>::iterator const_iterator;
-				/////////////////////////////////////////////////////////////////////////////////////////////////////
-				/// type definitions End
-				/////////////////////////////////////////////////////////////////////////////////////////////////////
-
-				private:
-					node_pointer	_ptr;
-					bool			_isEnd;
-
-				public:
-					iterator() : _ptr(0), _isEnd(false)
-					{
-					}
-
-					iterator(node_pointer ptr, bool isEnd) : _ptr(ptr), _isEnd(isEnd)
-					{
-					}
-
-					iterator(const iterator& src) :_ptr(src._ptr), _isEnd(src._isEnd)
-					{
-					}
-
-					iterator	operator=(const iterator& rop)
-					{
-						if (this == &rop)
-							return *this;
-						_ptr = rop._ptr;
-						_isEnd = rop._isEnd;
-						return *this;
-					}
-
-					friend bool	operator==(const iterator& lhs, const iterator& rhs)
-					{
-						return lhs._ptr == rhs._ptr;
-					}
-
-					friend bool	operator!=(const iterator& lhs, const iterator& rhs)
-					{
-						return !(lhs._ptr == rhs._ptr);
-					}
-
-					reference	operator*()
-					{
-						return _ptr->_value;
-					}
-
-					const_reference	operator*() const
-					{
-						return _ptr->_value;
-					}
-
-					pointer	operator->()
-					{
-						return &(_ptr->_value);
-					}
-
-					iterator	&operator++()
-					{
-						//end or after end
-						if (!_ptr)
-						{
-							_isEnd = false;
-							return *this;
-						}
-						//inside the sequence
-						_ptr = _ptr->getInOrderSuccessor();
-						if (_ptr)
-							return *this;
-						//point at end now
-						_isEnd = true;
-						return *this;
-					}
-
-					iterator	operator++(int n)
-					{
-						iterator	ret(*this);
-
-						(void)n;
-						//end or after end
-						if (!_ptr)
-						{
-							_isEnd = false;
-							return ret;
-						}
-						//inside the sequence
-						_ptr = _ptr->getInOrderSuccessor();
-						if (_ptr)
-							return ret;
-						//point at end now
-						_isEnd = true;
-						return ret;
-					}
-
-					iterator	&operator--()
-					{
-						//at end : return last and restore the normal iterator state
-						if (_isEnd)
-						{
-							// _ptr = _tree->_last;
-							_isEnd = false;
-						}
-						//inside the sequence
-						else if (_ptr)
-							_ptr = _ptr->getInOrderPredeccessor();
-						//outside of the sequence : do nothing
-						return *this;
-					}
-
-					iterator	operator--(int n)
-					{
-						iterator	ret(*this);
-
-						(void)n;
-						//at end : return last and restore the normal iterator state
-						if (_isEnd)
-						{
-							// _ptr = _tree->_last;
-							_isEnd = false;
-						}
-						//inside the sequence
-						else if (_ptr)
-							_ptr = _ptr->getInOrderPredeccessor();
-						//outside of the sequence : do nothing
-						return ret;
-					}
-
-					operator const_iterator()
-					{
-						return const_iterator(reinterpret_cast<typename ft::Node<typename const_iterator::value_type, Compare> *>(_ptr), _isEnd);
-					}
-			};
-		/////////////////////////////////////////////////////////////////////////////////////////////////////
-		/// Tree iterator definition End
-		/////////////////////////////////////////////////////////////////////////////////////////////////////
-
-		typedef ft::reverse_iterator<iterator> reverse_iterator;
-		typedef typename Avl<const value_type, value_compare, allocator_type>::iterator const_iterator;
-		typedef ft::reverse_iterator<const_iterator> const_reverse_iterator;
 
 
 		public:
@@ -370,13 +222,13 @@ namespace ft
 	template<typename T, typename Compare, typename Alloc>
 	typename Avl<T, Compare, Alloc>::iterator	Avl<T, Compare, Alloc>::begin()
 	{
-		return iterator(_begin, false);
+		return iterator(_begin, _last, false);
 	}
 
 	template<typename T, typename Compare, typename Alloc>
 	typename Avl<T, Compare, Alloc>::iterator	Avl<T, Compare, Alloc>::end()
 	{
-		return iterator(0, true);
+		return iterator(0, _last, true);
 	}
 
 	template<typename T, typename Compare, typename Alloc>

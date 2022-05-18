@@ -219,7 +219,8 @@ namespace ft
 		//first parent where the most recent child is not its right child
 		else
 		{
-			child = this;
+			// child = this;
+			child = const_cast<node_pointer>(this);
 			ret = _traits.parent;
 			while (ret && ret->_traits.right == child)
 			{
@@ -249,7 +250,8 @@ namespace ft
 		//first parent where the most recent child is not its left child
 		else
 		{
-			child = this;
+			// child = this;
+			child = const_cast<node_pointer>(this);
 			ret = _traits.parent;
 			while (ret && ret->_traits.left == child)
 			{
