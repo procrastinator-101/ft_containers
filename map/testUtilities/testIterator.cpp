@@ -159,7 +159,13 @@ void	testAvlIter(std::map<T, T>& m, ft::Avl<T, std::less<T>, std::allocator<T> >
 void	testConstAvlIter(std::map<int, int>& m, ft::Avl<int, std::less<int>, std::allocator<int> >& tree)
 {
 	displayHeader("testConstAvlIter");
+	(void)m;
 	ft::Avl<int, std::less<int>, std::allocator<int> >::const_iterator	it = tree.begin();
+	while (it != tree.end())
+	{
+		std::cout << *it << std::endl;
+		++it;
+	}
 	displayHeader("testConstAvlIter End");
 }
 

@@ -8,15 +8,13 @@
 
 namespace ft
 {
-	template<typename T, typename Compare>
+	template<typename T>
 	class Node
 	{
 		/////////////////////////////////////////////////////////////////////////////////////////////////////
 		/// type definitions
 		/////////////////////////////////////////////////////////////////////////////////////////////////////
 		public:
-			typedef Compare value_compare;
-
 			typedef T value_type;
 			typedef T* pointer;
 			typedef const T* const_pointer;
@@ -146,33 +144,33 @@ namespace ft
 	/////////////////////////////////////////////////////////////////////////////////////////////////////
 	/// destructors, constructors, and assignment operators
 	/////////////////////////////////////////////////////////////////////////////////////////////////////
-	template<typename T, typename Compare>
-	Node<T, Compare>::Node() :  _value(), _traits()//!!!!!!!
+	template<typename T>
+	Node<T>::Node() :  _value(), _traits()//!!!!!!!
 	{
 	}
 
-	template<typename T, typename Compare>
-	Node<T, Compare>::~Node()
+	template<typename T>
+	Node<T>::~Node()
 	{
 	}
 
-	template<typename T, typename Compare>
-	Node<T, Compare>::Node(value_type value, node_pointer left, node_pointer right, node_pointer parent) : _value(value), _traits(left, right, parent)
+	template<typename T>
+	Node<T>::Node(value_type value, node_pointer left, node_pointer right, node_pointer parent) : _value(value), _traits(left, right, parent)
 	{
 	}
 
-	template<typename T, typename Compare>
-	Node<T, Compare>::Node(const Node& src) : _value(src._value), _traits(src._traits)
+	template<typename T>
+	Node<T>::Node(const Node& src) : _value(src._value), _traits(src._traits)
 	{
 	}
 
-	template<typename T, typename Compare>
-	Node<T, Compare>::Node(value_type value) : _value(value), _traits()//!!!!
+	template<typename T>
+	Node<T>::Node(value_type value) : _value(value), _traits()//!!!!
 	{
 	}
 
-	template<typename T, typename Compare>
-	typename Node<T, Compare>::node_reference	Node<T, Compare>::operator=(const Node& rhs)
+	template<typename T>
+	typename Node<T>::node_reference	Node<T>::operator=(const Node& rhs)
 	{
 		_value = rhs._value;
 		_traits = rhs._traits;
@@ -185,8 +183,8 @@ namespace ft
 	/////////////////////////////////////////////////////////////////////////////////////////////////////
 	/// Tree needed methods
 	/////////////////////////////////////////////////////////////////////////////////////////////////////
-	template<typename T, typename Compare>
-	void	Node<T, Compare>::updateHeight()
+	template<typename T>
+	void	Node<T>::updateHeight()
 	{
 		size_type	leftHeight;
 		size_type	rightHeight;
@@ -202,10 +200,11 @@ namespace ft
 		_traits.height = std::max(leftHeight, rightHeight);
 	}
 
-	template<typename T, typename Compare>
-	typename Node<T, Compare>::node_pointer	Node<T, Compare>::getInOrderSuccessor() const
+	template<typename T>
+	typename Node<T>::node_pointer	Node<T>::getInOrderSuccessor() const
 	{
 		node_pointer	ret;
+		node_pointer	child;
 
 		//the smallest key that is larger than x
 
@@ -217,20 +216,25 @@ namespace ft
 			while (ret->_traits.left)
 				ret = ret->_traits.left;
 		}
-		//first parent with a key larger than that of the current node
+		//first parent where the most recent child is not its right child
 		else
 		{
+			child = this;
 			ret = _traits.parent;
-			while (ret && ret->_value < _value)
+			while (ret && ret->_traits.right == child)
+			{
+				child = ret;
 				ret = ret->_traits.parent;
+			}
 		}
 		return ret;
 	}
 
-	template<typename T, typename Compare>
-	typename Node<T, Compare>::node_pointer	Node<T, Compare>::getInOrderPredeccessor() const
+	template<typename T>
+	typename Node<T>::node_pointer	Node<T>::getInOrderPredeccessor() const
 	{
 		node_pointer	ret;
+		node_pointer	child;
 
 		//the largest key that is smaller than x
 
@@ -242,18 +246,22 @@ namespace ft
 			while (ret->_traits.right)
 				ret = ret->_traits.right;
 		}
-		//first parent with a key samller than that of the current node
+		//first parent where the most recent child is not its left child
 		else
 		{
+			child = this;
 			ret = _traits.parent;
-			while (ret && ret->_value > _value)
+			while (ret && ret->_traits.left == child)
+			{
+				child = ret;
 				ret = ret->_traits.parent;
+			}
 		}
 		return ret;
 	}
 
-	template<typename T, typename Compare>
-	int	Node<T, Compare>::getBalanceFactor() const
+	template<typename T>
+	int	Node<T>::getBalanceFactor() const
 	{
 		size_type	leftHeight;
 		size_type	rightHeight;
@@ -276,32 +284,32 @@ namespace ft
 	/////////////////////////////////////////////////////////////////////////////////////////////////////
 	/// Getters
 	/////////////////////////////////////////////////////////////////////////////////////////////////////
-	template<typename T, typename Compare>
-	typename Node<T, Compare>::value_type	Node<T, Compare>::getValue() const
+	template<typename T>
+	typename Node<T>::value_type	Node<T>::getValue() const
 	{
 		return _value;
 	}
 
-	template<typename T, typename Compare>
-	typename Node<T, Compare>::size_type	Node<T, Compare>::getHeight() const
+	template<typename T>
+	typename Node<T>::size_type	Node<T>::getHeight() const
 	{
 		return _traits.height;
 	}
 
-	template<typename T, typename Compare>
-	typename Node<T, Compare>::node_pointer	Node<T, Compare>::getLeft() const
+	template<typename T>
+	typename Node<T>::node_pointer	Node<T>::getLeft() const
 	{
 		return _traits.left;
 	}
 
-	template<typename T, typename Compare>
-	typename Node<T, Compare>::node_pointer	Node<T, Compare>::getRight() const
+	template<typename T>
+	typename Node<T>::node_pointer	Node<T>::getRight() const
 	{
 		return _traits.right;
 	}
 
-	template<typename T, typename Compare>
-	typename Node<T, Compare>::node_pointer	Node<T, Compare>::getParent() const
+	template<typename T>
+	typename Node<T>::node_pointer	Node<T>::getParent() const
 	{
 		return _traits.parent;
 	}
@@ -313,32 +321,32 @@ namespace ft
 	/////////////////////////////////////////////////////////////////////////////////////////////////////
 	/// Setters
 	/////////////////////////////////////////////////////////////////////////////////////////////////////
-	template<typename T, typename Compare>
-	void	Node<T, Compare>::setValue(value_type value)
+	template<typename T>
+	void	Node<T>::setValue(value_type value)
 	{
 		_value = value;
 	}
 
-	template<typename T, typename Compare>
-	void	Node<T, Compare>::setHeight(size_type height)
+	template<typename T>
+	void	Node<T>::setHeight(size_type height)
 	{
 		_traits.height = height;
 	}
 
-	template<typename T, typename Compare>
-	void	Node<T, Compare>::setLeft(node_pointer left)
+	template<typename T>
+	void	Node<T>::setLeft(node_pointer left)
 	{
 		_traits.left = left;
 	}
 
-	template<typename T, typename Compare>
-	void	Node<T, Compare>::setRight(node_pointer right)
+	template<typename T>
+	void	Node<T>::setRight(node_pointer right)
 	{
 		_traits.right = right;
 	}
 
-	template<typename T, typename Compare>
-	void	Node<T, Compare>::setParent(node_pointer parent)
+	template<typename T>
+	void	Node<T>::setParent(node_pointer parent)
 	{
 		_traits.parent = parent;
 	}
@@ -362,8 +370,8 @@ namespace ft
 	};
 	void showTrunks(std::ostream& ostr, Trunk *p);
 
-	template<typename T, typename Compare>
-	void	printTree(std::ostream& ostr, Node<T, Compare> *root, Trunk *prev, bool isLeft)
+	template<typename T>
+	void	printTree(std::ostream& ostr, Node<T> *root, Trunk *prev, bool isLeft)
 	{
 		if (root == 0) {
 			return;
