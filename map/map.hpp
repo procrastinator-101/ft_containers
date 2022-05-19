@@ -14,7 +14,6 @@ namespace ft
 	template <class Key, class T, class Compare = std::less<Key>, class Alloc = std::allocator<pair<const Key,T> >>
 	class map
 	{
-
 		/////////////////////////////////////////////////////////////////////////////////////////////////////
 		/// type definitions first half
 		/////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -257,7 +256,7 @@ namespace ft
 
 			void	erase(iterator position)
 			{
-				_data.erase(*position);
+				_data.erase(position);
 			}
 
 			size_type	erase(const key_type& k)
@@ -267,11 +266,7 @@ namespace ft
 
 			void	erase(iterator first, iterator last)
 			{
-				while (first != last)
-				{
-					erase(*first);
-					++first;
-				}
+				_data.erase(first, last);
 			}
 
 			void	clear()
@@ -282,7 +277,6 @@ namespace ft
 			void	swap(map& x)
 			{
 				_data.swap(x._data);
-				std::swap(_value_comparator, x._value_comparator);
 				std::swap(_key_comparator, x._key_comparator);
 			}
 		/////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -359,16 +353,27 @@ namespace ft
 			//might throw strong guarantee
 			pair<iterator,iterator>	equal_range(const key_type& k)
 			{
-				iterator	first = lower_bound(k);
+				iterator	ret = lower_bound(k);
 
-				if (first == end())
-					return make_pair(first, first);
+				if (ret == end())
+					return make_pair(ret, ret);
+				//k is less than ret's key
+				if (_key_comparator(k, ret->first))
+					return make_pair(ret, ret);
+				return make_pair(ret, ++ret);
 			}
 
 			//might throw strong guarantee
 			pair<const_iterator,const_iterator>	equal_range(const key_type& k) const
 			{
+				const_iterator	ret = lower_bound(k);
 
+				if (ret == end())
+					return make_pair(ret, ret);
+				//k is less than ret's key
+				if (_key_comparator(k, ret->first))
+					return make_pair(ret, ret);
+				return make_pair(ret, ++ret);
 			}
 		/////////////////////////////////////////////////////////////////////////////////////////////////////
 		/// Operations End

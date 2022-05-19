@@ -56,12 +56,16 @@ namespace ft
 			{
 				printTree(std::cout, _root, 0, 0);
 			}
+
+			node_pointer	getRoot() const
+			{
+				return _root;
+			}
 		/////////////////////////////////////////////////////////////////////////////////////////////////////
 		/// destructors, constructors, and assignment operators
 		/////////////////////////////////////////////////////////////////////////////////////////////////////
 		public:
 
-			Avl();
 			~Avl();
 
 			Avl(const value_compare& compare = value_compare(), const allocator_type& alloc = allocator_type());
@@ -98,8 +102,14 @@ namespace ft
 		public:
 			void		clear();
 			void		swap(Avl& x);
+
+			void		erase(iterator position);
+			void		erase(iterator first, iterator last);
+
 			size_type	erase(const value_type& val);
-			pair<iterator,bool>	insert(const value_type& val);//might throw : strong guarantee
+
+			//might throw : strong guarantee
+			pair<iterator,bool>	insert(const value_type& val);
 		/////////////////////////////////////////////////////////////////////////////////////////////////////
 		/// Modifiers End
 		/////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -118,6 +128,17 @@ namespace ft
 			const_iterator	upper_bound(const value_type& val) const;
 		/////////////////////////////////////////////////////////////////////////////////////////////////////
 		/// Operations End
+		/////////////////////////////////////////////////////////////////////////////////////////////////////
+
+
+		/////////////////////////////////////////////////////////////////////////////////////////////////////
+		/// Element access
+		/////////////////////////////////////////////////////////////////////////////////////////////////////
+		public:
+			//might throw : strong guarantee
+			reference	operator[] (const value_type& val);
+		/////////////////////////////////////////////////////////////////////////////////////////////////////
+		/// Element access
 		/////////////////////////////////////////////////////////////////////////////////////////////////////
 
 
@@ -233,7 +254,7 @@ namespace ft
 	/// destructors, constructors, and assignment operators
 	/////////////////////////////////////////////////////////////////////////////////////////////////////
 	template<typename T, typename Compare, typename Alloc>
-	Avl<T, Compare, Alloc>::Avl() : _count(0), _root(0), _last(0), _begin(0), _value_comparator(), _allocator(), _nodeAllocator(), traits_allocator()
+	Avl<T, Compare, Alloc>::Avl(const value_compare& compare, const allocator_type& alloc) : _count(0), _root(0), _last(0), _begin(0), _value_comparator(compare), _allocator(alloc), _nodeAllocator(alloc), traits_allocator(alloc)
 	{
 	}
 
@@ -241,11 +262,6 @@ namespace ft
 	Avl<T, Compare, Alloc>::Avl(const Avl& src) : _count(0), _root(0), _last(0), _begin(0), _value_comparator(src._value_comparator), _allocator(src._allocator), _nodeAllocator(src._nodeAllocator), traits_allocator(src.traits_allocator)
 	{
 		_clone(src);
-	}
-
-	template<typename T, typename Compare, typename Alloc>
-	Avl<T, Compare, Alloc>::Avl(const value_compare& compare, const allocator_type& alloc) : _count(0), _root(0), _last(0), _begin(0), _value_comparator(compare), _allocator(alloc), _nodeAllocator(alloc), traits_allocator(alloc)
-	{
 	}
 
 	template<typename T, typename Compare, typename Alloc>
@@ -328,11 +344,9 @@ namespace ft
 	template<typename T, typename Compare, typename Alloc>
 	pair<typename Avl<T, Compare, Alloc>::iterator,bool>	Avl<T, Compare, Alloc>::insert(const value_type& val)
 	{
-		bool			isnew;
 		node_pointer	node;
 		node_pointer	current;
 
-		isnew = true;
 		if (!_root)
 			node = _putInPosition(val);
 		else
@@ -362,17 +376,16 @@ namespace ft
 						break ;
 					}
 				}
-				//if val is equal to the current node' value : insert in the current node
+				//if val is equal to the current node' value : just change the curent node' value
 				else
 				{
 					node = _putInPosition(current, val);
-					isnew = false;
-					break ;
+					return make_pair(iterator(node, &_last, false), false);
 				}
 			}
 			_retroBalance(current);
 		}
-		return make_pair(iterator(node, &_last, false), isnew);
+		return make_pair(iterator(node, &_last, false), true);
 	}
 
 	template<typename T, typename Compare, typename Alloc>
@@ -400,6 +413,27 @@ namespace ft
 			}
 		}
 		return ret;
+	}
+
+	template<typename T, typename Compare, typename Alloc>
+	void	Avl<T, Compare, Alloc>::erase(iterator position)
+	{
+		_delete(position->_ptr);
+	}
+
+	template<typename T, typename Compare, typename Alloc>
+	void	Avl<T, Compare, Alloc>::erase(iterator first, iterator last)
+	{
+		node_pointer	head;
+		node_pointer	next;
+
+		head = first->_ptr;
+		while (head != last->_ptr)
+		{
+			next = head->getInOrderSuccessor();
+			_delete(head);
+			head = next;
+		}
 	}
 
 	template<typename T, typename Compare, typename Alloc>
@@ -574,6 +608,57 @@ namespace ft
 	}
 	/////////////////////////////////////////////////////////////////////////////////////////////////////
 	/// Operations End
+	/////////////////////////////////////////////////////////////////////////////////////////////////////
+
+
+	/////////////////////////////////////////////////////////////////////////////////////////////////////
+	/// Element access
+	/////////////////////////////////////////////////////////////////////////////////////////////////////
+	template<typename T, typename Compare, typename Alloc>
+	typename Avl<T, Compare, Alloc>::reference	Avl<T, Compare, Alloc>::operator[] (const value_type& val)
+	{
+		node_pointer	node;
+		node_pointer	current;
+
+		if (!_root)
+			node = _putInPosition(val);
+		else
+		{
+			current = _root;
+			while (1)
+			{
+				//if val is less than the current node' value : insert on the left
+				if (_value_comparator(val, current->value))
+				{
+					if (current->traits.left)
+						current = current->traits.left;
+					else
+					{
+						node = _putInPosition(current, val, true);
+						break ;
+					}
+				}
+				//if val is greater than the current node' value : insert on the right
+				else if (_value_comparator(current->value, val))
+				{
+					if (current->traits.right)
+						current = current->traits.right;
+					else
+					{
+						node = _putInPosition(current, val, false);
+						break ;
+					}
+				}
+				//if val is equal to the current node' value : just return the current node' value
+				else
+					return current->value;
+			}
+			_retroBalance(current);
+		}
+		return node->value;
+	}
+	/////////////////////////////////////////////////////////////////////////////////////////////////////
+	/// Element access
 	/////////////////////////////////////////////////////////////////////////////////////////////////////
 
 

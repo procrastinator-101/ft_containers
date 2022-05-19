@@ -17,6 +17,9 @@ int main(int argc, char **argv)
 
 	testInsertDelete(numbers);
 
-	// testAvlIterator(n);
+	testAvlIterator(n);
+
+	if (numbers < numbers)
+		return 0;
 	return 0;
 }

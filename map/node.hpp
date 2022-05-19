@@ -167,11 +167,11 @@ namespace ft
 		size_type	rightHeight;
 
 		if (traits.left)
-			leftHeight =traits.left->_traits.height + 1;
+			leftHeight = traits.left->traits.height + 1;
 		else
 			leftHeight = 0;
 		if (traits.right)
-			rightHeight =traits.right->_traits.height + 1;
+			rightHeight = traits.right->traits.height + 1;
 		else
 			rightHeight = 0;
 		traits.height = std::max(leftHeight, rightHeight);
@@ -246,11 +246,11 @@ namespace ft
 		size_type	rightHeight;
 
 		if (traits.left)
-			leftHeight = traits.left->_traits.height + 1;
+			leftHeight = traits.left->traits.height + 1;
 		else
 			leftHeight = 0;
 		if (traits.right)
-			rightHeight = traits.right->_traits.height + 1;
+			rightHeight = traits.right->traits.height + 1;
 		else
 			rightHeight = 0;
 		return leftHeight - rightHeight;
@@ -286,7 +286,7 @@ namespace ft
 		std::string prev_str = "    ";
 		Trunk *trunk = new Trunk(prev, prev_str);
 	
-		printTree(ostr, root->getRight(), trunk, true);
+		printTree(ostr, root->traits.right, trunk, true);
 	
 		if (!prev) {
 			trunk->str = "———";
@@ -304,13 +304,13 @@ namespace ft
 		showTrunks(ostr, trunk);
 		// ostr << " " << root->getValue() << "(" << root->getHeight() << ")" << std::endl;
 		// ostr << " (" << root->getValue() << " | " << (root->getParent() ? root->getParent()->getValue() : -1) << ")" << std::endl;
-		ostr << " " << root->getValue() << std::endl;
+		ostr << " " << root->value << std::endl;
 		if (prev) {
 			prev->str = prev_str;
 		}
 		trunk->str = "   |";
 	
-		printTree(ostr, root->getLeft(), trunk, false);
+		printTree(ostr, root->traits.left, trunk, false);
 		delete trunk;
 	}
 /////////////////////////////////////////////////////////////////////////////////////////////////////

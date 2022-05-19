@@ -224,12 +224,12 @@ namespace ft
       return false;
     if (!a && !b)
       return true;
-    if (a->_value != b->key)
+    if (a->value != b->key)
       return false;
-    ret = compareTrees(a->_traits.left, b->left);
+    ret = compareTrees(a->traits.left, b->left);
     if (ret == false)
       return ret;
-    return compareTrees(a->_traits.right, b->right);
+    return compareTrees(a->traits.right, b->right);
   }
 }
 
