@@ -14,8 +14,9 @@ namespace ft
 	template <class Key, class T, class Compare = std::less<Key>, class Alloc = std::allocator<pair<const Key,T> >>
 	class map
 	{
+
 		/////////////////////////////////////////////////////////////////////////////////////////////////////
-		/// type definitions
+		/// type definitions first half
 		/////////////////////////////////////////////////////////////////////////////////////////////////////
 		public:
 			typedef Key key_type;
@@ -23,7 +24,6 @@ namespace ft
 			typedef pair<const key_type,mapped_type> value_type;
 
 			typedef Compare key_compare;
-			typedef Compare value_compare;///
 
 			typedef Alloc allocator_type;
 			typedef typename allocator_type::reference reference;
@@ -32,7 +32,54 @@ namespace ft
 			typedef typename allocator_type::const_pointer const_pointer;
 
 			typedef size_t size_type;
+		/////////////////////////////////////////////////////////////////////////////////////////////////////
+		/// type definitions first half End
+		/////////////////////////////////////////////////////////////////////////////////////////////////////
 
+
+		/////////////////////////////////////////////////////////////////////////////////////////////////////
+		/// value_compare definition
+		/////////////////////////////////////////////////////////////////////////////////////////////////////
+		public:
+			class value_compare : public std::binary_function<value_type, value_type, bool>
+			{
+				friend class map;//!!!!!!!!!!!!!!
+				protected:
+					key_compare	_comparator;
+
+				public:
+					value_compare() : _comparator()
+					{
+					}
+
+					value_compare(key_compare comp) : _comparator(comp)
+					{
+					}
+
+					value_compare(const value_compare& src) : _comparator(src._comparator)
+					{
+					}
+
+					value_compare	&operator=(const value_compare& rop)
+					{
+						if (this == &rop)
+							return *this;
+						_comparator = rop._comparator;
+						return *this;
+					}
+
+					bool	operator() (const value_type& x, const value_type& y) const
+					{
+						return _comparator(x.first, y.first);
+					}
+			};
+		/////////////////////////////////////////////////////////////////////////////////////////////////////
+		/// value_compare definition End
+		/////////////////////////////////////////////////////////////////////////////////////////////////////
+
+		/////////////////////////////////////////////////////////////////////////////////////////////////////
+		/// type definitions second half
+		/////////////////////////////////////////////////////////////////////////////////////////////////////
 		private:
 			typedef Avl<value_type, value_compare, allocator_type> Bst;
 
@@ -41,10 +88,9 @@ namespace ft
 			typedef typename Bst::const_iterator const_iterator;
 			typedef typename Bst::reverse_iterator reverse_iterator;
 			typedef typename Bst::const_reverse_iterator const_reverse_iterator;
-
 			typedef typename iterator_traits<iterator>::difference_type difference_type;
 		/////////////////////////////////////////////////////////////////////////////////////////////////////
-		/// type definitions End
+		/// type definitions second half End
 		/////////////////////////////////////////////////////////////////////////////////////////////////////
 
 
@@ -53,7 +99,6 @@ namespace ft
 		/////////////////////////////////////////////////////////////////////////////////////////////////////
 		Bst _data;
 		key_compare	_key_comparator;
-		value_compare	_value_comparator;
 		/////////////////////////////////////////////////////////////////////////////////////////////////////
 		/// Avl class Defintion End
 		/////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -62,12 +107,14 @@ namespace ft
 		/// destructors, constructors, and assignment operators
 		/////////////////////////////////////////////////////////////////////////////////////////////////////
 		public:
-			explicit map(const key_compare& comp = key_compare(), const allocator_type& alloc = allocator_type()) : _data(comp, alloc)
+			explicit map(const key_compare& comp = key_compare(), const allocator_type& alloc = allocator_type()) : _data(value_compare(comp), alloc), _key_comparator(comp)
 			{
 			}
 
+			//might throw
+			//needs Sfinae protection
 			template <class InputIterator>
-			map(InputIterator first, InputIterator last, const key_compare& comp = key_compare(), const allocator_type& alloc = allocator_type()) : _data(comp, alloc)
+			map(InputIterator first, InputIterator last, const key_compare& comp = key_compare(), const allocator_type& alloc = allocator_type()) : _data(value_compare(comp), alloc), _key_comparator(comp)
 			{
 				while (first != last)
 				{
@@ -76,7 +123,7 @@ namespace ft
 				}
 			}
 
-			map(const map& src) : _data(src._data)
+			map(const map& src) : _data(src._data), _key_comparator(src._key_comparator)
 			{
 			}
 
@@ -90,7 +137,6 @@ namespace ft
 					return *this;
 				_data = rop._data;
 				_key_comparator = rop._key_comparator;
-				_value_comparator = rop._value_comparator;
 				return *this;
 			}
 		/////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -255,7 +301,7 @@ namespace ft
 
 			value_compare	value_comp() const
 			{
-				return _value_comparator;
+				return _data.get_value_comparator();
 			}
 		/////////////////////////////////////////////////////////////////////////////////////////////////////
 		/// Observers End
@@ -266,48 +312,61 @@ namespace ft
 		/// Operations
 		/////////////////////////////////////////////////////////////////////////////////////////////////////
 		public:
+			//might throw strong guarantee
 			iterator	find(const key_type& k)
 			{
 				return _data.find(make_pair(k, mapped_type()));
 			}
 
+			//might throw strong guarantee
 			const_iterator	find(const key_type& k) const
 			{
 				return _data.find(make_pair(k, mapped_type()));
 			}
 
+			//might throw strong guarantee
 			size_type	count(const key_type& k) const
 			{
-				iterator	tmp = _data.find(make_pair(k, mapped_type()));
+				const_iterator	tmp = _data.find(make_pair(k, mapped_type()));
 
-				return tmp == _data.end();
+				return tmp != end();
 			}
 
+			//might throw strong guarantee
 			iterator	lower_bound(const key_type& k)
 			{
 				return _data.lower_bound(make_pair(k, mapped_type()));
 			}
 
+			//might throw strong guarantee
 			const_iterator	lower_bound(const key_type& k) const
 			{
 				return _data.lower_bound(make_pair(k, mapped_type()));
 			}
 
+			//might throw strong guarantee
 			iterator	upper_bound(const key_type& k)
 			{
 				return _data.upper_bound(make_pair(k, mapped_type()));
 			}
 
+			//might throw strong guarantee
 			const_iterator	upper_bound(const key_type& k) const
 			{
 				return _data.upper_bound(make_pair(k, mapped_type()));
 			}
 
-			pair<const_iterator,const_iterator>	equal_range(const key_type& k) const
-			{
-
-			}
+			//might throw strong guarantee
 			pair<iterator,iterator>	equal_range(const key_type& k)
+			{
+				iterator	first = lower_bound(k);
+
+				if (first == end())
+					return make_pair(first, first);
+			}
+
+			//might throw strong guarantee
+			pair<const_iterator,const_iterator>	equal_range(const key_type& k) const
 			{
 
 			}

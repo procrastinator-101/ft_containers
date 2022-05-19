@@ -112,6 +112,10 @@ namespace ft
 			iterator	find(const value_type& val);
 			iterator	lower_bound(const value_type& val);
 			iterator	upper_bound(const value_type& val);
+
+			const_iterator	find(const value_type& val) const;
+			const_iterator	lower_bound(const value_type& val) const;
+			const_iterator	upper_bound(const value_type& val) const;
 		/////////////////////////////////////////////////////////////////////////////////////////////////////
 		/// Operations End
 		/////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -192,12 +196,19 @@ namespace ft
 		/// Allocator
 		/////////////////////////////////////////////////////////////////////////////////////////////////////
 		public:
-			allocator_type	get_allocator() const
-			{
-				return _allocator;
-			}
+			allocator_type	get_allocator() const;
 		/////////////////////////////////////////////////////////////////////////////////////////////////////
 		/// Allocator End
+		/////////////////////////////////////////////////////////////////////////////////////////////////////
+
+
+		/////////////////////////////////////////////////////////////////////////////////////////////////////
+		/// Observers
+		/////////////////////////////////////////////////////////////////////////////////////////////////////
+		public:
+			value_compare	get_value_comparator() const;
+		/////////////////////////////////////////////////////////////////////////////////////////////////////
+		/// Observers End
 		/////////////////////////////////////////////////////////////////////////////////////////////////////
 
 
@@ -209,6 +220,7 @@ namespace ft
 			node_pointer	_root;
 			node_pointer	_last;
 			node_pointer	_begin;
+			value_compare	_value_comparator;
 			allocator_type	_allocator;
 			node_allocator_type	_nodeAllocator;
 			traits_allocator_type	traits_allocator;
@@ -221,14 +233,19 @@ namespace ft
 	/// destructors, constructors, and assignment operators
 	/////////////////////////////////////////////////////////////////////////////////////////////////////
 	template<typename T, typename Compare, typename Alloc>
-	Avl<T, Compare, Alloc>::Avl() : _count(0), _root(0), _last(0), _begin(0), _allocator(), _nodeAllocator(), traits_allocator()
+	Avl<T, Compare, Alloc>::Avl() : _count(0), _root(0), _last(0), _begin(0), _value_comparator(), _allocator(), _nodeAllocator(), traits_allocator()
 	{
 	}
 
 	template<typename T, typename Compare, typename Alloc>
-	Avl<T, Compare, Alloc>::Avl(const Avl& src) : _count(0), _root(0), _last(0), _begin(0), _allocator(src._allocator), _nodeAllocator(src._nodeAllocator), traits_allocator(src.traits_allocator)
+	Avl<T, Compare, Alloc>::Avl(const Avl& src) : _count(0), _root(0), _last(0), _begin(0), _value_comparator(src._value_comparator), _allocator(src._allocator), _nodeAllocator(src._nodeAllocator), traits_allocator(src.traits_allocator)
 	{
 		_clone(src);
+	}
+
+	template<typename T, typename Compare, typename Alloc>
+	Avl<T, Compare, Alloc>::Avl(const value_compare& compare, const allocator_type& alloc) : _count(0), _root(0), _last(0), _begin(0), _value_comparator(compare), _allocator(alloc), _nodeAllocator(alloc), traits_allocator(alloc)
+	{
 	}
 
 	template<typename T, typename Compare, typename Alloc>
@@ -324,7 +341,7 @@ namespace ft
 			while (1)
 			{
 				//if val is less than the current node' value : insert on the left
-				if (Compare()(val, current->value))
+				if (_value_comparator(val, current->value))
 				{
 					if (current->traits.left)
 						current = current->traits.left;
@@ -335,7 +352,7 @@ namespace ft
 					}
 				}
 				//if val is greater than the current node' value : insert on the right
-				else if (Compare()(current->value, val))
+				else if (_value_comparator(current->value, val))
 				{
 					if (current->traits.right)
 						current = current->traits.right;
@@ -369,10 +386,10 @@ namespace ft
 		while (current)
 		{
 			//if val is less than the current node' value : erase on the left
-			if (Compare()(val, current->value))
+			if (_value_comparator(val, current->value))
 				current = current->traits.left;
 			//if val is grater than the current node' value : erase on the right
-			else if (Compare()(current->value, val))
+			else if (_value_comparator(current->value, val))
 				current = current->traits.right;
 			//if val is equal to the current node' value : erase the current node
 			else
@@ -422,12 +439,30 @@ namespace ft
 		node = _root;
 		while (node)
 		{
-			if (value_compare(node->value, val))
+			if (_value_comparator(node->value, val))
 				node = node->traits.right;
-			else if (value_compare(val, node->value))
+			else if (_value_comparator(val, node->value))
 				node = node->traits.left;
 			else
 				return iterator(node, &_last, false);
+		}
+		return end();
+	}
+
+	template<typename T, typename Compare, typename Alloc>
+	typename Avl<T, Compare, Alloc>::const_iterator	Avl<T, Compare, Alloc>::find(const value_type& val) const
+	{
+		node_pointer	node;
+
+		node = _root;
+		while (node)
+		{
+			if (_value_comparator(node->value, val))
+				node = node->traits.right;
+			else if (_value_comparator(val, node->value))
+				node = node->traits.left;
+			else
+				return const_iterator(node, &_last, false);
 		}
 		return end();
 	}
@@ -442,9 +477,9 @@ namespace ft
 		node = _root;
 		while (node)
 		{
-			if (value_compare(node->value, val))
+			if (_value_comparator(node->value, val))
 				node = node->traits.right;
-			else if (value_compare(val, node->value))
+			else if (_value_comparator(val, node->value))
 			{
 				ret = node;
 				node = node->traits.left;
@@ -458,6 +493,31 @@ namespace ft
 	}
 
 	template<typename T, typename Compare, typename Alloc>
+	typename Avl<T, Compare, Alloc>::const_iterator	Avl<T, Compare, Alloc>::lower_bound(const value_type& val) const
+	{
+		node_pointer	ret;
+		node_pointer	node;
+
+		ret = 0;
+		node = _root;
+		while (node)
+		{
+			if (_value_comparator(node->value, val))
+				node = node->traits.right;
+			else if (_value_comparator(val, node->value))
+			{
+				ret = node;
+				node = node->traits.left;
+			}
+			else
+				return const_iterator(node, &_last, false);
+		}
+		if (ret)
+			return const_iterator(ret, &_last, false);
+		return end();
+	}
+
+	template<typename T, typename Compare, typename Alloc>
 	typename Avl<T, Compare, Alloc>::iterator	Avl<T, Compare, Alloc>::upper_bound(const value_type& val)
 	{
 		node_pointer	ret;
@@ -467,13 +527,13 @@ namespace ft
 		node = _root;
 		while (node)
 		{
-			if (value_compare(node->value, val))
+			if (_value_comparator(node->value, val))
+				node = node->traits.right;
+			else if (_value_comparator(val, node->value))
 			{
 				ret = node;
-				node = node->traits.right;
-			}
-			else if (value_compare(val, node->value))
 				node = node->traits.left;
+			}
 			else
 			{
 				ret = node->getInOrderSuccessor();
@@ -482,6 +542,34 @@ namespace ft
 		}
 		if (ret)
 			return iterator(ret, &_last, false);
+		return end();
+	}
+
+	template<typename T, typename Compare, typename Alloc>
+	typename Avl<T, Compare, Alloc>::const_iterator	Avl<T, Compare, Alloc>::upper_bound(const value_type& val) const
+	{
+		node_pointer	ret;
+		node_pointer	node;
+
+		ret = 0;
+		node = _root;
+		while (node)
+		{
+			if (_value_comparator(node->value, val))
+				node = node->traits.right;
+			else if (_value_comparator(val, node->value))
+			{
+				ret = node;
+				node = node->traits.left;
+			}
+			else
+			{
+				ret = node->getInOrderSuccessor();
+				break ;
+			}
+		}
+		if (ret)
+			return const_iterator(ret, &_last, false);
 		return end();
 	}
 	/////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -524,6 +612,7 @@ namespace ft
 		catch (...)
 		{
 			_nodeAllocator.deallocate(node, 1);
+			throw ;
 		}
 		try
 		{
@@ -533,6 +622,7 @@ namespace ft
 		{
 			traits_allocator.destroy(&(node->traits));
 			_nodeAllocator.deallocate(node, 1);
+			throw ;
 		}
 		return node;
 	}
@@ -968,6 +1058,31 @@ namespace ft
 	/////////////////////////////////////////////////////////////////////////////////////////////////////
 	/// auxiliaries End
 	/////////////////////////////////////////////////////////////////////////////////////////////////////
+
+
+	////////////////////////////////////////////////////////////////////////////////////////////////////
+	/// Allocator
+	/////////////////////////////////////////////////////////////////////////////////////////////////////
+	template<typename T, typename Compare, typename Alloc>
+	typename Avl<T, Compare, Alloc>::allocator_type	Avl<T, Compare, Alloc>::get_allocator() const
+	{
+		return _nodeAllocator;
+	}
+	/////////////////////////////////////////////////////////////////////////////////////////////////////
+	/// Allocator End
+	/////////////////////////////////////////////////////////////////////////////////////////////////////	
+
+	/////////////////////////////////////////////////////////////////////////////////////////////////////
+	/// Observers
+	/////////////////////////////////////////////////////////////////////////////////////////////////////
+	template<typename T, typename Compare, typename Alloc>
+	typename Avl<T, Compare, Alloc>::value_compare	Avl<T, Compare, Alloc>::get_value_comparator() const
+	{
+		return _value_comparator;
+	}
+	/////////////////////////////////////////////////////////////////////////////////////////////////////
+	/// Observers End
+	/////////////////////////////////////////////////////////////////////////////////////////////////////	
 }
 
 #endif
