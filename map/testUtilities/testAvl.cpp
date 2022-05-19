@@ -15,8 +15,8 @@ int main(int argc, char **argv)
 	for (int i = 0; i < n; i++)
 		numbers.push_back(std::rand());
 
-	// testInsertDelete(numbers);
+	testInsertDelete(numbers);
 
-	testAvlIterator(n);
+	// testAvlIterator(n);
 	return 0;
 }

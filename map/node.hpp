@@ -1,10 +1,10 @@
 #ifndef NODE_HPP
 # define NODE_HPP
 
-#include <cstddef>
-#include <algorithm>    // std::max
-#include <string>    // Trunk
-#include <iostream>    // cout
+#include <string>			// Trunk
+#include <cstddef>			// size_t
+#include <iostream>			// cout
+#include <algorithm>		// std::max
 
 namespace ft
 {
@@ -111,8 +111,8 @@ namespace ft
 		/// attributes
 		/////////////////////////////////////////////////////////////////////////////////////////////////////
 		public:
-			value_type	_value;
-			Traits		_traits;
+			value_type	value;
+			Traits		traits;
 		/////////////////////////////////////////////////////////////////////////////////////////////////////
 		/// attributes End
 		/////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -122,7 +122,7 @@ namespace ft
 	/// destructors, constructors, and assignment operators
 	/////////////////////////////////////////////////////////////////////////////////////////////////////
 	template<typename T>
-	Node<T>::Node() :  _value(), _traits()
+	Node<T>::Node() :  value(), traits()
 	{
 	}
 
@@ -132,25 +132,25 @@ namespace ft
 	}
 
 	template<typename T>
-	Node<T>::Node(value_type value, node_pointer left, node_pointer right, node_pointer parent) : _value(value), _traits(left, right, parent)
+	Node<T>::Node(value_type value, node_pointer left, node_pointer right, node_pointer parent) : value(value), traits(left, right, parent)
 	{
 	}
 
 	template<typename T>
-	Node<T>::Node(const Node& src) : _value(src._value), _traits(src._traits)
+	Node<T>::Node(const Node& src) : value(src.value), traits(src.traits)
 	{
 	}
 
 	template<typename T>
-	Node<T>::Node(value_type value) : _value(value), _traits()
+	Node<T>::Node(value_type value) : value(value), traits()
 	{
 	}
 
 	template<typename T>
 	typename Node<T>::node_reference	Node<T>::operator=(const Node& rhs)
 	{
-		_value = rhs._value;
-		_traits = rhs._traits;
+		value = rhs.value;
+		traits = rhs.traits;
 		return *this;
 	}
 	/////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -166,15 +166,15 @@ namespace ft
 		size_type	leftHeight;
 		size_type	rightHeight;
 
-		if (_traits.left)
-			leftHeight =_traits.left->_traits.height + 1;
+		if (traits.left)
+			leftHeight =traits.left->_traits.height + 1;
 		else
 			leftHeight = 0;
-		if (_traits.right)
-			rightHeight =_traits.right->_traits.height + 1;
+		if (traits.right)
+			rightHeight =traits.right->_traits.height + 1;
 		else
 			rightHeight = 0;
-		_traits.height = std::max(leftHeight, rightHeight);
+		traits.height = std::max(leftHeight, rightHeight);
 	}
 
 	template<typename T>
@@ -187,22 +187,22 @@ namespace ft
 
 		ret = 0;
 		//left most child of its right suNode
-		if (_traits.right)
+		if (traits.right)
 		{
-			ret = _traits.right;
-			while (ret->_traits.left)
-				ret = ret->_traits.left;
+			ret = traits.right;
+			while (ret->traits.left)
+				ret = ret->traits.left;
 		}
 		//first parent where the most recent child is not its right child
 		else
 		{
 			// child = this;
 			child = const_cast<node_pointer>(this);
-			ret = _traits.parent;
-			while (ret && ret->_traits.right == child)
+			ret = traits.parent;
+			while (ret && ret->traits.right == child)
 			{
 				child = ret;
-				ret = ret->_traits.parent;
+				ret = ret->traits.parent;
 			}
 		}
 		return ret;
@@ -218,22 +218,22 @@ namespace ft
 
 		ret = 0;
 		//right most child of its left suNode
-		if (_traits.left)
+		if (traits.left)
 		{
-			ret = _traits.left;
-			while (ret->_traits.right)
-				ret = ret->_traits.right;
+			ret = traits.left;
+			while (ret->traits.right)
+				ret = ret->traits.right;
 		}
 		//first parent where the most recent child is not its left child
 		else
 		{
 			// child = this;
 			child = const_cast<node_pointer>(this);
-			ret = _traits.parent;
-			while (ret && ret->_traits.left == child)
+			ret = traits.parent;
+			while (ret && ret->traits.left == child)
 			{
 				child = ret;
-				ret = ret->_traits.parent;
+				ret = ret->traits.parent;
 			}
 		}
 		return ret;
@@ -245,12 +245,12 @@ namespace ft
 		size_type	leftHeight;
 		size_type	rightHeight;
 
-		if (_traits.left)
-			leftHeight =_traits.left->_traits.height + 1;
+		if (traits.left)
+			leftHeight = traits.left->_traits.height + 1;
 		else
 			leftHeight = 0;
-		if (_traits.right)
-			rightHeight =_traits.right->_traits.height + 1;
+		if (traits.right)
+			rightHeight = traits.right->_traits.height + 1;
 		else
 			rightHeight = 0;
 		return leftHeight - rightHeight;

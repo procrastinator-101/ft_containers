@@ -3,52 +3,64 @@
 
 #include <iterator>
 
-#include "const_treeIterator.hpp"
-
 namespace ft
 {
-	template<class NodeType>
-	class avlIterator
+	/**
+	 * @brief an iterator that iterates through a tree having NodeType as its
+	 		  node type
+	 * 
+	 * @tparam T :	the value type of the node
+	 * @tparam NodeType : it is expected to have at least a public value attribute,
+	 					  getInOrderSuccessor and getInOrderPredeccessor methods.
+						  the constructor expects a last argument which points to the
+						  address of the last node pointer in the tree.
+	 */
+
+	template<typename T, template<typename> class NodeType>
+	class treeIterator
 	{
 		/////////////////////////////////////////////////////////////////////////////////////////////////////
 		/// type definitions
 		/////////////////////////////////////////////////////////////////////////////////////////////////////
 		public:
 			typedef std::bidirectional_iterator_tag iterator_category;
-			typedef typename NodeType::value_type value_type;
+
+			typedef T value_type;
+			typedef T* pointer;
+			typedef const T* const_pointer;
+			typedef T& reference;
+			typedef const T& const_reference;
+
 			typedef std::ptrdiff_t difference_type;
-			typedef typename NodeType::pointer pointer;
-			typedef typename NodeType::reference reference;
-			typedef typename NodeType::const_pointer const_pointer;
-			typedef typename NodeType::const_reference const_reference;
 
 		private:
-			typedef typename NodeType::node_pointer node_pointer;
-			typedef typename const_treeIterator<NodeType>::node_pointer ;
+			typedef NodeType<value_type>* node_pointer;
+
+			typedef const T const_value_type;
+			typedef treeIterator<const_value_type, NodeType> const_treeIterator;
+			typedef NodeType<const_value_type>* const_treeIterator_node_pointer;
 		/////////////////////////////////////////////////////////////////////////////////////////////////////
 		/// type definitions End
 		/////////////////////////////////////////////////////////////////////////////////////////////////////
 
-		private:
-			node_pointer	*_last;
-			node_pointer	_ptr;
 
-			bool			_isEnd;
-
+		/////////////////////////////////////////////////////////////////////////////////////////////////////
+		/// destructors, constructors, and assignment operators End
+		/////////////////////////////////////////////////////////////////////////////////////////////////////
 		public:
-			avlIterator() : _last(0), _ptr(0), _isEnd(false)
+			treeIterator() : _ptr(0), _last(0), _isEnd(false)
 			{
 			}
 
-			avlIterator(node_pointer ptr, node_pointer *last, bool isEnd) : _last(last), _ptr(ptr), _isEnd(isEnd)
+			treeIterator(node_pointer ptr, node_pointer *last, bool isEnd) : _ptr(ptr), _last(last), _isEnd(isEnd)
 			{
 			}
 
-			avlIterator(const avlIterator& src) : _last(src._last), _ptr(src._ptr), _isEnd(src._isEnd)
+			treeIterator(const treeIterator& src) : _ptr(src._ptr), _last(src._last), _isEnd(src._isEnd)
 			{
 			}
 
-			avlIterator	operator=(const avlIterator& rop)
+			treeIterator	operator=(const treeIterator& rop)
 			{
 				if (this == &rop)
 					return *this;
@@ -58,32 +70,32 @@ namespace ft
 				return *this;
 			}
 
-			friend bool	operator==(const avlIterator& lhs, const avlIterator& rhs)
+			friend bool	operator==(const treeIterator& lhs, const treeIterator& rhs)
 			{
-				return lhs._ptr == rhs._ptr && lhs._last == rhs._last;
+				return lhs._ptr == rhs._ptr && lhs._last == rhs._last && lhs._isEnd == rhs._isEnd;
 			}
 
-			friend bool	operator!=(const avlIterator& lhs, const avlIterator& rhs)
+			friend bool	operator!=(const treeIterator& lhs, const treeIterator& rhs)
 			{
 				return !(lhs._ptr == rhs._ptr);
 			}
 
 			reference	operator*()
 			{
-				return _ptr->_value;
+				return _ptr->value;
 			}
 
 			const_reference	operator*() const
 			{
-				return _ptr->_value;
+				return _ptr->value;
 			}
 
 			pointer	operator->()
 			{
-				return &(_ptr->_value);
+				return &(_ptr->value);
 			}
 
-			avlIterator	&operator++()
+			treeIterator	&operator++()
 			{
 				//end or after end
 				if (!_ptr)
@@ -100,9 +112,9 @@ namespace ft
 				return *this;
 			}
 
-			avlIterator	operator++(int n)
+			treeIterator	operator++(int n)
 			{
-				avlIterator	ret(*this);
+				treeIterator	ret(*this);
 
 				(void)n;
 				//end or after end
@@ -120,15 +132,12 @@ namespace ft
 				return ret;
 			}
 
-			avlIterator	&operator--()
+			treeIterator	&operator--()
 			{
 				//at end : return last and restore the normal iterator state
 				if (_isEnd)
 				{
-					if (_last)
-						_ptr = *_last;
-					else
-						_ptr = 0;
+					_ptr = *_last;
 					_isEnd = false;
 				}
 				//inside the sequence
@@ -138,18 +147,15 @@ namespace ft
 				return *this;
 			}
 
-			avlIterator	operator--(int n)
+			treeIterator	operator--(int n)
 			{
-				avlIterator	ret(*this);
+				treeIterator	ret(*this);
 
 				(void)n;
 				//at end : return last and restore the normal iterator state
 				if (_isEnd)
 				{
-					if (_last)
-						_ptr = *_last;
-					else
-						_ptr = 0;
+					_ptr = *_last;
 					_isEnd = false;
 				}
 				//inside the sequence
@@ -159,10 +165,22 @@ namespace ft
 				return ret;
 			}
 
-			operator const_treeIterator<NodeType>() const
+			
+			operator const_treeIterator() const
 			{
-				return const_treeIterator<NodeType>(_ptr, _last, _isEnd);
+				return const_treeIterator(reinterpret_cast<const_treeIterator_node_pointer>(_ptr), reinterpret_cast<const_treeIterator_node_pointer *>(_last), _isEnd);
 			}
+
+		/////////////////////////////////////////////////////////////////////////////////////////////////////
+		/// Attributes
+		/////////////////////////////////////////////////////////////////////////////////////////////////////
+		private:
+			node_pointer	_ptr;
+			node_pointer	*_last;
+			bool			_isEnd;
+		/////////////////////////////////////////////////////////////////////////////////////////////////////
+		/// Attributes End
+		/////////////////////////////////////////////////////////////////////////////////////////////////////
 	};
 }
 
