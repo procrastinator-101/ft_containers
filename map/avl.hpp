@@ -276,6 +276,7 @@ namespace ft
 		if (this == &rop)
 			return *this;
 		clear();
+		_value_comparator = rop._value_comparator;
 		_clone(rop);
 		return *this;
 	}
@@ -376,12 +377,9 @@ namespace ft
 						break ;
 					}
 				}
-				//if val is equal to the current node' value : just change the curent node' value
+				//if val is equal to the current node' value : just return the current node
 				else
-				{
-					node = _putInPosition(current, val);
-					return make_pair(iterator(node, &_last, false), false);
-				}
+					return make_pair(iterator(current, &_last, false), false);
 			}
 			_retroBalance(current);
 		}
@@ -453,6 +451,7 @@ namespace ft
 		std::swap(_root, x._root);
 		std::swap(_last, x._last);
 		std::swap(_begin, x._begin);
+		std::swap(_value_comparator, x._value_comparator);
 		std::swap(_allocator, x._allocator);
 		std::swap(_nodeAllocator, x._nodeAllocator);
 		std::swap(traits_allocator, x.traits_allocator);
@@ -938,6 +937,7 @@ namespace ft
 		catch (...)
 		{
 			clear();
+			throw ;
 		}
 	}
 	/////////////////////////////////////////////////////////////////////////////////////////////////////

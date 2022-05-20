@@ -42,11 +42,11 @@ namespace ft
 		public:
 			class value_compare : public std::binary_function<value_type, value_type, bool>
 			{
-				friend class map;//!!!!!!!!!!!!!!
+				friend class map;
+
 				protected:
 					key_compare	_comparator;
 
-				public:
 					value_compare() : _comparator()
 					{
 					}
@@ -67,6 +67,7 @@ namespace ft
 						return *this;
 					}
 
+				public:
 					bool	operator() (const value_type& x, const value_type& y) const
 					{
 						return _comparator(x.first, y.first);
@@ -94,12 +95,12 @@ namespace ft
 
 
 		/////////////////////////////////////////////////////////////////////////////////////////////////////
-		/// Avl class Defintion
+		/// Attributes
 		/////////////////////////////////////////////////////////////////////////////////////////////////////
 		Bst _data;
 		key_compare	_key_comparator;
 		/////////////////////////////////////////////////////////////////////////////////////////////////////
-		/// Avl class Defintion End
+		/// Attributes End
 		/////////////////////////////////////////////////////////////////////////////////////////////////////
 
 		/////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -110,10 +111,9 @@ namespace ft
 			{
 			}
 
-			//might throw
-			//needs Sfinae protection
+			//might throw : strong guarantee
 			template <class InputIterator>
-			map(InputIterator first, InputIterator last, const key_compare& comp = key_compare(), const allocator_type& alloc = allocator_type()) : _data(value_compare(comp), alloc), _key_comparator(comp)
+			map(InputIterator first, typename ft::enable_if<is_iterator<InputIterator>::value, InputIterator>::type last, const key_compare& comp = key_compare(), const allocator_type& alloc = allocator_type()) : _data(value_compare(comp), alloc), _key_comparator(comp)
 			{
 				while (first != last)
 				{
@@ -122,6 +122,7 @@ namespace ft
 				}
 			}
 
+			//might throw : strong guarantee
 			map(const map& src) : _data(src._data), _key_comparator(src._key_comparator)
 			{
 			}
@@ -130,6 +131,7 @@ namespace ft
 			{
 			}
 
+			//might throw : basic guarantee
 			map	&operator=(const map& rop)
 			{
 				if (this == &rop)
@@ -219,9 +221,7 @@ namespace ft
 		public:
 			mapped_type	&operator[](const key_type& k)
 			{
-				pair<iterator,bool>	ret = _data.insert(make_pair(k, mapped_type()));
-
-				return ret.first->second;
+				return _data[make_pair(k, mapped_type())];
 			}
 		/////////////////////////////////////////////////////////////////////////////////////////////////////
 		/// Element access End
@@ -233,7 +233,7 @@ namespace ft
 		public:
 			pair<iterator,bool>	insert(const value_type& val)
 			{
-				_data.insert(val);
+				return _data.insert(val);
 			}
 
 			iterator	insert(iterator position, const value_type& val)
@@ -245,7 +245,7 @@ namespace ft
 			}
 
 			template <class InputIterator>
-			void	insert(InputIterator first, InputIterator last)
+			void	insert(InputIterator first, typename ft::enable_if<is_iterator<InputIterator>::value, InputIterator>::type last)
 			{
 				while (first != last)
 				{
@@ -391,6 +391,13 @@ namespace ft
 		/// Allocator
 		/////////////////////////////////////////////////////////////////////////////////////////////////////
 	};
+
+	/////////////////////////////////////////////////////////////////////////////////////////////////////
+	/// Allocator
+	/////////////////////////////////////////////////////////////////////////////////////////////////////
+	/////////////////////////////////////////////////////////////////////////////////////////////////////
+	/// Allocator
+	/////////////////////////////////////////////////////////////////////////////////////////////////////
 }
 
 #endif
