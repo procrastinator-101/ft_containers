@@ -141,7 +141,7 @@ namespace ft
 	/// void_t
 	/////////////////////////////////////////////////////////////////////////////////////////////////////
 	template<typename T>
-	class void_t
+	struct void_t
 	{
 		typedef void type;
 	};
@@ -154,10 +154,10 @@ namespace ft
 	/// is_iterator
 	/////////////////////////////////////////////////////////////////////////////////////////////////////
 	template<typename T, typename U = void, typename V = void, typename W = void, typename X = void, typename Y = void>
-	class is_iterator : false_type {};
+	struct is_iterator : false_type {};
 
 	template<typename T>
-	class is_iterator <	T, 
+	struct is_iterator <	T, 
 						typename void_t<typename T::difference_type>::type,
 						typename void_t<typename T::value_type>::type,
 						typename void_t<typename T::pointer>::type,

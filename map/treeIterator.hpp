@@ -19,8 +19,9 @@ namespace ft
 	template<typename T, template<typename> class NodeType>
 	class treeIterator
 	{
-		template<typename U, typename Compare, typename Alloc>
-		friend class Avl;
+		template <class Key, class U, class Compare, class Alloc>
+		friend class map;
+		
 		/////////////////////////////////////////////////////////////////////////////////////////////////////
 		/// type definitions
 		/////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -97,17 +98,12 @@ namespace ft
 		/// Derefrence operators
 		/////////////////////////////////////////////////////////////////////////////////////////////////////
 		public:
-			reference	operator*()
+			reference	operator*() const
 			{
 				return _ptr->value;
 			}
 
-			const_reference	operator*() const
-			{
-				return _ptr->value;
-			}
-
-			pointer	operator->()
+			pointer	operator->() const
 			{
 				return &(_ptr->value);
 			}

@@ -2,4 +2,3 @@ map :
 	eliminate printTree from node
 	eliminate show from avl
 	derefrence rend
-	value_compare : private constructor

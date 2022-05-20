@@ -34,8 +34,11 @@ namespace ft
 
 		pair	&operator=(const pair& pr)
 		{
+			if (this == &pr)
+				return *this;
 			first = pr.first;
 			second = pr.second;
+			return *this;
 		}
 		/////////////////////////////////////////////////////////////////////////////////////////////////////
 		/// destructors, constructors, and assignment operators End
