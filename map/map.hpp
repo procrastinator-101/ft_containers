@@ -3,6 +3,9 @@
 
 #include <functional>
 
+#include "../algorithm/equal.hpp"
+#include "../algorithm/lexicographical_compare.hpp"
+
 #include "../utility/pair.hpp"
 #include "../utility/make_pair.hpp"
 #include "../type_traits/type_traits.hpp"
@@ -393,10 +396,58 @@ namespace ft
 	};
 
 	/////////////////////////////////////////////////////////////////////////////////////////////////////
-	/// Allocator
+	/// Relational operators
 	/////////////////////////////////////////////////////////////////////////////////////////////////////
+	template< class Key, class T, class Compare, class Alloc >
+	bool	operator==(const map<Key,T,Compare,Alloc>& lhs, const map<Key,T,Compare,Alloc>& rhs)
+	{
+		return equal(lhs.begin(), lhs.end(), rhs.begin());
+	}
+
+	template< class Key, class T, class Compare, class Alloc >
+	bool	operator!=(const map<Key,T,Compare,Alloc>& lhs, const map<Key,T,Compare,Alloc>& rhs)
+	{
+		return !(lhs == rhs);
+	}
+
+	template< class Key, class T, class Compare, class Alloc >
+	bool	operator<(const map<Key,T,Compare,Alloc>& lhs, const map<Key,T,Compare,Alloc>& rhs)
+	{
+		return lexicographical_compare(lhs.begin(), lhs.end(), rhs.begin(), rhs.end());
+	}
+
+	template< class Key, class T, class Compare, class Alloc >
+	bool	operator<=(const map<Key,T,Compare,Alloc>& lhs, const map<Key,T,Compare,Alloc>& rhs)
+	{
+		return !(rhs < lhs);
+	}
+
+	template< class Key, class T, class Compare, class Alloc >
+	bool	operator>(const map<Key,T,Compare,Alloc>& lhs, const map<Key,T,Compare,Alloc>& rhs)
+	{
+		return rhs < lhs;
+	}
+
+	template< class Key, class T, class Compare, class Alloc >
+	bool	operator>=(const map<Key,T,Compare,Alloc>& lhs, const map<Key,T,Compare,Alloc>& rhs)
+	{
+		return !(lhs < rhs);
+	}
 	/////////////////////////////////////////////////////////////////////////////////////////////////////
-	/// Allocator
+	/// Relational operators End
+	/////////////////////////////////////////////////////////////////////////////////////////////////////
+
+
+	/////////////////////////////////////////////////////////////////////////////////////////////////////
+	/// Swap
+	/////////////////////////////////////////////////////////////////////////////////////////////////////
+	template< class Key, class T, class Compare, class Alloc >
+	void	swap(map<Key,T,Compare,Alloc>& lhs, map<Key,T,Compare,Alloc>& rhs)
+	{
+		lhs.swap(rhs);
+	}
+	/////////////////////////////////////////////////////////////////////////////////////////////////////
+	/// Swap End
 	/////////////////////////////////////////////////////////////////////////////////////////////////////
 }
 
