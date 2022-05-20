@@ -2,21 +2,14 @@
 # define VECTOR_HPP
 
 #include <cstddef>
-#include <cstring>
 #include <memory>
 #include <stdexcept>
 #include <algorithm>
-#include <iostream>//
 
-// #include "../algorithm/equal.hpp"
-// #include "../algorithm/lexicographical_compare.hpp"
-
-#include "vectorIterator.hpp"
-#include "testUtilities/display.hpp"//
 #include "../type_traits/type_traits.hpp"
-
 # include "../iterator/reverse_iterator.hpp"
 
+#include "vectorIterator.hpp"
 
 namespace ft
 {

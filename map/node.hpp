@@ -1,9 +1,7 @@
 #ifndef NODE_HPP
 # define NODE_HPP
 
-#include <string>			// Trunk
 #include <cstddef>			// size_t
-#include <iostream>			// cout
 #include <algorithm>		// std::max
 
 namespace ft
@@ -258,64 +256,6 @@ namespace ft
 	/////////////////////////////////////////////////////////////////////////////////////////////////////
 	/// Tree needed methods
 	/////////////////////////////////////////////////////////////////////////////////////////////////////
-
-
-	/////////////////////////////////////////////////////////////////////////////////////////////////////
-	/// External
-	/////////////////////////////////////////////////////////////////////////////////////////////////////
-	struct Trunk
-	{
-		Trunk		*prev;
-		std::string	str;
-	
-		Trunk(Trunk *aprev, std::string astr)
-		{
-			prev = aprev;
-			str = astr;
-		}
-	};
-	void showTrunks(std::ostream& ostr, Trunk *p);
-
-	template<typename T>
-	void	printTree(std::ostream& ostr, Node<T> *root, Trunk *prev, bool isLeft)
-	{
-		if (root == 0) {
-			return;
-		}
-	
-		std::string prev_str = "    ";
-		Trunk *trunk = new Trunk(prev, prev_str);
-	
-		printTree(ostr, root->traits.right, trunk, true);
-	
-		if (!prev) {
-			trunk->str = "———";
-		}
-		else if (isLeft)
-		{
-			trunk->str = ".———";
-			prev_str = "   |";
-		}
-		else {
-			trunk->str = "`———";
-			prev->str = prev_str;
-		}
-	
-		showTrunks(ostr, trunk);
-		// ostr << " " << root->getValue() << "(" << root->getHeight() << ")" << std::endl;
-		// ostr << " (" << root->getValue() << " | " << (root->getParent() ? root->getParent()->getValue() : -1) << ")" << std::endl;
-		ostr << " " << root->value << std::endl;
-		if (prev) {
-			prev->str = prev_str;
-		}
-		trunk->str = "   |";
-	
-		printTree(ostr, root->traits.left, trunk, false);
-		delete trunk;
-	}
-/////////////////////////////////////////////////////////////////////////////////////////////////////
-/// External End
-/////////////////////////////////////////////////////////////////////////////////////////////////////
 }
 
 #endif

@@ -3,17 +3,13 @@
 
 #include <functional>
 
-#include "../algorithm/equal.hpp"
-#include "../algorithm/lexicographical_compare.hpp"
-
-#include "../utility/pair.hpp"
-#include "../utility/make_pair.hpp"
+#include "../utility/utility.hpp"
+#include "../algorithm/algorithm.hpp"
 #include "../type_traits/type_traits.hpp"
+#include "../iterator/reverse_iterator.hpp"
 
 #include "node.hpp"
-
 #include "treeIterator.hpp"
-#include "../iterator/reverse_iterator.hpp"
 
 
 namespace ft
@@ -143,16 +139,8 @@ namespace ft
 				//===========================================================================================
 				/// type definitions End
 				//===========================================================================================
-				public:
-					void	show() const
-					{
-						printTree(std::cout, _root, 0, 0);
-					}
-
-					node_pointer	getRoot() const
-					{
-						return _root;
-					}
+				
+				
 				//===========================================================================================
 				/// destructors, constructors, and assignment operators
 				//===========================================================================================
