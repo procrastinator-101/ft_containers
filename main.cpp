@@ -2,15 +2,13 @@
 #include <string>
 #include <deque>
 
-#if 0 //CREATE A REAL STL EXAMPLE
-	#include <map>
-	#include <stack>
-	#include <vector>
-	namespace ft = std;
-#else
-	#include "map/map.hpp"
-	#include "vector/vector.hpp"
-#endif
+#include <map>
+#include <stack>
+#include <utility>
+#include <vector>
+#include "map/map.hpp"
+#include "tests/shared/checker.hpp"
+#include "vector/vector.hpp"
 
 #include <stdlib.h>
 
@@ -24,6 +22,22 @@ struct Buffer
 
 
 #define COUNT (MAX_RAM / (int)sizeof(Buffer))
+
+void	testMap()
+{
+	std::map<int, int, std::less<int>, std::allocator<std::pair<const int, int> > > stdmap;
+	ft::map<int, int, std::less<int>, std::allocator<ft::pair<const int, int> > > ftmap;
+
+	int n = rand() % 1000;
+	for (int i = 0; i < n; i++)
+	{
+		std::pair<const int, int>	val(rand() % n, rand() % n);
+		ft::pair<const int, int>	ftval(val.first, val.second);
+		stdmap.insert(val);
+		ftmap.insert(ftval);
+	}
+	checkMap(stdmap, ftmap);
+}
 
 template<typename T>
 class MutantStack : public ft::stack<T>

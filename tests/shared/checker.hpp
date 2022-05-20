@@ -27,8 +27,8 @@ void	checkVector(std::vector<T>& a, ft::vector<T>& b)
 	std::cout << std::setw(30) << "val 2 " << ": " << ret << std::endl;
 }
 
-template <class Key, class T>
-void	checkMap(std::map<Key, T>& a, ft::map<Key, T>& b)
+template <class Key, class T, class ACompare, class AAlloc, typename BCompare, typename BAlloc>
+void	checkMap(std::map<Key, T, ACompare, AAlloc>& a, ft::map<Key, T, BCompare, BAlloc>& b)
 {
 	bool	ret;
 

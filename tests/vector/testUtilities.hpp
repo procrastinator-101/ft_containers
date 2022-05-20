@@ -1,5 +1,5 @@
-#ifndef TESTUTILITIES_HPP
-# define TESTUTILITIES_HPP
+#ifndef VECTOR_TESTUTILITIES_HPP
+# define VECTOR_TESTUTILITIES_HPP
 
 #include <vector>
 #include <ostream>

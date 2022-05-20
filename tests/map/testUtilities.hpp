@@ -1,5 +1,5 @@
-#ifndef TESTUTILITIES_HPP
-# define TESTUTILITIES_HPP
+#ifndef MAP_TESTUTILITIES_HPP
+# define MAP_TESTUTILITIES_HPP
 
 #include "../vector/testUtilities.hpp"
 
