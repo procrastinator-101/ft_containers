@@ -164,6 +164,12 @@ namespace ft
 						typename void_t<typename T::reference>::type,
 						typename void_t<typename T::iterator_category>::type>
 						: true_type {};
+
+	template<typename T>
+	struct is_iterator <T*> : true_type {};
+
+	template<typename T>
+	struct is_iterator <const T*> : true_type {};
 	/////////////////////////////////////////////////////////////////////////////////////////////////////
 	/// is_iterator End
 	/////////////////////////////////////////////////////////////////////////////////////////////////////

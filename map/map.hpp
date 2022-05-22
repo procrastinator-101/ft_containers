@@ -270,21 +270,13 @@ namespace ft
 
 					void		erase(iterator position)
 					{
-						_delete(position._ptr);
+						erase(*position);
 					}
 
 					void		erase(iterator first, iterator last)
 					{
-						node_pointer	head;
-						node_pointer	next;
-
-						head = first._ptr;
-						while (head != last._ptr)
-						{
-							next = head->getInOrderSuccessor();
-							_delete(head);
-							head = next;
-						}
+						while (first != last)
+							erase(first++);
 					}
 
 					//might throw : strong guarantee
