@@ -1,4 +1,0 @@
-map :
-	eliminate printTree from node
-	eliminate show from avl
-	derefrence rend
